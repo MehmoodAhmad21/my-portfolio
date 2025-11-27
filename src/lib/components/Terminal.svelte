@@ -18,30 +18,6 @@ Education:  University of Alberta (2021 - 2026)
             Bachelor of Science - Computer Science
             Minor in Biological Sciences
 
-╔═══════════════════════════════════════════════════════════╗
-║                    EXPERIENCE                             ║
-╚═══════════════════════════════════════════════════════════╝
-
-• University of Alberta - Software Engineer Intern (May 2024 - Present)
-  - Real-time streaming and AI-powered applications
-  - Safety Monitor System using YOLOv8
-  - VR Remote Inspection Robot with ROS
-  
-• Aro Robotic Systems - Software Engineer Intern (2022 - 2023)
-  - Optimized CI/CD pipelines with Docker & Jenkins
-  - Cloud infrastructure on AWS and DigitalOcean
-  - Reduced deployment time by 70%
-
-╔═══════════════════════════════════════════════════════════╗
-║                     COMMANDS                              ║
-╚═══════════════════════════════════════════════════════════╝
-
-  help      - Show available commands
-  about     - Display this information
-  skills    - List technical skills
-  contact   - Show contact information
-  experience - Show work experience
-  clear     - Clear terminal
 `;
 
   onMount(() => {
