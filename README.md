@@ -68,65 +68,6 @@ npm run preview
 
 Visit `http://localhost:5173` to see your portfolio!
 
-## 📝 Customization
-
-### 1. Update Personal Information
-
-#### Terminal (`src/lib/components/Terminal.svelte`)
-```javascript
-// Update the aboutMe constant with your information
-Name:       Your Name Here
-Role:       Your Role Here
-Location:   Your Location
-Email:      your.email@example.com
-
-// Update skills in the 'skills' command
-Frontend:  Your Frontend Skills
-Backend:   Your Backend Skills
-
-// Update contact information
-Email:    your.email@example.com
-GitHub:   github.com/yourusername
-LinkedIn: linkedin.com/in/yourusername
-```
-
-### 2. Add Your Projects
-
-#### Finder (`src/lib/components/Finder.svelte`)
-```javascript
-const projects: Project[] = [
-  {
-    id: '1',
-    name: 'Your Project Name',
-    description: 'Detailed description of what your project does and the problems it solves.',
-    technologies: ['React', 'Node.js', 'MongoDB'],
-    link: 'https://github.com/yourusername/project'
-  },
-  // Add more projects...
-];
-```
-
-### 3. Customize Theme
-
-#### Change Background Gradient (`src/routes/+page.svelte`)
-```html
-<!-- Current: Purple gradient -->
-<div class="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-
-<!-- Try: Blue gradient -->
-<div class="bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-900">
-
-<!-- Try: Green gradient -->
-<div class="bg-gradient-to-br from-emerald-900 via-teal-900 to-cyan-900">
-```
-
-### 4. Change OS Name
-
-```javascript
-// In +page.svelte, update the header:
-<span class="font-medium">YourOS</span>
-```
-
 ## 🏗️ Project Structure
 
 ```
