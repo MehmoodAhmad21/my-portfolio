@@ -119,7 +119,11 @@
         </div>
         
         <div class="flex items-center gap-2 pointer-events-none">
-          <span class="text-xl">{icon}</span>
+          {#if icon.startsWith('http') || icon.startsWith('/') || icon.includes('.')}
+            <img src={icon} alt={title} class="w-5 h-5 object-contain" />
+          {:else}
+            <span class="text-xl">{icon}</span>
+          {/if}
           <span class="text-sm font-medium">{title}</span>
         </div>
       </div>

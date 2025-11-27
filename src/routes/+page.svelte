@@ -6,6 +6,9 @@
   import Notes from "$lib/components/Notes.svelte";
   import wallpaper from "$lib/assets/wallpaper.gif";
   import favicon from "$lib/assets/favicon.jpg";
+  import folderIcon from "$lib/assets/finder.png";
+  import terminalIcon from "$lib/assets/terminal.png";
+  import notesIcon from "$lib/assets/notes.png";
 
   type WindowState = {
     isMinimized: boolean;
@@ -16,9 +19,9 @@
   };
 
   const apps: DockApp[] = [
-    { name: "Finder", icon: "📁" },
-    { name: "Terminal", icon: "💻" },
-    { name: "Notes", icon: "📝" }
+    { name: "Finder", icon: folderIcon },
+    { name: "Terminal", icon: terminalIcon },
+    { name: "Notes", icon: notesIcon }
   ];
 
   let openApps: Set<string> = new Set();
@@ -175,7 +178,7 @@
       <div style:z-index={windowStates.Terminal.zIndex}>
         <Window 
           title="Terminal" 
-          icon="💻"
+          icon={terminalIcon}
           isActive={activeApp === "Terminal"}
           bind:x={windowStates.Terminal.x}
           bind:y={windowStates.Terminal.y}
@@ -197,7 +200,7 @@
       <div style:z-index={windowStates.Finder.zIndex}>
         <Window 
           title="Finder" 
-          icon="📁"
+          icon={folderIcon}
           isActive={activeApp === "Finder"}
           bind:x={windowStates.Finder.x}
           bind:y={windowStates.Finder.y}
@@ -219,7 +222,7 @@
       <div style:z-index={windowStates.Notes.zIndex}>
         <Window 
           title="Notes" 
-          icon="📝"
+          icon={notesIcon}
           isActive={activeApp === "Notes"}
           bind:x={windowStates.Notes.x}
           bind:y={windowStates.Notes.y}

@@ -23,7 +23,13 @@
         on:click={() => onSelect(app)}
         title={app.name}
       >
-        <div class="text-4xl mb-1 {activeApp === app.name ? 'drop-shadow-lg' : ''}">{app.icon}</div>
+        <div class="mb-1 {activeApp === app.name ? 'drop-shadow-lg' : ''}">
+          {#if app.icon.startsWith('http') || app.icon.startsWith('/') || app.icon.includes('.')}
+            <img src={app.icon} alt={app.name} class="w-12 h-12 object-contain" />
+          {:else}
+            <span class="text-4xl">{app.icon}</span>
+          {/if}
+        </div>
         <span class="text-xs">{app.name}</span>
       </button>
       {#if openApps.has(app.name)}
