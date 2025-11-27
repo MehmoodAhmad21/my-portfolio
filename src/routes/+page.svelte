@@ -4,11 +4,13 @@
   import Terminal from "$lib/components/Terminal.svelte";
   import Finder from "$lib/components/Finder.svelte";
   import Notes from "$lib/components/Notes.svelte";
+  import FlappyBird from "$lib/components/FlappyBird.svelte";
   import wallpaper from "$lib/assets/wallpaper.gif";
   import favicon from "$lib/assets/favicon.jpg";
   import folderIcon from "$lib/assets/finder.png";
   import terminalIcon from "$lib/assets/terminal.png";
   import notesIcon from "$lib/assets/notes.png";
+  import flappyIcon from "$lib/assets/flappy.png";
 
   type WindowState = {
     isMinimized: boolean;
@@ -21,7 +23,8 @@
   const apps: DockApp[] = [
     { name: "Finder", icon: folderIcon },
     { name: "Terminal", icon: terminalIcon },
-    { name: "Notes", icon: notesIcon }
+    { name: "Notes", icon: notesIcon },
+    { name: "Flappy Bird", icon: flappyIcon }
   ];
 
   let openApps: Set<string> = new Set();
@@ -33,7 +36,8 @@
   let windowStates: Record<string, WindowState> = {
     Terminal: { isMinimized: false, isMaximized: false, x: 100, y: 100, zIndex: 100 },
     Finder: { isMinimized: false, isMaximized: false, x: 150, y: 80, zIndex: 101 },
-    Notes: { isMinimized: false, isMaximized: false, x: 200, y: 120, zIndex: 102 }
+    Notes: { isMinimized: false, isMaximized: false, x: 200, y: 120, zIndex: 102 },
+    "Flappy Bird": { isMinimized: false, isMaximized: false, x: 250, y: 140, zIndex: 103 }
   };
 
   // Check if mobile on mount
@@ -204,7 +208,7 @@
           on:maximize={(e) => handleMaximize("Terminal", e)}
           on:focus={() => bringToFront("Terminal")}
         >
-          <div class="h-[400px] md:h-[500px] w-full md:w-[700px]">
+          <div class="{windowStates.Terminal.isMaximized ? 'h-full w-full' : 'h-[400px] md:h-[500px] w-full md:w-[700px]'}">
             <Terminal />
           </div>
         </Window>
@@ -226,7 +230,7 @@
           on:maximize={(e) => handleMaximize("Finder", e)}
           on:focus={() => bringToFront("Finder")}
         >
-          <div class="h-[500px] md:h-[600px] w-full md:w-[800px]">
+          <div class="{windowStates.Finder.isMaximized ? 'h-full w-full' : 'h-[500px] md:h-[600px] w-full md:w-[800px]'}">
             <Finder />
           </div>
         </Window>
@@ -248,8 +252,30 @@
           on:maximize={(e) => handleMaximize("Notes", e)}
           on:focus={() => bringToFront("Notes")}
         >
-          <div class="h-[400px] md:h-[500px] w-full md:w-[700px]">
+          <div class="{windowStates.Notes.isMaximized ? 'h-full w-full' : 'h-[400px] md:h-[500px] w-full md:w-[700px]'}">
             <Notes />
+          </div>
+        </Window>
+      </div>
+    {/if}
+
+    {#if openApps.has("Flappy Bird")}
+      <div style:z-index={windowStates["Flappy Bird"].zIndex}>
+        <Window 
+          title="Flappy Bird" 
+          icon={flappyIcon}
+          isActive={activeApp === "Flappy Bird"}
+          bind:x={windowStates["Flappy Bird"].x}
+          bind:y={windowStates["Flappy Bird"].y}
+          bind:isMinimized={windowStates["Flappy Bird"].isMinimized}
+          bind:isMaximized={windowStates["Flappy Bird"].isMaximized}
+          on:close={() => closeApp("Flappy Bird")}
+          on:minimize={(e) => handleMinimize("Flappy Bird", e)}
+          on:maximize={(e) => handleMaximize("Flappy Bird", e)}
+          on:focus={() => bringToFront("Flappy Bird")}
+        >
+          <div class="{windowStates['Flappy Bird'].isMaximized ? 'h-full w-full' : 'h-[450px] md:h-[500px] w-full md:w-[600px]'}">
+            <FlappyBird />
           </div>
         </Window>
       </div>

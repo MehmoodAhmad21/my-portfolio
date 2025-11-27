@@ -19,18 +19,18 @@
   {#each apps as app}
     <div class="relative">
       <button
-        class="flex flex-col items-center cursor-pointer hover:scale-110 active:scale-95 transition-all duration-200 {activeApp === app.name ? 'scale-105' : ''}"
+        class="flex flex-col items-center justify-start cursor-pointer hover:scale-110 active:scale-95 transition-all duration-200 {activeApp === app.name ? 'scale-105' : ''}"
         on:click={() => onSelect(app)}
         title={app.name}
       >
-        <div class="mb-0.5 md:mb-1 {activeApp === app.name ? 'drop-shadow-lg' : ''}">
+        <div class="mb-0.5 md:mb-1 flex items-center justify-center w-10 h-10 md:w-12 md:h-12 {activeApp === app.name ? 'drop-shadow-lg' : ''}">
           {#if app.icon.startsWith('http') || app.icon.startsWith('/') || app.icon.includes('.')}
-            <img src={app.icon} alt={app.name} class="w-10 h-10 md:w-12 md:h-12 object-contain" />
+            <img src={app.icon} alt={app.name} class="w-full h-full object-contain" />
           {:else}
-            <span class="text-3xl md:text-4xl">{app.icon}</span>
+            <span class="text-3xl md:text-4xl leading-none">{app.icon}</span>
           {/if}
         </div>
-        <span class="text-[10px] md:text-xs">{app.name}</span>
+        <span class="text-[10px] md:text-xs text-center leading-tight max-w-[60px] truncate">{app.name}</span>
       </button>
       {#if openApps.has(app.name)}
         <div class="absolute -bottom-1 md:-bottom-2 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-white rounded-full"></div>

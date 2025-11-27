@@ -119,13 +119,13 @@
   bind:this={windowElement}
   class="window-container {isMinimized ? 'minimized' : ''} {isDragging ? 'dragging' : ''}"
   style={isMaximized 
-    ? 'position: fixed; top: 3.5rem; left: 0.25rem; right: 0.25rem; bottom: 4.5rem; width: auto; height: auto;' 
+    ? 'position: fixed; top: 3.5rem; left: 0; right: 0; bottom: 5rem; width: auto; height: auto;' 
     : `position: fixed; left: ${x}px; top: ${y}px;`}
   on:click={() => dispatch('focus')}
   role="dialog"
   aria-label={title}
 >
-  <div class="bg-white/10 backdrop-blur-xl border rounded-xl shadow-2xl overflow-hidden flex flex-col h-full transition-all duration-200 {isActive ? 'border-white/30' : 'border-white/10 opacity-95'}">
+  <div class="bg-white/10 backdrop-blur-xl border {isMaximized ? 'rounded-none border-x-0' : 'rounded-xl'} shadow-2xl overflow-hidden flex flex-col h-full transition-all duration-200 {isActive ? 'border-white/30' : 'border-white/10 opacity-95'}">
     <!-- Title bar -->
     <div 
       class="px-3 md:px-4 py-2 flex items-center justify-between select-none transition-colors {!isMaximized ? 'cursor-grab active:cursor-grabbing' : ''} {isActive ? 'bg-white/10 border-b border-white/20' : 'bg-white/5 border-b border-white/10'}"
