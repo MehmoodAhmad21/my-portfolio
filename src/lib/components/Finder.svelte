@@ -143,40 +143,40 @@
 
 <div class="h-full flex flex-col bg-white/5 rounded-lg overflow-hidden">
   <!-- Toolbar -->
-  <div class="bg-white/5 border-b border-white/10 px-4 py-2 flex items-center gap-2">
+  <div class="bg-white/5 border-b border-white/10 px-2 md:px-4 py-2 flex items-center gap-2">
     <button
       on:click={goBack}
       disabled={currentPath.length === 1}
-      class="px-2 py-1 rounded hover:bg-white/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+      class="px-2 py-1 rounded hover:bg-white/10 active:bg-white/20 transition-colors disabled:opacity-30 disabled:cursor-not-allowed touch-manipulation"
       title="Go back"
     >
       ←
     </button>
-    <div class="flex-1 text-sm text-gray-300">
+    <div class="flex-1 text-xs md:text-sm text-gray-300 truncate">
       {getBreadcrumb()}
     </div>
   </div>
 
   <div class="flex-1 flex overflow-hidden">
     <!-- Sidebar -->
-    <div class="w-48 bg-white/5 border-r border-white/10 p-3 overflow-y-auto">
+    <div class="hidden md:block w-36 md:w-48 bg-white/5 border-r border-white/10 p-2 md:p-3 overflow-y-auto">
       <div class="text-xs font-semibold text-gray-400 mb-2 px-2">FAVORITES</div>
       <button
         on:click={() => { currentPath = ['root']; selectedItem = null; }}
-        class="w-full text-left px-2 py-1.5 rounded flex items-center gap-2 hover:bg-white/10 transition-colors {currentPath.length === 1 ? 'bg-blue-500/30' : ''}"
+        class="w-full text-left px-2 py-1.5 rounded flex items-center gap-2 hover:bg-white/10 active:bg-white/20 transition-colors touch-manipulation {currentPath.length === 1 ? 'bg-blue-500/30' : ''}"
       >
-        <span class="text-lg">🏠</span>
-        <span class="text-sm">Home</span>
+        <span class="text-base md:text-lg">🏠</span>
+        <span class="text-xs md:text-sm">Home</span>
       </button>
       
       <div class="mt-4 text-xs font-semibold text-gray-400 mb-2 px-2">FOLDERS</div>
       {#each folders.root as folder}
         <button
           on:click={() => { currentPath = ['root', folder.id]; selectedItem = null; }}
-          class="w-full text-left px-2 py-1.5 rounded flex items-center gap-2 hover:bg-white/10 transition-colors {currentPath.includes(folder.id) ? 'bg-blue-500/30' : ''}"
+          class="w-full text-left px-2 py-1.5 rounded flex items-center gap-2 hover:bg-white/10 active:bg-white/20 transition-colors touch-manipulation {currentPath.includes(folder.id) ? 'bg-blue-500/30' : ''}"
         >
-          <span class="text-lg">📁</span>
-          <span class="text-sm truncate">{folder.name}</span>
+          <span class="text-base md:text-lg">📁</span>
+          <span class="text-xs md:text-sm truncate">{folder.name}</span>
         </button>
       {/each}
     </div>
@@ -185,19 +185,19 @@
     <div class="flex-1 overflow-y-auto">
       {#if !selectedItem}
         <!-- List view -->
-        <div class="p-6">
-          <div class="grid grid-cols-2 gap-4">
+        <div class="p-3 md:p-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
             {#each getCurrentFolder() as item}
               <button
                 on:click={() => handleItemClick(item)}
-                class="text-left p-4 rounded-lg hover:bg-white/10 transition-colors flex items-start gap-3 border border-white/10"
+                class="text-left p-3 md:p-4 rounded-lg hover:bg-white/10 active:bg-white/20 transition-colors flex items-start gap-2 md:gap-3 border border-white/10 touch-manipulation"
               >
-                <span class="text-3xl">{item.type === 'folder' ? '📁' : '📄'}</span>
+                <span class="text-2xl md:text-3xl">{item.type === 'folder' ? '📁' : '📄'}</span>
                 <div class="flex-1 min-w-0">
-                  <div class="font-medium truncate">{item.name}</div>
+                  <div class="font-medium text-sm md:text-base truncate">{item.name}</div>
                   <div class="text-xs text-gray-400 mt-1 truncate">{item.description}</div>
                   {#if item.timeperiod}
-                    <div class="text-xs text-gray-500 mt-1">{item.timeperiod}</div>
+                    <div class="text-[10px] md:text-xs text-gray-500 mt-1">{item.timeperiod}</div>
                   {/if}
                 </div>
               </button>
@@ -206,35 +206,35 @@
         </div>
       {:else}
         <!-- Detail view -->
-        <div class="p-6 max-w-3xl">
-          <div class="flex items-center gap-3 mb-6">
-            <span class="text-5xl">📁</span>
-            <div>
-              <h2 class="text-2xl font-semibold">{selectedItem.name}</h2>
-              <p class="text-gray-400 text-sm">{selectedItem.description}</p>
+        <div class="p-3 md:p-6 max-w-3xl">
+          <div class="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
+            <span class="text-3xl md:text-5xl">📁</span>
+            <div class="flex-1 min-w-0">
+              <h2 class="text-lg md:text-2xl font-semibold truncate">{selectedItem.name}</h2>
+              <p class="text-gray-400 text-xs md:text-sm truncate">{selectedItem.description}</p>
             </div>
           </div>
 
           {#if selectedItem.timeperiod}
-            <div class="mb-4 text-sm">
+            <div class="mb-3 md:mb-4 text-xs md:text-sm">
               <span class="text-blue-400">📅 Time Period:</span>
               <span class="text-gray-300 ml-2">{selectedItem.timeperiod}</span>
             </div>
           {/if}
 
           {#if selectedItem.location}
-            <div class="mb-4 text-sm">
+            <div class="mb-3 md:mb-4 text-xs md:text-sm">
               <span class="text-blue-400">📍 Location:</span>
               <span class="text-gray-300 ml-2">{selectedItem.location}</span>
             </div>
           {/if}
           
-          <div class="bg-white/5 border border-white/10 rounded-lg p-4 mb-4">
-            <div class="flex items-center gap-2 mb-3">
-              <span class="text-2xl">📄</span>
-              <span class="font-medium">README.txt</span>
+          <div class="bg-white/5 border border-white/10 rounded-lg p-3 md:p-4 mb-3 md:mb-4">
+            <div class="flex items-center gap-2 mb-2 md:mb-3">
+              <span class="text-xl md:text-2xl">📄</span>
+              <span class="font-medium text-sm md:text-base">README.txt</span>
             </div>
-            <div class="font-mono text-sm bg-black/30 rounded p-4 leading-relaxed">
+            <div class="font-mono text-xs md:text-sm bg-black/30 rounded p-3 md:p-4 leading-relaxed">
               <div class="text-green-400 mb-4">
                 ═══════════════════════════════════════════════════════
                 {selectedItem.name}
@@ -242,20 +242,20 @@
               </div>
               
               {#if selectedItem.details}
-                <div class="mb-4">
-                  <div class="text-blue-400 mb-2">DETAILS:</div>
-                  <div class="text-gray-300 space-y-2">
+                <div class="mb-3 md:mb-4">
+                  <div class="text-blue-400 mb-1 md:mb-2 text-xs md:text-sm">DETAILS:</div>
+                  <div class="text-gray-300 space-y-1 md:space-y-2 text-xs md:text-sm">
                     {#each selectedItem.details as detail}
-                      <div class="pl-4">• {detail}</div>
+                      <div class="pl-3 md:pl-4">• {detail}</div>
                     {/each}
                   </div>
                 </div>
               {/if}
               
               {#if selectedItem.technologies}
-                <div class="mb-4">
-                  <div class="text-blue-400 mb-2">TECHNOLOGIES:</div>
-                  <div class="text-gray-300 pl-4">
+                <div class="mb-3 md:mb-4">
+                  <div class="text-blue-400 mb-1 md:mb-2 text-xs md:text-sm">TECHNOLOGIES:</div>
+                  <div class="text-gray-300 pl-3 md:pl-4 text-xs md:text-sm">
                     {selectedItem.technologies.join(' • ')}
                   </div>
                 </div>
@@ -263,8 +263,8 @@
               
               {#if selectedItem.link}
                 <div>
-                  <div class="text-blue-400 mb-2">REPOSITORY:</div>
-                  <div class="text-purple-400 pl-4">
+                  <div class="text-blue-400 mb-1 md:mb-2 text-xs md:text-sm">REPOSITORY:</div>
+                  <div class="text-purple-400 pl-3 md:pl-4 text-xs md:text-sm break-all">
                     {selectedItem.link}
                   </div>
                 </div>
@@ -272,20 +272,20 @@
             </div>
           </div>
 
-          <div class="flex gap-2">
+          <div class="flex flex-col sm:flex-row gap-2">
             {#if selectedItem.link}
               <a
                 href={selectedItem.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                class="px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg text-sm font-medium transition-colors"
+                class="px-3 md:px-4 py-2 bg-blue-500 hover:bg-blue-600 active:bg-blue-700 rounded-lg text-xs md:text-sm font-medium transition-colors text-center touch-manipulation"
               >
                 View on GitHub
               </a>
             {/if}
             <button
               on:click={() => selectedItem = null}
-              class="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm font-medium transition-colors"
+              class="px-3 md:px-4 py-2 bg-white/10 hover:bg-white/20 active:bg-white/30 rounded-lg text-xs md:text-sm font-medium transition-colors touch-manipulation"
             >
               Back to List
             </button>

@@ -36,28 +36,28 @@
 
 <div class="h-full flex flex-col bg-gradient-to-br from-yellow-50 to-yellow-100 text-gray-900 rounded-lg overflow-hidden">
   <!-- Toolbar -->
-  <div class="bg-yellow-200/50 border-b border-yellow-300 px-4 py-2 flex items-center justify-between">
-    <div class="flex items-center gap-2">
+  <div class="bg-yellow-200/50 border-b border-yellow-300 px-2 md:px-4 py-2 flex items-center justify-between gap-2">
+    <div class="flex items-center gap-1 md:gap-2 flex-1 min-w-0">
       <input
         bind:value={fileName}
-        class="bg-white/50 border border-yellow-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
+        class="bg-white/50 border border-yellow-300 rounded px-2 py-1 text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 flex-1 min-w-0"
         placeholder="filename.txt"
       />
     </div>
     
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-1 md:gap-2">
       {#if saveStatus}
-        <span class="text-sm text-green-700">{saveStatus}</span>
+        <span class="text-xs md:text-sm text-green-700 hidden sm:inline">{saveStatus}</span>
       {/if}
       <button
         on:click={newNote}
-        class="px-3 py-1 bg-white/50 hover:bg-white/80 border border-yellow-300 rounded text-sm font-medium transition-colors"
+        class="px-2 md:px-3 py-1 bg-white/50 hover:bg-white/80 active:bg-white border border-yellow-300 rounded text-xs md:text-sm font-medium transition-colors touch-manipulation"
       >
         New
       </button>
       <button
         on:click={downloadNote}
-        class="px-3 py-1 bg-yellow-400 hover:bg-yellow-500 rounded text-sm font-medium transition-colors"
+        class="px-2 md:px-3 py-1 bg-yellow-400 hover:bg-yellow-500 active:bg-yellow-600 rounded text-xs md:text-sm font-medium transition-colors touch-manipulation"
       >
         💾 Save
       </button>
@@ -65,18 +65,18 @@
   </div>
 
   <!-- Text Editor -->
-  <div class="flex-1 p-4 overflow-y-auto">
+  <div class="flex-1 p-2 md:p-4 overflow-y-auto">
     <textarea
       bind:value={noteContent}
-      class="w-full h-full bg-transparent resize-none outline-none font-serif text-base leading-relaxed"
+      class="w-full h-full bg-transparent resize-none outline-none font-serif text-sm md:text-base leading-relaxed"
       placeholder="Start typing your note here..."
       spellcheck="true"
     ></textarea>
   </div>
 
   <!-- Footer with stats -->
-  <div class="bg-yellow-200/30 border-t border-yellow-300 px-4 py-1 text-xs text-gray-600 flex justify-between">
-    <span>Characters: {noteContent.length}</span>
+  <div class="bg-yellow-200/30 border-t border-yellow-300 px-2 md:px-4 py-1 text-[10px] md:text-xs text-gray-600 flex justify-between gap-2">
+    <span>Chars: {noteContent.length}</span>
     <span>Words: {noteContent.trim() ? noteContent.trim().split(/\s+/).length : 0}</span>
     <span>Lines: {noteContent ? noteContent.split('\n').length : 1}</span>
   </div>

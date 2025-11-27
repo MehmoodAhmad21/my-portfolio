@@ -166,8 +166,8 @@ Education:  University of Alberta (2021 - 2026)
   }
 </script>
 
-<div class="h-full flex flex-col bg-black/90 rounded-lg overflow-hidden font-mono text-sm">
-  <div class="terminal-content flex-1 overflow-y-auto p-4 text-green-400">
+<div class="h-full flex flex-col bg-black/90 rounded-lg overflow-hidden font-mono text-xs md:text-sm">
+  <div class="terminal-content flex-1 overflow-y-auto p-2 md:p-4 text-green-400">
     {#each commandHistory as line}
       <div class="whitespace-pre-wrap">{line}</div>
     {/each}
@@ -177,7 +177,7 @@ Education:  University of Alberta (2021 - 2026)
         bind:this={inputElement}
         bind:value={currentInput}
         on:keydown={handleCommand}
-        class="flex-1 bg-transparent border-none outline-none ml-2 text-green-400"
+        class="flex-1 bg-transparent border-none outline-none ml-2 text-green-400 text-xs md:text-sm"
         type="text"
         spellcheck="false"
         autocomplete="off"

@@ -27,6 +27,7 @@
   let openApps: Set<string> = new Set();
   let activeApp: string | null = null;
   let maxZIndex = 100;
+  let isMobile = false;
 
   // Window states for each app
   let windowStates: Record<string, WindowState> = {
@@ -35,7 +36,14 @@
     Notes: { isMinimized: false, isMaximized: false, x: 200, y: 120, zIndex: 102 }
   };
 
+  // Check if mobile on mount
+  $: if (typeof window !== 'undefined') {
+    isMobile = window.innerWidth < 768;
+  }
+
   function handleAppSelect(app: DockApp) {
+    const mobile = window.innerWidth < 768;
+    
     if (openApps.has(app.name)) {
       // If already open
       if (windowStates[app.name].isMinimized) {
@@ -49,11 +57,18 @@
       openApps.add(app.name);
       openApps = openApps;
       
-      // Center the window
-      const centerX = (window.innerWidth - 700) / 2;
-      const centerY = (window.innerHeight - 500) / 2 - 40;
-      windowStates[app.name].x = Math.max(50, centerX);
-      windowStates[app.name].y = Math.max(50, centerY);
+      // Auto-maximize on mobile, center on desktop
+      if (mobile) {
+        windowStates[app.name].isMaximized = true;
+        windowStates[app.name].x = 0;
+        windowStates[app.name].y = 0;
+      } else {
+        // Center the window
+        const centerX = (window.innerWidth - 700) / 2;
+        const centerY = (window.innerHeight - 500) / 2 - 40;
+        windowStates[app.name].x = Math.max(50, centerX);
+        windowStates[app.name].y = Math.max(50, centerY);
+      }
       
       bringToFront(app.name);
     }
@@ -145,30 +160,30 @@
   <!-- Overlay for better contrast -->
   <div class="absolute inset-0 bg-black/20"></div>
   <!-- Menu Bar -->
-  <header class="fixed top-0 left-0 right-0 bg-black/30 backdrop-blur-md border-b border-white/10 px-6 py-2 flex justify-between items-center text-sm z-50">
-    <div class="flex items-center gap-6">
-      <img src={favicon} alt="Logo" class="w-5 h-5" />
-      <span class="font-medium">Mehmood Ahmad</span>
+  <header class="fixed top-0 left-0 right-0 bg-black/30 backdrop-blur-md border-b border-white/10 px-3 md:px-6 py-2 flex justify-between items-center text-xs md:text-sm z-50">
+    <div class="flex items-center gap-2 md:gap-6">
+      <img src={favicon} alt="Logo" class="w-4 h-4 md:w-5 md:h-5" />
+      <span class="font-medium truncate max-w-[120px] md:max-w-none">Mehmood Ahmad</span>
       {#if activeApp}
-        <span class="text-gray-300">{activeApp}</span>
+        <span class="text-gray-300 hidden sm:inline">{activeApp}</span>
       {/if}
     </div>
-    <div class="flex items-center gap-4 text-gray-300">
-      <span>{currentTime}</span>
-      <span>🔋</span>
-      <span>📶</span>
+    <div class="flex items-center gap-2 md:gap-4 text-gray-300">
+      <span class="text-[10px] md:text-xs">{currentTime}</span>
+      <span class="hidden sm:inline">🔋</span>
+      <span class="hidden sm:inline">📶</span>
     </div>
   </header>
 
   <!-- Desktop Area -->
-  <main class="pt-14 pb-24 min-h-screen p-4 relative">
+  <main class="pt-14 pb-20 md:pb-24 min-h-screen p-2 md:p-4 relative">
     {#if openApps.size === 0}
-      <div class="absolute inset-0 flex items-center justify-center text-center">
+      <div class="absolute inset-0 flex items-center justify-center text-center px-4">
         <div>
-          <div class="text-6xl mb-4 animate-bounce text-black font-bold">Hi!</div>
-          <p class="text-xl font-semibold text-black">Welcome to Mehmood Ahmad's Portfolio</p>
-          <p class="text-sm mt-2 text-black">Software Engineer</p>
-          <p class="text-sm mt-4 text-black">Click an app in the dock to get started</p>
+          <div class="text-4xl md:text-6xl mb-4 animate-bounce text-black font-bold">Hi!</div>
+          <p class="text-lg md:text-xl font-semibold text-black">Welcome to Mehmood Ahmad's Portfolio</p>
+          <p class="text-xs md:text-sm mt-2 text-black">Software Engineer</p>
+          <p class="text-xs md:text-sm mt-4 text-black">Tap an app in the dock to get started</p>
         </div>
       </div>
     {/if}
@@ -189,7 +204,7 @@
           on:maximize={(e) => handleMaximize("Terminal", e)}
           on:focus={() => bringToFront("Terminal")}
         >
-          <div class="h-[500px] w-[700px]">
+          <div class="h-[400px] md:h-[500px] w-full md:w-[700px]">
             <Terminal />
           </div>
         </Window>
@@ -211,7 +226,7 @@
           on:maximize={(e) => handleMaximize("Finder", e)}
           on:focus={() => bringToFront("Finder")}
         >
-          <div class="h-[600px] w-[800px]">
+          <div class="h-[500px] md:h-[600px] w-full md:w-[800px]">
             <Finder />
           </div>
         </Window>
@@ -233,7 +248,7 @@
           on:maximize={(e) => handleMaximize("Notes", e)}
           on:focus={() => bringToFront("Notes")}
         >
-          <div class="h-[500px] w-[700px]">
+          <div class="h-[400px] md:h-[500px] w-full md:w-[700px]">
             <Notes />
           </div>
         </Window>
