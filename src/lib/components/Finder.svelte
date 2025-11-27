@@ -101,7 +101,7 @@
           'You\'re looking at it right now!'
         ],
         technologies: ['SvelteKit', 'TypeScript', 'TailwindCSS', 'UI/UX', 'Web Design'],
-        link: 'https://github.com/MehmoodAhmad21/myprotfolio'
+        link: 'https://github.com/MehmoodAhmad21/my-portfolio'
       }
     ]
   };
