@@ -4,7 +4,7 @@
   import Terminal from "$lib/components/Terminal.svelte";
   import Finder from "$lib/components/Finder.svelte";
   import Notes from "$lib/components/Notes.svelte";
-  import wallpaper from "$lib/assets/wallapaper.jpg";
+  import wallpaper from "$lib/assets/wallpaper.gif";
   import favicon from "$lib/assets/favicon.jpg";
 
   type WindowState = {
@@ -160,12 +160,12 @@
   <!-- Desktop Area -->
   <main class="pt-14 pb-24 min-h-screen p-4 relative">
     {#if openApps.size === 0}
-      <div class="absolute inset-0 flex items-center justify-center text-center text-gray-400">
+      <div class="absolute inset-0 flex items-center justify-center text-center">
         <div>
-          <div class="text-6xl mb-4 animate-bounce">Hi!</div>
-          <p class="text-xl font-semibold">Welcome to Mehmood Ahmad's Portfolio</p>
-          <p class="text-sm mt-2 text-gray-500">Software Engineer</p>
-          <p class="text-sm mt-4">Click an app in the dock to get started</p>
+          <div class="text-6xl mb-4 animate-bounce text-black font-bold">Hi!</div>
+          <p class="text-xl font-semibold text-black">Welcome to Mehmood Ahmad's Portfolio</p>
+          <p class="text-sm mt-2 text-black">Software Engineer</p>
+          <p class="text-sm mt-4 text-black">Click an app in the dock to get started</p>
         </div>
       </div>
     {/if}
