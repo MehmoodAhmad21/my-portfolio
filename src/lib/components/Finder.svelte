@@ -160,7 +160,7 @@
   <div class="flex-1 flex overflow-hidden">
     <!-- Sidebar -->
     <div class="hidden md:block w-36 md:w-48 bg-white/5 border-r border-white/10 p-2 md:p-3 overflow-y-auto">
-      <div class="text-xs font-semibold text-gray-400 mb-2 px-2">FAVORITES</div>
+      <div class="text-xs font-semibold text-gray-700 mb-2 px-2">FAVORITES</div>
       <button
         on:click={() => { currentPath = ['root']; selectedItem = null; }}
         class="w-full text-left px-2 py-1.5 rounded flex items-center gap-2 hover:bg-white/10 active:bg-white/20 transition-colors touch-manipulation {currentPath.length === 1 ? 'bg-blue-500/30' : ''}"
@@ -169,7 +169,7 @@
         <span class="text-xs md:text-sm">Home</span>
       </button>
       
-      <div class="mt-4 text-xs font-semibold text-gray-400 mb-2 px-2">FOLDERS</div>
+      <div class="mt-4 text-xs font-semibold text-gray-700 mb-2 px-2">FOLDERS</div>
       {#each folders.root as folder}
         <button
           on:click={() => { currentPath = ['root', folder.id]; selectedItem = null; }}
@@ -195,7 +195,7 @@
                 <span class="text-2xl md:text-3xl">{item.type === 'folder' ? '📁' : '📄'}</span>
                 <div class="flex-1 min-w-0">
                   <div class="font-medium text-sm md:text-base truncate">{item.name}</div>
-                  <div class="text-xs text-gray-400 mt-1 truncate">{item.description}</div>
+                  <div class="text-xs text-gray-700 mt-1 truncate">{item.description}</div>
                   {#if item.timeperiod}
                     <div class="text-[10px] md:text-xs text-gray-500 mt-1">{item.timeperiod}</div>
                   {/if}
@@ -211,7 +211,7 @@
             <span class="text-3xl md:text-5xl">📁</span>
             <div class="flex-1 min-w-0">
               <h2 class="text-lg md:text-2xl font-semibold truncate">{selectedItem.name}</h2>
-              <p class="text-gray-400 text-xs md:text-sm truncate">{selectedItem.description}</p>
+              <p class="text-gray-700 text-xs md:text-sm truncate">{selectedItem.description}</p>
             </div>
           </div>
 
