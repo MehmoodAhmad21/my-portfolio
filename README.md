@@ -2,6 +2,7 @@
 
 A  macOS-inspired portfolio website built with SvelteKit and TailwindCSS. Features fully functional desktop applications including Terminal, Finder, and Notes.
 
+https://mehmoodahmad21.github.io/my-portfolio/
 
 ## 👋 About This Portfolio
 
