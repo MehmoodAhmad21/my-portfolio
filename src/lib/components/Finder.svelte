@@ -124,6 +124,26 @@
       },
       {
         id: 'proj4',
+        name: 'SCAT6APP',
+        type: 'folder',
+        description: 'Neurological assessment desktop application',
+        details: [
+          'Developed a desktop application for conducting comprehensive neurological assessments inspired by the SCAT-6 (Sport Concussion Assessment Tool).',
+          'Built wizard-style GUI using Python Tkinter to guide healthcare professionals through standardized multi-step assessment process.',
+          'Implemented 7-step assessment covering participant information, symptom severity, immediate memory, balance, eye tracking, and delayed recall.',
+          'Created intuitive interface for evaluating athletes and patients who may have sustained concussion or head injury.',
+          'Designed automated data export to structured JSON files with timestamps and calculated metrics for easy progress tracking.',
+          'Developed keyboard navigation and accessibility features for efficient clinical workflows.',
+          'Integrating computer vision for automated balance evaluation using camera-based pose detection and gait analysis.',
+          'Building PDF export functionality for formatted, printable assessment reports with charts and summaries.',
+          'Implementing AI-assisted analysis with machine learning models to identify patterns and provide automated risk assessments.',
+          'Adding direct transmission capabilities to automatically send completed assessments to healthcare providers via fax/email.'
+        ],
+        technologies: ['Python', 'Tkinter', 'Computer Vision', 'OpenCV', 'Machine Learning', 'AI', 'JSON', 'GUI Development', 'Healthcare Software'],
+        link: 'https://github.com/MehmoodAhmad21/SCAT6NeuroExamAPP'
+      },
+      {
+        id: 'proj5',
         name: 'macOS Portfolio Website',
         type: 'folder',
         description: 'Interactive portfolio with macOS interface',
