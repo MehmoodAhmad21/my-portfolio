@@ -89,6 +89,23 @@
       },
       {
         id: 'proj2',
+        name: 'SafeHaven',
+        type: 'folder',
+        description: 'IoT health monitoring system for elderly care',
+        details: [
+          'Developed a React Native mobile application to protect elderly or high-risk individuals living alone by monitoring their health and home environment.',
+          'Integrated ESP32 microcontroller with temperature and humidity sensors to detect extreme environmental conditions.',
+          'Connected to Apple HealthKit for real-time health data monitoring including heart rate and activity tracking.',
+          'Implemented AI-assisted emergency response system using Twilio\'s Voice API for automated calls and alert escalation.',
+          'Built FastAPI backend with SQLite for event storage and real-time monitoring.',
+          'Designed escalation protocol: warning notification → AI call → second AI call → emergency services + caregiver notification.',
+          'Developed RESTful API for seamless communication between IoT sensors, mobile app, and backend server.'
+        ],
+        technologies: ['React Native', 'FastAPI', 'Python', 'ESP32', 'SQLite', 'Twilio API', 'Apple HealthKit', 'IoT', 'REST APIs'],
+        link: 'https://github.com/AbuDubu/NatHacks2025-SafeHouse'
+      },
+      {
+        id: 'proj3',
         name: 'macOS Portfolio Website',
         type: 'folder',
         description: 'Interactive portfolio with macOS interface',
