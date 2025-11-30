@@ -106,6 +106,24 @@
       },
       {
         id: 'proj3',
+        name: 'Trackme',
+        type: 'folder',
+        description: 'Comprehensive life-tracking mobile application',
+        details: [
+          'Developed a comprehensive mobile application for tracking diet, tasks, events, exercise, and health vitals with AI-powered insights.',
+          'Built with React Native and Expo for cross-platform mobile development with TypeScript for type safety.',
+          'Implemented FastAPI backend with PostgreSQL/SQLite for efficient data storage and retrieval.',
+          'Integrated Apple HealthKit for syncing step count, heart rate, sleep data, and other health metrics.',
+          'Developed AI insights engine that analyzes user data to generate personalized health and fitness suggestions.',
+          'Created secure JWT-based authentication system with bcrypt password hashing.',
+          'Implemented automatic nutrition data lookup via external APIs (Nutritionix, Edamam) for meal logging.',
+          'Designed RESTful API with comprehensive documentation using FastAPI\'s automatic OpenAPI generation.'
+        ],
+        technologies: ['React Native', 'Expo', 'TypeScript', 'FastAPI', 'Python', 'PostgreSQL', 'SQLite', 'JWT', 'Apple HealthKit', 'REST APIs', 'Pydantic', 'SQLAlchemy'],
+        link: 'https://github.com/MehmoodAhmad21/Trackme'
+      },
+      {
+        id: 'proj4',
         name: 'macOS Portfolio Website',
         type: 'folder',
         description: 'Interactive portfolio with macOS interface',
