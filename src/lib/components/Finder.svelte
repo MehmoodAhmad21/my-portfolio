@@ -1,6 +1,8 @@
 <script lang="ts">
   import { base } from '$app/paths';
 
+  export let initialTab: 'highlights' | 'projects' | 'experience' = 'highlights';
+
   type Project = {
     name: string;
     eyebrow: string;
@@ -98,7 +100,7 @@
     }
   ];
 
-  let activeTab: 'highlights' | 'projects' | 'experience' = 'highlights';
+  let activeTab: 'highlights' | 'projects' | 'experience' = initialTab;
   let selectedProject: Project | null = null;
 
   function showTab(tab: typeof activeTab) {
