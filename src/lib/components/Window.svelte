@@ -10,215 +10,175 @@
   export let isActive = true;
 
   const dispatch = createEventDispatcher();
-
   let isDragging = false;
   let dragStartX = 0;
   let dragStartY = 0;
   let windowElement: HTMLDivElement;
 
-  function close() {
-    dispatch('close');
-  }
-
+  function close() { dispatch('close'); }
   function minimize() {
     isMinimized = !isMinimized;
     dispatch('minimize', { minimized: isMinimized });
   }
-
   function maximize() {
     isMaximized = !isMaximized;
     dispatch('maximize', { maximized: isMaximized });
   }
 
-  function handleMouseDown(event: MouseEvent) {
-    if (isMaximized) return; // Don't drag when maximized
-    
-    const target = event.target as HTMLElement;
-    if (target.closest('.window-controls')) return; // Don't drag when clicking controls
-    
+  function startDrag(clientX: number, clientY: number, target: EventTarget | null) {
+    if (isMaximized || (target as HTMLElement)?.closest('.window-controls')) return;
     isDragging = true;
-    dragStartX = event.clientX - x;
-    dragStartY = event.clientY - y;
-    
+    dragStartX = clientX - x;
+    dragStartY = clientY - y;
     dispatch('focus');
   }
 
+  function handleMouseDown(event: MouseEvent) { startDrag(event.clientX, event.clientY, event.target); }
   function handleTouchStart(event: TouchEvent) {
-    if (isMaximized) return; // Don't drag when maximized
-    
-    const target = event.target as HTMLElement;
-    if (target.closest('.window-controls')) return; // Don't drag when clicking controls
-    
     const touch = event.touches[0];
-    isDragging = true;
-    dragStartX = touch.clientX - x;
-    dragStartY = touch.clientY - y;
-    
-    dispatch('focus');
+    if (touch) startDrag(touch.clientX, touch.clientY, event.target);
   }
 
-  function handleMouseMove(event: MouseEvent) {
-    if (!isDragging || isMaximized) return;
-    
-    x = event.clientX - dragStartX;
-    y = event.clientY - dragStartY;
-    
-    // Keep window within viewport bounds
-    const windowRect = windowElement?.getBoundingClientRect();
-    if (windowRect) {
-      const maxX = window.innerWidth - windowRect.width;
-      const maxY = window.innerHeight - windowRect.height - 100; // Account for dock
-      
-      x = Math.max(0, Math.min(x, maxX));
-      y = Math.max(0, Math.min(y, maxY));
-    }
+  function move(clientX: number, clientY: number) {
+    if (!isDragging || isMaximized || !windowElement) return;
+    const rect = windowElement.getBoundingClientRect();
+    const nextX = clientX - dragStartX;
+    const nextY = clientY - dragStartY;
+    x = Math.max(8, Math.min(nextX, window.innerWidth - rect.width - 8));
+    y = Math.max(42, Math.min(nextY, window.innerHeight - rect.height - 82));
   }
 
+  function handleMouseMove(event: MouseEvent) { move(event.clientX, event.clientY); }
   function handleTouchMove(event: TouchEvent) {
-    if (!isDragging || isMaximized) return;
-    
     const touch = event.touches[0];
-    x = touch.clientX - dragStartX;
-    y = touch.clientY - dragStartY;
-    
-    // Keep window within viewport bounds
-    const windowRect = windowElement?.getBoundingClientRect();
-    if (windowRect) {
-      const maxX = window.innerWidth - windowRect.width;
-      const maxY = window.innerHeight - windowRect.height - 100; // Account for dock
-      
-      x = Math.max(0, Math.min(x, maxX));
-      y = Math.max(0, Math.min(y, maxY));
-    }
+    if (touch) move(touch.clientX, touch.clientY);
   }
-
-  function handleMouseUp() {
-    isDragging = false;
-  }
-
-  function handleTouchEnd() {
-    isDragging = false;
-  }
+  function stopDrag() { isDragging = false; }
 
   onMount(() => {
     document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-    document.addEventListener('touchmove', handleTouchMove);
-    document.addEventListener('touchend', handleTouchEnd);
-    
+    document.addEventListener('mouseup', stopDrag);
+    document.addEventListener('touchmove', handleTouchMove, { passive: true });
+    document.addEventListener('touchend', stopDrag);
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('mouseup', stopDrag);
       document.removeEventListener('touchmove', handleTouchMove);
-      document.removeEventListener('touchend', handleTouchEnd);
+      document.removeEventListener('touchend', stopDrag);
     };
   });
 </script>
 
-<div 
+<div
   bind:this={windowElement}
-  class="window-container {isMinimized ? 'minimized' : ''} {isDragging ? 'dragging' : ''}"
-  style={isMaximized 
-    ? 'position: fixed; top: 3.5rem; left: 0; right: 0; bottom: 5rem; width: auto; height: auto;' 
+  class:active={isActive}
+  class:dragging={isDragging}
+  class:minimized={isMinimized}
+  class="window-container"
+  style={isMaximized
+    ? 'position: fixed; top: 2.65rem; left: .45rem; right: .45rem; bottom: 5.25rem; width: auto; height: auto;'
     : `position: fixed; left: ${x}px; top: ${y}px;`}
   on:click={() => dispatch('focus')}
+  on:keydown={(event) => { if (event.key === 'Enter' || event.key === ' ') dispatch('focus'); }}
   role="dialog"
+  tabindex="-1"
   aria-label={title}
 >
-  <div class="bg-white/10 backdrop-blur-xl border {isMaximized ? 'rounded-none border-x-0' : 'rounded-xl'} shadow-2xl overflow-hidden flex flex-col h-full transition-all duration-200 {isActive ? 'border-white/30' : 'border-white/10 opacity-95'}">
-    <!-- Title bar -->
-    <div 
-      class="px-3 md:px-4 py-2 flex items-center justify-between select-none transition-colors {!isMaximized ? 'cursor-grab active:cursor-grabbing' : ''} {isActive ? 'bg-white/10 border-b border-white/20' : 'bg-white/5 border-b border-white/10'}"
+  <div class:maximized={isMaximized} class="glass-window">
+    <div class="glass-reflection"></div>
+    <div
+      class:grab={!isMaximized}
+      class="titlebar"
       on:mousedown={handleMouseDown}
       on:touchstart={handleTouchStart}
+      on:dblclick={maximize}
       role="button"
       tabindex="-1"
     >
-      <div class="flex items-center gap-3">
-        <!-- Window controls -->
-        <div class="flex gap-1.5 md:gap-2 window-controls">
-          <button
-            on:click={close}
-            class="w-3 h-3 md:w-3 md:h-3 rounded-full bg-red-500 hover:bg-red-600 active:bg-red-700 transition-all group relative flex items-center justify-center touch-manipulation"
-            aria-label="Close"
-          >
-            <span class="text-red-900 text-[10px] font-bold opacity-0 group-hover:opacity-100 md:group-hover:opacity-100 transition-opacity leading-none">×</span>
-          </button>
-          <button
-            on:click={minimize}
-            class="w-3 h-3 md:w-3 md:h-3 rounded-full bg-yellow-500 hover:bg-yellow-600 active:bg-yellow-700 transition-all group relative flex items-center justify-center touch-manipulation hidden md:flex"
-            aria-label="Minimize"
-          >
-            <span class="text-yellow-900 text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity leading-none pb-[2px]">−</span>
-          </button>
-          <button
-            on:click={maximize}
-            class="w-3 h-3 md:w-3 md:h-3 rounded-full bg-green-500 hover:bg-green-600 active:bg-green-700 transition-all group relative flex items-center justify-center touch-manipulation"
-            aria-label="Maximize"
-          >
-            <svg class="w-2 h-2 text-green-900 opacity-0 group-hover:opacity-100 md:group-hover:opacity-100 transition-opacity" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5">
-              <rect x="2" y="2" width="8" height="8" />
-            </svg>
-          </button>
-        </div>
-        
-        <div class="flex items-center gap-1.5 md:gap-2 pointer-events-none">
-          {#if icon.startsWith('http') || icon.startsWith('/') || icon.includes('.')}
-            <img src={icon} alt={title} class="w-4 h-4 md:w-5 md:h-5 object-contain" />
-          {:else}
-            <span class="text-base md:text-xl">{icon}</span>
-          {/if}
-          <span class="text-xs md:text-sm font-medium truncate">{title}</span>
-        </div>
+      <div class="window-controls" aria-label="Window controls">
+        <button on:click|stopPropagation={close} class="traffic red" aria-label={`Close ${title}`}><span>×</span></button>
+        <button on:click|stopPropagation={minimize} class="traffic yellow" aria-label={`Minimize ${title}`}><span>−</span></button>
+        <button on:click|stopPropagation={maximize} class="traffic green" aria-label={`${isMaximized ? 'Restore' : 'Maximize'} ${title}`}><span>↗</span></button>
       </div>
+      <div class="title">
+        <img src={icon} alt="" />
+        <span>{title}</span>
+      </div>
+      <div class="title-spacer"></div>
     </div>
 
-    <!-- Content area -->
     {#if !isMinimized}
-      <div class="flex-1 overflow-hidden">
-        <slot />
-      </div>
+      <div class="content"><slot /></div>
     {/if}
   </div>
 </div>
 
 <style>
   .window-container {
-    animation: windowOpen 0.2s ease-out;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: drop-shadow(0 30px 45px rgba(2, 8, 20, .45));
+    animation: window-in 280ms cubic-bezier(.2,.85,.25,1);
+    transition: opacity 180ms ease, transform 220ms ease;
   }
+  .window-container.dragging { transition: none; }
+  .window-container.minimized { opacity: 0; transform: translateY(55vh) scale(.12); pointer-events: none; }
 
-  .window-container.dragging {
-    transition: none;
+  .glass-window {
+    position: relative;
+    display: flex;
+    height: 100%;
+    min-height: 0;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,.27);
+    border-radius: 1.2rem;
+    background: linear-gradient(145deg, rgba(255,255,255,.17), rgba(255,255,255,.055) 44%, rgba(74,128,203,.08)), rgba(7,16,30,.66);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.42), inset 0 -1px 0 rgba(255,255,255,.08);
+    backdrop-filter: blur(32px) saturate(145%);
+    -webkit-backdrop-filter: blur(32px) saturate(145%);
   }
+  .glass-window.maximized { border-radius: .8rem; }
+  .glass-reflection { position: absolute; inset: 0; background: radial-gradient(circle at 17% 0%, rgba(255,255,255,.16), transparent 28%); pointer-events: none; }
 
-  .window-container.minimized {
-    animation: windowMinimize 0.3s ease-out forwards;
-    pointer-events: none;
-  }
-
-  @keyframes windowOpen {
-    from {
-      opacity: 0;
-      transform: scale(0.9);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-
-  @keyframes windowMinimize {
-    to {
-      opacity: 0;
-      transform: scale(0.1) translateY(500px);
-    }
-  }
-
-  .select-none {
+  .titlebar {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    min-height: 3rem;
+    padding: .6rem .85rem;
+    border-bottom: 1px solid rgba(255,255,255,.12);
+    background: linear-gradient(180deg, rgba(255,255,255,.11), rgba(255,255,255,.025));
     user-select: none;
-    -webkit-user-select: none;
+  }
+  .titlebar.grab { cursor: grab; }
+  .titlebar.grab:active { cursor: grabbing; }
+
+  .window-controls { display: flex; gap: .5rem; width: max-content; }
+  .traffic { display: grid; width: .78rem; height: .78rem; padding: 0; place-items: center; border: 0; border-radius: 50%; cursor: pointer; box-shadow: inset 0 0 0 1px rgba(0,0,0,.13), 0 1px 2px rgba(0,0,0,.25); }
+  .traffic.red { background: #ff5d57; }
+  .traffic.yellow { background: #febc2e; }
+  .traffic.green { background: #28c840; }
+  .traffic span { color: rgba(0,0,0,.57); font-size: .61rem; font-weight: 900; line-height: 1; opacity: 0; }
+  .window-controls:hover .traffic span, .traffic:focus-visible span { opacity: 1; }
+  .traffic:focus-visible { outline: 2px solid white; outline-offset: 2px; }
+
+  .title { display: flex; align-items: center; gap: .5rem; color: rgba(255,255,255,.9); font-size: .82rem; font-weight: 680; letter-spacing: .01em; }
+  .title img { width: 1.3rem; height: 1.3rem; border-radius: .33rem; object-fit: cover; }
+  .title-spacer { min-width: 4rem; }
+  .content { position: relative; z-index: 1; min-height: 0; flex: 1; overflow: hidden; }
+
+  @keyframes window-in {
+    from { opacity: 0; transform: translateY(14px) scale(.965); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  @media (max-width: 767px) {
+    .window-container { inset: 2.55rem .35rem 4.65rem !important; width: auto !important; height: auto !important; }
+    .glass-window { border-radius: .85rem; }
+    .titlebar { min-height: 2.7rem; padding: .5rem .72rem; }
+    .traffic { width: .82rem; height: .82rem; }
+    .traffic.yellow { display: none; }
+    .title { font-size: .77rem; }
   }
 </style>
-
-

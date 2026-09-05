@@ -5,179 +5,100 @@
   let currentInput = '';
   let inputElement: HTMLInputElement;
 
-  const aboutMe = `
-╔═══════════════════════════════════════════════════════════╗
-║                      ABOUT ME                             ║
-╚═══════════════════════════════════════════════════════════╝
+  const responses: Record<string, string[]> = {
+    about: [
+      'Mehmood Ahmad — software engineer in Edmonton, Alberta.',
+      'BSc Computer Science + Biological Sciences minor, University of Alberta (Jan 2027).',
+      'I build at the edge of applied AI, real-time systems, mobile products, and developer infrastructure.'
+    ],
+    skills: [
+      'AI / Vision    YOLOv11 · VLMs · PyTorch · transformers · PEFT',
+      'Systems        Python · C/C++ · C# · Java · FFmpeg · ROS',
+      'Product        TypeScript · React Native · SvelteKit · FastAPI',
+      'Infrastructure Docker · Jenkins · GitLab CI · AWS · DigitalOcean'
+    ],
+    experience: [
+      '2024—2025  University of Alberta  / Software Engineer Intern',
+      '           YOLOv11 + VLM safety monitoring · FFmpeg · ROS · Unity VR',
+      '2023       Aro Robotic Systems   / Software Engineer Intern',
+      '           70% faster deployments · 15% lower cloud cost',
+      '2022       Aro Robotic Systems   / Software Engineer Intern',
+      '           Responsive web platform and reusable UI components'
+    ],
+    projects: [
+      'Offspring.exe   seeded Monte Carlo genetics simulation + procedural SVG',
+      'Trackme         HealthKit-connected health tracker + AI insight engine',
+      'SCAT6           seven-step neurological assessment desktop workflow',
+      'SafeHaven       IoT sensing + automated emergency escalation'
+    ],
+    publication: [
+      'Integration of Object Detection and Small VLMs for Construction Safety Hazard Identification',
+      'M. Adil, M. Ahmad, et al. · arXiv:2604.05210 · 2026'
+    ],
+    contact: [
+      'email     mehmood3@ualberta.ca',
+      'github    github.com/MehmoodAhmad21',
+      'linkedin  linkedin.com/in/mehmood-ahmad-2bb43b244/'
+    ]
+  };
 
-Name:       Mehmood Ahmad
-Role:       Software Engineer Intern
-Location:   Edmonton, Alberta
-Email:      mehmood3@ualberta.ca
-Education:  University of Alberta (2021 - 2026)
-            Bachelor of Science - Computer Science
-            Minor in Biological Sciences
-
-`;
+  const help = [
+    'Available: about · skills · experience · projects · publication · contact · clear'
+  ];
 
   onMount(() => {
     commandHistory = [
-      'Welcome to MoodyOS Terminal',
-      '',
-      'Available commands:',
-      '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
-      '  help       - Show this help message',
-      '  about      - About me',
-      '  skills     - Technical skills',
-      '  contact    - Contact information',
-      '  experience - Work experience',
-      '  clear      - Clear terminal',
+      'MoodyOS 2.0  ·  recruiter mode enabled',
+      'Type “help” to explore, or try “projects”.',
       ''
     ];
-    
-    setTimeout(() => {
-      inputElement?.focus();
-    }, 100);
+    inputElement?.focus();
   });
 
   function handleCommand(event: KeyboardEvent) {
-    if (event.key === 'Enter') {
-      const command = currentInput.trim().toLowerCase();
-      commandHistory.push(`$ ${currentInput}`);
-      
-      switch(command) {
-        case 'help':
-          commandHistory.push('Available commands:');
-          commandHistory.push('  help       - Show this help message');
-          commandHistory.push('  about      - About me');
-          commandHistory.push('  skills     - Technical skills');
-          commandHistory.push('  contact    - Contact information');
-          commandHistory.push('  experience - Work experience');
-          commandHistory.push('  clear      - Clear terminal');
-          break;
-        case 'about':
-          commandHistory.push(aboutMe);
-          break;
-        case 'skills':
-          commandHistory.push('Technical Skills:');
-          commandHistory.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-          commandHistory.push('');
-          commandHistory.push('Languages:');
-          commandHistory.push('  Python, C, C++, C#, Java, JavaScript, TypeScript');
-          commandHistory.push('  SQL, HTML/CSS, LaTeX, Shell');
-          commandHistory.push('');
-          commandHistory.push('Frameworks & Libraries:');
-          commandHistory.push('  React, Svelte, SvelteKit, Node.js, Django, Bootstrap');
-          commandHistory.push('  Unity, ROS, TailwindCSS');
-          commandHistory.push('');
-          commandHistory.push('Developer Tools:');
-          commandHistory.push('  Git, VS Code, Visual Studio, PyCharm, WebStorm, REST APIs');
-          commandHistory.push('');
-          commandHistory.push('Data Science & ML Libraries:');
-          commandHistory.push('  pandas, NumPy, Matplotlib, transformers, Peft, Tkinter');
-          commandHistory.push('  BeautifulSoup, Scrapy, Torch');
-          commandHistory.push('');
-          commandHistory.push('Technologies:');
-          commandHistory.push('  AI, Large Language Models (LLMs), Computer Vision');
-          commandHistory.push('  Docker, Jenkins, GitLab CI, AWS, DigitalOcean');
-          commandHistory.push('  SQLite3, MongoDB, FFmpeg, YOLOv8');
-          break;
-        case 'contact':
-          commandHistory.push('Contact Information:');
-          commandHistory.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-          commandHistory.push('Email:    mehmood3@ualberta.ca');
-          commandHistory.push('GitHub:   https://github.com/MehmoodAhmad21');
-          commandHistory.push('LinkedIn: https://www.linkedin.com/in/mehmood-ahmad-2bb43b244/');
-          break;
-        case 'experience':
-          commandHistory.push('Work Experience:');
-          commandHistory.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-          commandHistory.push('');
-          commandHistory.push('University of Alberta | Software Engineer Intern');
-          commandHistory.push('May 2024 - Present | Edmonton, AB');
-          commandHistory.push('  • Real-time streaming and AI-powered applications');
-          commandHistory.push('  • Safety Monitor System with YOLOv8 & LLM-based risk assessment');
-          commandHistory.push('  • High-performance 360° camera streaming with FFmpeg');
-          commandHistory.push('  • Remote Inspection Robot with VR headset control (ROS)');
-          commandHistory.push('  • VR application development using Unity and C#');
-          commandHistory.push('');
-          commandHistory.push('Aro Robotic Systems | Software Engineer Intern');
-          commandHistory.push('May 2023 - September 2023 | Edmonton, AB');
-          commandHistory.push('  • Optimized deployment pipelines (Docker, Jenkins) - 70% faster');
-          commandHistory.push('  • Built CI/CD pipelines in GitLab CI - 40% fewer vulnerabilities');
-          commandHistory.push('  • AWS & DigitalOcean infrastructure - 15% cost reduction');
-          commandHistory.push('  • Containerization - 43% uptime improvement');
-          commandHistory.push('');
-          commandHistory.push('Aro Robotic Systems | Software Engineer Intern');
-          commandHistory.push('May 2022 - September 2022 | Edmonton, AB');
-          commandHistory.push('  • Automated monitoring tools - 25% better deployment success');
-          commandHistory.push('  • Designed RESTful APIs for system interoperability');
-          commandHistory.push('  • Cloud-based logging system for diagnostics');
-          commandHistory.push('  • Built scalable solutions with C, JavaScript, Python, Django');
-          break;
-        case 'clear':
-          commandHistory = [];
-          break;
-        case '':
-          break;
-        default:
-          commandHistory.push(`Command not found: ${command}`);
-          commandHistory.push('Type "help" for available commands');
+    if (event.key !== 'Enter') return;
+    const command = currentInput.trim().toLowerCase();
+    if (command === 'clear') {
+      commandHistory = [];
+    } else {
+      commandHistory = [...commandHistory, `mehmood@portfolio ~ % ${currentInput}`];
+      if (command === '') {
+        commandHistory = [...commandHistory, ''];
+      } else if (command === 'help') {
+        commandHistory = [...commandHistory, ...help, ''];
+      } else if (responses[command]) {
+        commandHistory = [...commandHistory, ...responses[command], ''];
+      } else {
+        commandHistory = [...commandHistory, `command not found: ${command}`, ...help, ''];
       }
-      
-      if (command !== 'clear') {
-        commandHistory.push('');
-      }
-      currentInput = '';
-      commandHistory = commandHistory;
-      
-      // Scroll to bottom
-      setTimeout(() => {
-        const terminal = document.querySelector('.terminal-content');
-        if (terminal) {
-          terminal.scrollTop = terminal.scrollHeight;
-        }
-      }, 0);
     }
+    currentInput = '';
+    setTimeout(() => document.querySelector('.terminal-content')?.scrollTo({ top: 99999, behavior: 'smooth' }));
   }
 </script>
 
-<div class="h-full flex flex-col bg-black/90 rounded-lg overflow-hidden font-mono text-xs md:text-sm">
-  <div class="terminal-content flex-1 overflow-y-auto p-2 md:p-4 text-green-400">
+<div class="terminal" on:click={() => inputElement?.focus()} role="presentation">
+  <div class="terminal-tabs"><span class="active"><b>◇</b> mehmood — zsh</span><span>+</span></div>
+  <div class="terminal-content">
     {#each commandHistory as line}
-      <div class="whitespace-pre-wrap">{line}</div>
+      <div class:prompt={line.startsWith('mehmood@')} class="line">{line}</div>
     {/each}
-    <div class="flex items-center">
-      <span class="text-green-400">$</span>
-      <input
-        bind:this={inputElement}
-        bind:value={currentInput}
-        on:keydown={handleCommand}
-        class="flex-1 bg-transparent border-none outline-none ml-2 text-green-400 text-xs md:text-sm"
-        type="text"
-        spellcheck="false"
-        autocomplete="off"
-      />
-    </div>
+    <label class="input-row">
+      <span><b>mehmood</b>@portfolio ~ %</span>
+      <input bind:this={inputElement} bind:value={currentInput} on:keydown={handleCommand} aria-label="Terminal command" spellcheck="false" autocomplete="off" />
+    </label>
   </div>
 </div>
 
 <style>
-  .terminal-content::-webkit-scrollbar {
-    width: 8px;
-  }
-  
-  .terminal-content::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.3);
-  }
-  
-  .terminal-content::-webkit-scrollbar-thumb {
-    background: rgba(74, 222, 128, 0.3);
-    border-radius: 4px;
-  }
-  
-  .terminal-content::-webkit-scrollbar-thumb:hover {
-    background: rgba(74, 222, 128, 0.5);
-  }
+  .terminal { display: flex; height: 100%; flex-direction: column; overflow: hidden; color: #cbf7e6; background: linear-gradient(150deg, rgba(3,10,17,.93), rgba(5,21,27,.94)); font-family: ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+  .terminal-tabs { display: flex; min-height: 2.5rem; align-items: center; justify-content: space-between; padding: 0 1rem; border-bottom: 1px solid rgba(120,242,205,.1); color: rgba(218,251,240,.4); background: rgba(255,255,255,.025); font-size: .69rem; }
+  .terminal-tabs .active { color: rgba(231,255,247,.75); }
+  .terminal-tabs b { color: #73f2c4; }
+  .terminal-content { flex: 1; overflow-y: auto; padding: 1.25rem; font-size: clamp(.72rem, 1.4vw, .84rem); line-height: 1.7; }
+  .line { min-height: 1.35em; white-space: pre-wrap; }
+  .line.prompt { margin-top: .35rem; color: #8de8ff; }
+  .input-row { display: flex; align-items: center; gap: .55rem; color: #c2e3ff; }
+  .input-row b { color: #7af0c3; }
+  input { min-width: 3rem; flex: 1; padding: 0; border: 0; outline: 0; color: #f2fff9; background: transparent; box-shadow: none; caret-color: #7af0c3; font: inherit; }
 </style>
-

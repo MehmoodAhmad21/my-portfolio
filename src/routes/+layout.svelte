@@ -6,11 +6,13 @@
 </script>
 
 <svelte:head>
-	<title>Mehmood Ahmad | Software Engineer Portfolio</title>
-	<meta name="description" content="Portfolio of Mehmood Ahmad - Software Engineer specializing in AI, Computer Vision, VR, and Full-Stack Development" />
-	<meta name="theme-color" content="#000000" />
+	<title>Mehmood Ahmad — Software Engineer</title>
+	<meta name="description" content="Mehmood Ahmad builds applied AI, computer vision, robotics, mobile products, and developer infrastructure." />
+	<meta name="theme-color" content="#07111f" />
 	<meta name="apple-mobile-web-app-capable" content="yes" />
 	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+	<meta property="og:title" content="Mehmood Ahmad — Software Engineer" />
+	<meta property="og:description" content="Applied AI, real-time systems, mobile products, and developer infrastructure." />
 	<link rel="icon" href={favicon} />
 </svelte:head>
 

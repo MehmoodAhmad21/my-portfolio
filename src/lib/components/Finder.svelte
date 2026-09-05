@@ -1,371 +1,300 @@
 <script lang="ts">
-  type FileItem = {
-    id: string;
+  import { base } from '$app/paths';
+
+  type Project = {
     name: string;
-    type: 'folder' | 'file';
+    eyebrow: string;
     description: string;
-    details?: string[];
-    technologies?: string[];
-    link?: string;
-    timeperiod?: string;
-    location?: string;
+    impact: string;
+    technologies: string[];
+    link: string;
+    accent: string;
   };
 
-  type FolderStructure = {
-    [key: string]: FileItem[];
+  type Role = {
+    company: string;
+    title: string;
+    period: string;
+    points: string[];
   };
 
-  // Folder structure
-  const folders: FolderStructure = {
-    root: [
-      { id: 'work', name: 'Work Experience', type: 'folder', description: 'My professional work experience' },
-      { id: 'projects', name: 'Projects', type: 'folder', description: 'My personal and academic projects' }
-    ],
-    work: [
-      {
-        id: 'work1',
-        name: 'University of Alberta',
-        type: 'folder',
-        description: 'Software Engineer Intern',
-        timeperiod: 'May 2024 - Present',
-        location: 'Edmonton, AB',
-        details: [
-          'Collaborated with a research group to develop advanced real-time streaming and AI-powered applications.',
-          'Led the development of a Safety Monitor System using YOLOv8 for real-time hazard detection and LLM-based risk assessment.',
-          'Designed a high-performance pipeline utilizing FFmpeg for seamless 360-degree camera streaming.',
-          'Developed a Remote Inspection Robot controlled via a VR headset, integrating ROS for real-time robotic navigation and control.',
-          'Built a VR application using Unity and C#, enabling immersive user interaction with remote environments.',
-          'Automated deployment and system startup with Bash scripting, simplifying workflow execution with a single command.'
-        ],
-        technologies: ['YOLOv8', 'LLM', 'FFmpeg', 'ROS', 'Unity', 'C#', 'VR', 'Python', 'Bash']
-      },
-      {
-        id: 'work2',
-        name: 'Aro Robotic Systems',
-        type: 'folder',
-        description: 'Software Engineer Intern',
-        timeperiod: 'May 2023 - September 2023',
-        location: 'Edmonton, AB',
-        details: [
-          'Optimized deployment pipelines with Docker and Jenkins, reducing deployment time by 70% and improving release stability across environments.',
-          'Built CI/CD pipelines in GitLab CI, integrating security checks that reduced vulnerabilities by 40% and streamlined the code deployment process.',
-          'Deployed cloud infrastructure solutions using AWS and DigitalOcean, supporting scalable application deployment and reducing operational costs by 15% through resource optimization.',
-          'Introduced containerization methods, improving system reliability and increasing uptime by 43%, ensuring application availability during high-demand periods.',
-          'Leveraged data-driven insights to optimize deployment pipelines, improving efficiency by 40% and stability across cloud-based environments.'
-        ],
-        technologies: ['Docker', 'Jenkins', 'GitLab CI', 'AWS', 'DigitalOcean', 'CI/CD', 'DevOps']
-      },
-      {
-        id: 'work3',
-        name: 'Aro Robotic Systems',
-        type: 'folder',
-        description: 'Software Engineer Intern',
-        timeperiod: 'May 2022 - September 2022',
-        location: 'Edmonton, AB',
-        details: [
-          'Set up automated monitoring tools, improving deployment success rates by 25% and reducing post-deployment failures through proactive alerts and system tracking.',
-          'Designed and developed RESTful APIs to enhance system interoperability and efficiency.',
-          'Developed a cloud-based logging system, improving system diagnostics and debugging efficiency.',
-          'Utilized C, JavaScript, Python, and Django to build scalable software solutions.'
-        ],
-        technologies: ['C', 'JavaScript', 'Python', 'Django', 'REST APIs', 'Cloud', 'Monitoring']
-      }
-    ],
-    projects: [
-      {
-        id: 'proj1',
-        name: 'Event Lottery System',
-        type: 'folder',
-        description: 'Mobile app for fair event registration',
-        details: [
-          'Developed a mobile app that enables fair event sign-ups via a lottery system, ensuring accessibility for users with scheduling constraints.',
-          'Implemented Firebase for event storage, real-time updates, and QR code-based event registration.',
-          'Designed a scalable system supporting multi-user roles: entrants, organizers, and administrators, each with distinct privileges.',
-          'Integrated a geolocation-based verification system for event registrations, ensuring location authenticity.',
-          'Designed and implemented a QR code scanning feature for quick access to event details and registration.'
-        ],
-        technologies: ['Android', 'Firebase', 'Java', 'Jetpack Compose', 'QR Code', 'Geolocation'],
-        link: 'https://github.com/CMPUT301F24mohggg/MohgggDraw'
-      },
-      {
-        id: 'proj2',
-        name: 'SafeHaven',
-        type: 'folder',
-        description: 'IoT health monitoring system for elderly care',
-        details: [
-          'Developed a React Native mobile application to protect elderly or high-risk individuals living alone by monitoring their health and home environment.',
-          'Integrated ESP32 microcontroller with temperature and humidity sensors to detect extreme environmental conditions.',
-          'Connected to Apple HealthKit for real-time health data monitoring including heart rate and activity tracking.',
-          'Implemented AI-assisted emergency response system using Twilio\'s Voice API for automated calls and alert escalation.',
-          'Built FastAPI backend with SQLite for event storage and real-time monitoring.',
-          'Designed escalation protocol: warning notification → AI call → second AI call → emergency services + caregiver notification.',
-          'Developed RESTful API for seamless communication between IoT sensors, mobile app, and backend server.'
-        ],
-        technologies: ['React Native', 'FastAPI', 'Python', 'ESP32', 'SQLite', 'Twilio API', 'Apple HealthKit', 'IoT', 'REST APIs'],
-        link: 'https://github.com/AbuDubu/NatHacks2025-SafeHouse'
-      },
-      {
-        id: 'proj3',
-        name: 'Trackme',
-        type: 'folder',
-        description: 'Comprehensive life-tracking mobile application',
-        details: [
-          'Developed a comprehensive mobile application for tracking diet, tasks, events, exercise, and health vitals with AI-powered insights.',
-          'Built with React Native and Expo for cross-platform mobile development with TypeScript for type safety.',
-          'Implemented FastAPI backend with PostgreSQL/SQLite for efficient data storage and retrieval.',
-          'Integrated Apple HealthKit for syncing step count, heart rate, sleep data, and other health metrics.',
-          'Developed AI insights engine that analyzes user data to generate personalized health and fitness suggestions.',
-          'Created secure JWT-based authentication system with bcrypt password hashing.',
-          'Implemented automatic nutrition data lookup via external APIs (Nutritionix, Edamam) for meal logging.',
-          'Designed RESTful API with comprehensive documentation using FastAPI\'s automatic OpenAPI generation.'
-        ],
-        technologies: ['React Native', 'Expo', 'TypeScript', 'FastAPI', 'Python', 'PostgreSQL', 'SQLite', 'JWT', 'Apple HealthKit', 'REST APIs', 'Pydantic', 'SQLAlchemy'],
-        link: 'https://github.com/MehmoodAhmad21/Trackme'
-      },
-      {
-        id: 'proj4',
-        name: 'SCAT6APP',
-        type: 'folder',
-        description: 'Neurological assessment desktop application',
-        details: [
-          'Developed a desktop application for conducting comprehensive neurological assessments inspired by the SCAT-6 (Sport Concussion Assessment Tool).',
-          'Built wizard-style GUI using Python Tkinter to guide healthcare professionals through standardized multi-step assessment process.',
-          'Implemented 7-step assessment covering participant information, symptom severity, immediate memory, balance, eye tracking, and delayed recall.',
-          'Created intuitive interface for evaluating athletes and patients who may have sustained concussion or head injury.',
-          'Designed automated data export to structured JSON files with timestamps and calculated metrics for easy progress tracking.',
-          'Developed keyboard navigation and accessibility features for efficient clinical workflows.',
-          'Integrating computer vision for automated balance evaluation using camera-based pose detection and gait analysis.',
-          'Building PDF export functionality for formatted, printable assessment reports with charts and summaries.',
-          'Implementing AI-assisted analysis with machine learning models to identify patterns and provide automated risk assessments.',
-          'Adding direct transmission capabilities to automatically send completed assessments to healthcare providers via fax/email.'
-        ],
-        technologies: ['Python', 'Tkinter', 'Computer Vision', 'OpenCV', 'Machine Learning', 'AI', 'JSON', 'GUI Development', 'Healthcare Software'],
-        link: 'https://github.com/MehmoodAhmad21/SCAT6NeuroExamAPP'
-      },
-      {
-        id: 'proj5',
-        name: 'macOS Portfolio Website',
-        type: 'folder',
-        description: 'Interactive portfolio with macOS interface',
-        details: [
-          'A stunning macOS-inspired portfolio website featuring fully functional desktop applications including Terminal, Finder, and Notes.',
-          'Built with SvelteKit and TypeScript, featuring draggable windows, minimize/maximize functionality.',
-          'Implemented beautiful glassmorphism design with smooth animations and transitions.',
-          'Created interactive Terminal with command-line interface for exploring portfolio information.',
-          'Developed functional Notes app that saves real text files to user\'s computer.',
-          'You\'re looking at it right now!'
-        ],
-        technologies: ['SvelteKit', 'TypeScript', 'TailwindCSS', 'UI/UX', 'Web Design'],
-        link: 'https://github.com/MehmoodAhmad21/my-portfolio'
-      }
-    ]
-  };
-
-  let currentPath: string[] = ['root'];
-  let selectedItem: FileItem | null = null;
-
-  function getCurrentFolder(): FileItem[] {
-    const currentFolderKey = currentPath[currentPath.length - 1];
-    return folders[currentFolderKey] || [];
-  }
-
-  function handleItemClick(item: FileItem) {
-    if (item.type === 'folder' && currentPath.length === 1) {
-      // Navigating into a main folder
-      currentPath = [...currentPath, item.id];
-      selectedItem = null;
-    } else {
-      // Viewing a file or subfolder
-      selectedItem = item;
+  const projects: Project[] = [
+    {
+      name: 'Offspring.exe',
+      eyebrow: 'Simulation / 2026',
+      description: 'A browser-based genetics simulator that models Mendelian inheritance and polygenic traits, then draws the predicted outcome as a procedural SVG avatar.',
+      impact: '20,000 seeded Monte Carlo outcomes per run',
+      technologies: ['React', 'TypeScript', 'Vite', 'SVG'],
+      link: 'https://github.com/MehmoodAhmad21/Offspring.exe',
+      accent: '#c6a5ff'
+    },
+    {
+      name: 'Trackme',
+      eyebrow: 'Health intelligence',
+      description: 'A full-stack mobile health and productivity tracker combining Apple HealthKit activity data, nutrition lookup, and personalized AI insights.',
+      impact: 'Mobile + API + data intelligence in one system',
+      technologies: ['React Native', 'FastAPI', 'SQLite', 'HealthKit'],
+      link: 'https://github.com/MehmoodAhmad21/Trackme',
+      accent: '#6ee7d2'
+    },
+    {
+      name: 'SCAT6 Neuro Exam',
+      eyebrow: 'Clinical workflow',
+      description: 'A seven-step desktop assessment flow for symptoms, memory, balance, eye tracking, delayed recall, and structured JSON export.',
+      impact: 'Turns a complex assessment into a guided workflow',
+      technologies: ['Python', 'Tkinter', 'JSON', 'Accessibility'],
+      link: 'https://github.com/MehmoodAhmad21/SCAT6NeuroExamAPP',
+      accent: '#79c8ff'
+    },
+    {
+      name: 'SafeHaven',
+      eyebrow: 'IoT / NatHacks 2025',
+      description: 'An emergency-escalation system for people living alone, connecting ESP32 sensors, HealthKit data, automated calls, and caregiver alerts.',
+      impact: 'Environmental sensing through emergency escalation',
+      technologies: ['React Native', 'ESP32', 'FastAPI', 'Twilio'],
+      link: 'https://github.com/AbuDubu/NatHacks2025-SafeHouse',
+      accent: '#ffad88'
+    },
+    {
+      name: 'Event Lottery',
+      eyebrow: 'Android platform',
+      description: 'A fair event sign-up app with entrant, organizer, and admin roles, backed by real-time data, QR registration, and geolocation checks.',
+      impact: 'Fair allocation with role-aware operations',
+      technologies: ['Android', 'Firebase', 'Java', 'QR'],
+      link: 'https://github.com/CMPUT301F24mohggg/MohgggDraw',
+      accent: '#ffd16e'
     }
-  }
+  ];
 
-  function goBack() {
-    if (currentPath.length > 1) {
-      currentPath = currentPath.slice(0, -1);
-      selectedItem = null;
+  const roles: Role[] = [
+    {
+      company: 'University of Alberta',
+      title: 'Software Engineer Intern',
+      period: 'May 2024 - Sep 2025',
+      points: [
+        'Led a YOLOv11 + vision-language safety monitor for live camera feeds, lifting hazard-identification F1 from 34.5% to 50.6% with about 2.5 ms added latency.',
+        'Built a high-performance FFmpeg streaming pipeline and a ROS inspection robot controlled through a Unity/C# VR interface.',
+        'Reduced deployment and startup to one command through Bash automation.'
+      ]
+    },
+    {
+      company: 'Aro Robotic Systems',
+      title: 'Software Engineer Intern',
+      period: 'May 2023 - Sep 2023',
+      points: [
+        'Cut average deployment time by about 70% with Docker and Jenkins pipelines across staging and production.',
+        'Built end-to-end GitLab CI workflows with testing, linting, and security checks.',
+        'Lowered cloud operating costs by about 15% through AWS and DigitalOcean right-sizing.'
+      ]
+    },
+    {
+      company: 'Aro Robotic Systems',
+      title: 'Software Engineer Intern',
+      period: 'May 2022 - Sep 2022',
+      points: [
+        'Designed and shipped the company website from scratch with a responsive, reusable component system.',
+        'Built branded navigation, landing sections, cards, and contact flows with HTML, CSS, JavaScript, and WordPress.'
+      ]
     }
-  }
+  ];
 
-  function getBreadcrumb(): string {
-    return currentPath.map(p => {
-      if (p === 'root') return 'Home';
-      const item = Object.values(folders).flat().find(i => i.id === p);
-      return item?.name || p;
-    }).join(' > ');
+  let activeTab: 'highlights' | 'projects' | 'experience' = 'highlights';
+  let selectedProject: Project | null = null;
+
+  function showTab(tab: typeof activeTab) {
+    activeTab = tab;
+    selectedProject = null;
   }
 </script>
 
-<div class="h-full flex flex-col bg-white/5 rounded-lg overflow-hidden">
-  <!-- Toolbar -->
-  <div class="bg-white/5 border-b border-white/10 px-2 md:px-4 py-2 flex items-center gap-2">
-    <button
-      on:click={goBack}
-      disabled={currentPath.length === 1}
-      class="px-2 py-1 rounded hover:bg-white/10 active:bg-white/20 transition-colors disabled:opacity-30 disabled:cursor-not-allowed touch-manipulation"
-      title="Go back"
-    >
-      ←
-    </button>
-    <div class="flex-1 text-xs md:text-sm text-gray-300 truncate">
-      {getBreadcrumb()}
-    </div>
-  </div>
+<div class="finder">
+  <aside>
+    <p class="section-label">Favorites</p>
+    <button class:active={activeTab === 'highlights'} on:click={() => showTab('highlights')}><span>✦</span> Highlights</button>
+    <button class:active={activeTab === 'projects'} on:click={() => showTab('projects')}><span>▦</span> Projects</button>
+    <button class:active={activeTab === 'experience'} on:click={() => showTab('experience')}><span>◫</span> Experience</button>
 
-  <div class="flex-1 flex overflow-hidden">
-    <!-- Sidebar -->
-    <div class="hidden md:block w-36 md:w-48 bg-white/5 border-r border-white/10 p-2 md:p-3 overflow-y-auto">
-      <div class="text-xs font-semibold text-gray-700 mb-2 px-2">FAVORITES</div>
-      <button
-        on:click={() => { currentPath = ['root']; selectedItem = null; }}
-        class="w-full text-left px-2 py-1.5 rounded flex items-center gap-2 hover:bg-white/10 active:bg-white/20 transition-colors touch-manipulation {currentPath.length === 1 ? 'bg-blue-500/30' : ''}"
-      >
-        <span class="text-base md:text-lg">🏠</span>
-        <span class="text-xs md:text-sm">Home</span>
-      </button>
-      
-      <div class="mt-4 text-xs font-semibold text-gray-700 mb-2 px-2">FOLDERS</div>
-      {#each folders.root as folder}
-        <button
-          on:click={() => { currentPath = ['root', folder.id]; selectedItem = null; }}
-          class="w-full text-left px-2 py-1.5 rounded flex items-center gap-2 hover:bg-white/10 active:bg-white/20 transition-colors touch-manipulation {currentPath.includes(folder.id) ? 'bg-blue-500/30' : ''}"
-        >
-          <span class="text-base md:text-lg">📁</span>
-          <span class="text-xs md:text-sm truncate">{folder.name}</span>
-        </button>
-      {/each}
-    </div>
+    <p class="section-label spaced">Locations</p>
+    <a href={`${base}/mehmood-ahmad-resume.pdf`} target="_blank"><span>▧</span> Resume.pdf</a>
+    <a href="https://github.com/MehmoodAhmad21" target="_blank" rel="noreferrer"><span>⌘</span> GitHub</a>
+  </aside>
 
-    <!-- Main content area -->
-    <div class="flex-1 overflow-y-auto">
-      {#if !selectedItem}
-        <!-- List view -->
-        <div class="p-3 md:p-6">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-            {#each getCurrentFolder() as item}
-              <button
-                on:click={() => handleItemClick(item)}
-                class="text-left p-3 md:p-4 rounded-lg hover:bg-white/10 active:bg-white/20 transition-colors flex items-start gap-2 md:gap-3 border border-white/10 touch-manipulation"
-              >
-                <span class="text-2xl md:text-3xl">{item.type === 'folder' ? '📁' : '📄'}</span>
-                <div class="flex-1 min-w-0">
-                  <div class="font-medium text-sm md:text-base truncate">{item.name}</div>
-                  <div class="text-xs text-gray-700 mt-1 truncate">{item.description}</div>
-                  {#if item.timeperiod}
-                    <div class="text-[10px] md:text-xs text-gray-500 mt-1">{item.timeperiod}</div>
-                  {/if}
-                </div>
+  <section class="browser">
+    <header class="toolbar">
+      <button class="back" on:click={() => { selectedProject = null; }} disabled={!selectedProject} aria-label="Back to projects">‹</button>
+      <div class="path"><span>Portfolio</span><b>/</b><span>{selectedProject?.name ?? activeTab}</span></div>
+      <a class="resume-mini" href={`${base}/mehmood-ahmad-resume.pdf`} target="_blank">Resume ↗</a>
+    </header>
+
+    <div class="viewport">
+      {#if selectedProject}
+        <article class="project-detail" style={`--accent:${selectedProject.accent}`}>
+          <span class="project-glyph">◆</span>
+          <p class="pixel-label">{selectedProject.eyebrow}</p>
+          <h2>{selectedProject.name}</h2>
+          <p class="lead">{selectedProject.description}</p>
+          <div class="impact"><span>Signal</span><strong>{selectedProject.impact}</strong></div>
+          <div class="tech-row">
+            {#each selectedProject.technologies as technology}<span>{technology}</span>{/each}
+          </div>
+          <a class="primary-link" href={selectedProject.link} target="_blank" rel="noreferrer">View repository <span>↗</span></a>
+        </article>
+      {:else if activeTab === 'highlights'}
+        <div class="highlights-view">
+          <div class="view-heading">
+            <div><p class="pixel-label">Selected work</p><h2>Engineering with range.</h2></div>
+            <span class="count">05 projects</span>
+          </div>
+
+          <div class="feature-grid">
+            <button class="feature-card safety" on:click={() => showTab('experience')}>
+              <span class="card-index">01 / Applied AI</span>
+              <strong>50.6%</strong>
+              <p>hazard-identification F1 using YOLOv11 + VLM reasoning</p>
+              <span class="card-action">See the work ↗</span>
+            </button>
+            <button class="feature-card genetics" on:click={() => { activeTab = 'projects'; selectedProject = projects[0]; }}>
+              <span class="card-index">02 / Simulation</span>
+              <strong>20k</strong>
+              <p>seeded genetics outcomes rendered into procedural avatars</p>
+              <span class="card-action">Open project ↗</span>
+            </button>
+            <button class="feature-card systems" on:click={() => showTab('experience')}>
+              <span class="card-index">03 / Systems</span>
+              <strong>70%</strong>
+              <p>faster deployments through containerized delivery pipelines</p>
+              <span class="card-action">See experience ↗</span>
+            </button>
+          </div>
+
+          <div class="publication">
+            <span class="pub-icon">⌁</span>
+            <div><p class="pixel-label">Publication · 2026</p><h3>Object Detection + Small VLMs for Construction Safety</h3><p>Co-author · arXiv:2604.05210</p></div>
+            <a href="https://arxiv.org/abs/2604.05210" target="_blank" rel="noreferrer" aria-label="Read publication">↗</a>
+          </div>
+        </div>
+      {:else if activeTab === 'projects'}
+        <div class="projects-view">
+          <div class="view-heading"><div><p class="pixel-label">Build log</p><h2>Featured projects</h2></div><span class="count">GitHub / public</span></div>
+          <div class="project-list">
+            {#each projects as project, index}
+              <button on:click={() => selectedProject = project} style={`--accent:${project.accent}`}>
+                <span class="project-number">0{index + 1}</span>
+                <span class="project-marker">◆</span>
+                <span class="project-copy"><small>{project.eyebrow}</small><strong>{project.name}</strong><p>{project.description}</p></span>
+                <span class="arrow">›</span>
               </button>
             {/each}
           </div>
         </div>
       {:else}
-        <!-- Detail view -->
-        <div class="p-3 md:p-6 max-w-3xl">
-          <div class="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
-            <span class="text-3xl md:text-5xl">📁</span>
-            <div class="flex-1 min-w-0">
-              <h2 class="text-lg md:text-2xl font-semibold truncate">{selectedItem.name}</h2>
-              <p class="text-gray-700 text-xs md:text-sm truncate">{selectedItem.description}</p>
-            </div>
-          </div>
-
-          {#if selectedItem.timeperiod}
-            <div class="mb-3 md:mb-4 text-xs md:text-sm">
-              <span class="text-blue-400">📅 Time Period:</span>
-              <span class="text-gray-300 ml-2">{selectedItem.timeperiod}</span>
-            </div>
-          {/if}
-
-          {#if selectedItem.location}
-            <div class="mb-3 md:mb-4 text-xs md:text-sm">
-              <span class="text-blue-400">📍 Location:</span>
-              <span class="text-gray-300 ml-2">{selectedItem.location}</span>
-            </div>
-          {/if}
-          
-          <div class="bg-white/5 border border-white/10 rounded-lg p-3 md:p-4 mb-3 md:mb-4">
-            <div class="flex items-center gap-2 mb-2 md:mb-3">
-              <span class="text-xl md:text-2xl">📄</span>
-              <span class="font-medium text-sm md:text-base">README.txt</span>
-            </div>
-            <div class="font-mono text-xs md:text-sm bg-black/30 rounded p-3 md:p-4 leading-relaxed">
-              <div class="text-green-400 mb-4">
-                ═══════════════════════════════════════════════════════
-                {selectedItem.name}
-                ═══════════════════════════════════════════════════════
-              </div>
-              
-              {#if selectedItem.details}
-                <div class="mb-3 md:mb-4">
-                  <div class="text-blue-400 mb-1 md:mb-2 text-xs md:text-sm">DETAILS:</div>
-                  <div class="text-gray-300 space-y-1 md:space-y-2 text-xs md:text-sm">
-                    {#each selectedItem.details as detail}
-                      <div class="pl-3 md:pl-4">• {detail}</div>
-                    {/each}
-                  </div>
-                </div>
-              {/if}
-              
-              {#if selectedItem.technologies}
-                <div class="mb-3 md:mb-4">
-                  <div class="text-blue-400 mb-1 md:mb-2 text-xs md:text-sm">TECHNOLOGIES:</div>
-                  <div class="text-gray-300 pl-3 md:pl-4 text-xs md:text-sm">
-                    {selectedItem.technologies.join(' • ')}
-                  </div>
-                </div>
-              {/if}
-              
-              {#if selectedItem.link}
-                <div>
-                  <div class="text-blue-400 mb-1 md:mb-2 text-xs md:text-sm">REPOSITORY:</div>
-                  <div class="text-purple-400 pl-3 md:pl-4 text-xs md:text-sm break-all">
-                    {selectedItem.link}
-                  </div>
-                </div>
-              {/if}
-            </div>
-          </div>
-
-          <div class="flex flex-col sm:flex-row gap-2">
-            {#if selectedItem.link}
-              <a
-                href={selectedItem.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="px-3 md:px-4 py-2 bg-blue-500 hover:bg-blue-600 active:bg-blue-700 rounded-lg text-xs md:text-sm font-medium transition-colors text-center touch-manipulation"
-              >
-                View on GitHub
-              </a>
-            {/if}
-            <button
-              on:click={() => selectedItem = null}
-              class="px-3 md:px-4 py-2 bg-white/10 hover:bg-white/20 active:bg-white/30 rounded-lg text-xs md:text-sm font-medium transition-colors touch-manipulation"
-            >
-              Back to List
-            </button>
+        <div class="experience-view">
+          <div class="view-heading"><div><p class="pixel-label">Work history</p><h2>Software engineering experience</h2></div><span class="count">Edmonton, AB</span></div>
+          <div class="timeline">
+            {#each roles as role}
+              <article>
+                <div class="timeline-dot"></div>
+                <div class="role-head"><div><small>{role.period}</small><h3>{role.company}</h3><p>{role.title}</p></div></div>
+                <ul>{#each role.points as point}<li>{point}</li>{/each}</ul>
+              </article>
+            {/each}
           </div>
         </div>
       {/if}
     </div>
-  </div>
+  </section>
 </div>
 
 <style>
-  ::-webkit-scrollbar {
-    width: 8px;
-  }
-  
-  ::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-  }
-  
-  ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 4px;
-  }
-  
-  ::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
+  .finder { display: grid; grid-template-columns: 13rem 1fr; height: 100%; color: #f7fbff; }
+  aside { padding: 1.15rem .75rem; border-right: 1px solid rgba(255,255,255,.11); background: rgba(255,255,255,.035); }
+  .section-label { margin: 0 .65rem .45rem; color: rgba(235,244,255,.42); font-size: .67rem; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; }
+  .section-label.spaced { margin-top: 1.4rem; }
+  aside button, aside a { display: flex; width: 100%; align-items: center; gap: .65rem; padding: .58rem .65rem; border: 0; border-radius: .55rem; color: rgba(246,250,255,.72); background: transparent; font-size: .83rem; text-align: left; text-decoration: none; cursor: pointer; }
+  aside button:hover, aside a:hover, aside button.active { color: white; background: rgba(255,255,255,.1); }
+  aside button.active { box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+  aside span { color: #86dfff; font-family: ui-monospace, monospace; }
+
+  .browser { display: flex; min-width: 0; min-height: 0; flex-direction: column; }
+  .toolbar { display: flex; min-height: 3.15rem; align-items: center; gap: .75rem; padding: 0 1rem; border-bottom: 1px solid rgba(255,255,255,.1); background: rgba(1,7,17,.13); }
+  .back { display: grid; width: 1.8rem; height: 1.8rem; place-items: center; border: 1px solid rgba(255,255,255,.11); border-radius: .45rem; color: white; background: rgba(255,255,255,.06); font-size: 1.35rem; cursor: pointer; }
+  .back:disabled { opacity: .28; cursor: default; }
+  .path { display: flex; flex: 1; align-items: center; gap: .5rem; color: rgba(240,247,255,.52); font-size: .75rem; text-transform: capitalize; }
+  .path b { color: rgba(255,255,255,.2); }
+  .resume-mini { padding: .42rem .65rem; border: 1px solid rgba(255,255,255,.14); border-radius: .5rem; color: white; background: rgba(255,255,255,.08); font-size: .72rem; font-weight: 700; text-decoration: none; }
+  .viewport { flex: 1; min-height: 0; overflow-y: auto; }
+  .highlights-view, .projects-view, .experience-view { padding: clamp(1.25rem, 3vw, 2.3rem); }
+  .view-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; margin-bottom: 1.35rem; }
+  .view-heading h2 { margin: .3rem 0 0; font-size: clamp(1.5rem, 3vw, 2.35rem); letter-spacing: -.045em; }
+  .view-heading p { margin: 0; color: #81e6ff; }
+  .count { color: rgba(238,246,255,.42); font-family: ui-monospace, monospace; font-size: .68rem; text-transform: uppercase; }
+
+  .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .85rem; }
+  .feature-card { min-height: 13rem; padding: 1rem; border: 1px solid rgba(255,255,255,.14); border-radius: .9rem; color: white; text-align: left; cursor: pointer; transition: transform 170ms ease, border-color 170ms ease; }
+  .feature-card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,.4); }
+  .feature-card.safety { background: radial-gradient(circle at 80% 15%, rgba(113,222,255,.22), transparent 40%), linear-gradient(145deg, rgba(31,80,130,.72), rgba(8,20,37,.82)); }
+  .feature-card.genetics { background: radial-gradient(circle at 80% 15%, rgba(198,165,255,.25), transparent 40%), linear-gradient(145deg, rgba(79,49,118,.72), rgba(20,12,38,.84)); }
+  .feature-card.systems { background: radial-gradient(circle at 80% 15%, rgba(101,239,190,.2), transparent 40%), linear-gradient(145deg, rgba(32,91,74,.7), rgba(7,28,27,.86)); }
+  .card-index { display: block; min-height: 3.5rem; color: rgba(255,255,255,.58); font-family: ui-monospace, monospace; font-size: .65rem; letter-spacing: .06em; text-transform: uppercase; }
+  .feature-card strong { display: block; font-size: clamp(2.2rem, 5vw, 4rem); letter-spacing: -.07em; line-height: .9; }
+  .feature-card p { margin: .8rem 0 1.15rem; color: rgba(244,249,255,.72); font-size: .8rem; line-height: 1.45; }
+  .card-action { color: rgba(255,255,255,.88); font-size: .72rem; font-weight: 750; }
+  .publication { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1rem; margin-top: .9rem; padding: 1rem; border: 1px solid rgba(255,255,255,.11); border-radius: .9rem; background: rgba(255,255,255,.05); }
+  .pub-icon { display: grid; width: 2.8rem; height: 2.8rem; place-items: center; border-radius: .7rem; color: #07111f; background: #87e8ff; font-size: 1.45rem; }
+  .publication h3 { margin: .2rem 0; font-size: .96rem; }
+  .publication p { margin: 0; color: rgba(238,246,255,.51); font-size: .72rem; }
+  .publication .pixel-label { color: #81e6ff; font-size: .61rem; }
+  .publication a { display: grid; width: 2.2rem; height: 2.2rem; place-items: center; border-radius: 50%; color: white; background: rgba(255,255,255,.09); text-decoration: none; }
+
+  .project-list { display: grid; gap: .65rem; }
+  .project-list button { display: grid; grid-template-columns: 2rem 1.7rem 1fr auto; align-items: center; gap: .85rem; padding: 1rem; border: 1px solid rgba(255,255,255,.11); border-radius: .85rem; color: white; background: rgba(255,255,255,.045); text-align: left; cursor: pointer; transition: background 160ms ease, transform 160ms ease; }
+  .project-list button:hover { transform: translateX(3px); background: rgba(255,255,255,.09); }
+  .project-number { color: rgba(255,255,255,.28); font-family: ui-monospace, monospace; font-size: .68rem; }
+  .project-marker { color: var(--accent); text-shadow: 0 0 12px var(--accent); }
+  .project-copy { min-width: 0; }
+  .project-copy small { display: block; color: var(--accent); font-family: ui-monospace, monospace; font-size: .61rem; text-transform: uppercase; }
+  .project-copy strong { display: block; margin: .16rem 0; font-size: 1rem; }
+  .project-copy p { margin: 0; overflow: hidden; color: rgba(240,247,255,.55); font-size: .72rem; line-height: 1.35; text-overflow: ellipsis; white-space: nowrap; }
+  .arrow { color: rgba(255,255,255,.5); font-size: 1.5rem; }
+
+  .timeline { position: relative; padding-left: .45rem; }
+  .timeline::before { position: absolute; top: .45rem; bottom: 0; left: .77rem; width: 1px; background: linear-gradient(#74dbff, rgba(116,219,255,.08)); content: ''; }
+  .timeline article { position: relative; padding: 0 0 1.55rem 2rem; }
+  .timeline-dot { position: absolute; top: .38rem; left: 0; width: .68rem; height: .68rem; border: 2px solid #0e263e; border-radius: 2px; background: #7fe2ff; box-shadow: 0 0 12px rgba(127,226,255,.7); transform: rotate(45deg); }
+  .role-head small { color: #80e2ff; font-family: ui-monospace, monospace; font-size: .65rem; text-transform: uppercase; }
+  .role-head h3 { margin: .25rem 0 .08rem; font-size: 1.15rem; }
+  .role-head p { margin: 0; color: rgba(245,250,255,.57); font-size: .78rem; }
+  .timeline ul { margin: .65rem 0 0; padding-left: 1rem; color: rgba(242,248,255,.72); font-size: .77rem; line-height: 1.55; }
+  .timeline li + li { margin-top: .3rem; }
+
+  .project-detail { min-height: 100%; padding: clamp(1.5rem, 5vw, 4rem); background: radial-gradient(circle at 82% 10%, color-mix(in srgb, var(--accent) 24%, transparent), transparent 32%); }
+  .project-glyph { display: grid; width: 3.5rem; height: 3.5rem; margin-bottom: 2.2rem; place-items: center; border: 1px solid color-mix(in srgb, var(--accent) 55%, white); border-radius: .8rem; color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); font-size: 1.2rem; box-shadow: 0 0 28px color-mix(in srgb, var(--accent) 18%, transparent); }
+  .project-detail .pixel-label { margin: 0; color: var(--accent); }
+  .project-detail h2 { margin: .55rem 0 .8rem; font-size: clamp(2rem, 5vw, 4rem); letter-spacing: -.06em; line-height: .95; }
+  .project-detail .lead { max-width: 44rem; color: rgba(244,249,255,.7); font-size: clamp(.95rem, 2vw, 1.15rem); line-height: 1.65; }
+  .impact { display: flex; max-width: 43rem; align-items: center; gap: 1rem; margin: 1.5rem 0; padding: .9rem 1rem; border-left: 2px solid var(--accent); background: rgba(255,255,255,.045); }
+  .impact span { color: var(--accent); font-family: ui-monospace, monospace; font-size: .66rem; text-transform: uppercase; }
+  .impact strong { font-size: .82rem; }
+  .tech-row { display: flex; flex-wrap: wrap; gap: .45rem; margin-bottom: 1.7rem; }
+  .tech-row span { padding: .38rem .62rem; border: 1px solid rgba(255,255,255,.11); border-radius: 999px; color: rgba(255,255,255,.72); background: rgba(255,255,255,.05); font-size: .67rem; }
+  .primary-link { display: inline-flex; align-items: center; gap: .6rem; padding: .75rem 1rem; border-radius: .65rem; color: #07111f; background: var(--accent); font-size: .78rem; font-weight: 800; text-decoration: none; }
+
+  @media (max-width: 760px) {
+    .finder { grid-template-columns: 1fr; }
+    aside { display: flex; overflow-x: auto; gap: .3rem; padding: .5rem; border-right: 0; border-bottom: 1px solid rgba(255,255,255,.1); }
+    aside .section-label, aside a { display: none; }
+    aside button { width: auto; flex: 1 0 auto; justify-content: center; padding: .52rem; font-size: .72rem; }
+    .toolbar { min-height: 2.75rem; padding: 0 .65rem; }
+    .resume-mini { display: none; }
+    .feature-grid { grid-template-columns: 1fr; }
+    .feature-card { min-height: 10rem; }
+    .card-index { min-height: 2rem; }
+    .publication { grid-template-columns: auto 1fr; }
+    .publication > a { display: none; }
+    .view-heading { align-items: flex-start; }
+    .count { display: none; }
+    .project-list button { grid-template-columns: 1.4rem 1.3rem 1fr auto; gap: .55rem; padding: .8rem; }
+    .project-copy p { white-space: normal; display: -webkit-box; line-clamp: 2; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+    .impact { align-items: flex-start; flex-direction: column; gap: .35rem; }
   }
 </style>

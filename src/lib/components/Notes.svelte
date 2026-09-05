@@ -1,94 +1,51 @@
 <script lang="ts">
   let noteContent = '';
-  let fileName = 'untitled.txt';
+  let fileName = 'ideas.txt';
   let saveStatus = '';
 
   function downloadNote() {
     if (!noteContent.trim()) {
-      saveStatus = 'Cannot save empty note';
-      setTimeout(() => saveStatus = '', 2000);
+      saveStatus = 'Write something first';
+      setTimeout(() => saveStatus = '', 1800);
       return;
     }
-
-    const blob = new Blob([noteContent], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
+    const url = URL.createObjectURL(new Blob([noteContent], { type: 'text/plain' }));
     const link = document.createElement('a');
     link.href = url;
-    link.download = fileName;
-    document.body.appendChild(link);
+    link.download = fileName || 'note.txt';
     link.click();
-    document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    
-    saveStatus = `Saved as ${fileName}`;
-    setTimeout(() => saveStatus = '', 3000);
+    saveStatus = 'Saved';
+    setTimeout(() => saveStatus = '', 1800);
   }
 
   function newNote() {
-    if (noteContent.trim() && !confirm('Clear current note? Unsaved changes will be lost.')) {
-      return;
-    }
+    if (noteContent.trim() && !confirm('Clear this note?')) return;
     noteContent = '';
-    fileName = 'untitled.txt';
-    saveStatus = '';
+    fileName = 'ideas.txt';
   }
 </script>
 
-<div class="h-full flex flex-col bg-gradient-to-br from-yellow-50 to-yellow-100 text-gray-900 rounded-lg overflow-hidden">
-  <!-- Toolbar -->
-  <div class="bg-yellow-200/50 border-b border-yellow-300 px-2 md:px-4 py-2 flex items-center justify-between gap-2">
-    <div class="flex items-center gap-1 md:gap-2 flex-1 min-w-0">
-      <input
-        bind:value={fileName}
-        class="bg-white/50 border border-yellow-300 rounded px-2 py-1 text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 flex-1 min-w-0"
-        placeholder="filename.txt"
-      />
-    </div>
-    
-    <div class="flex items-center gap-1 md:gap-2">
-      {#if saveStatus}
-        <span class="text-xs md:text-sm text-green-700 hidden sm:inline">{saveStatus}</span>
-      {/if}
-      <button
-        on:click={newNote}
-        class="px-2 md:px-3 py-1 bg-white/50 hover:bg-white/80 active:bg-white border border-yellow-300 rounded text-xs md:text-sm font-medium transition-colors touch-manipulation"
-      >
-        New
-      </button>
-      <button
-        on:click={downloadNote}
-        class="px-2 md:px-3 py-1 bg-yellow-400 hover:bg-yellow-500 active:bg-yellow-600 rounded text-xs md:text-sm font-medium transition-colors touch-manipulation"
-      >
-        💾 Save
-      </button>
-    </div>
+<div class="notes">
+  <div class="toolbar">
+    <input bind:value={fileName} aria-label="Note filename" />
+    <span class="status">{saveStatus}</span>
+    <button on:click={newNote}>New</button>
+    <button class="save" on:click={downloadNote}>Save note</button>
   </div>
-
-  <!-- Text Editor -->
-  <div class="flex-1 p-2 md:p-4 overflow-y-auto">
-    <textarea
-      bind:value={noteContent}
-      class="w-full h-full bg-transparent resize-none outline-none font-serif text-sm md:text-base leading-relaxed"
-      placeholder="Start typing your note here..."
-      spellcheck="true"
-    ></textarea>
-  </div>
-
-  <!-- Footer with stats -->
-  <div class="bg-yellow-200/30 border-t border-yellow-300 px-2 md:px-4 py-1 text-[10px] md:text-xs text-gray-600 flex justify-between gap-2">
-    <span>Chars: {noteContent.length}</span>
-    <span>Words: {noteContent.trim() ? noteContent.trim().split(/\s+/).length : 0}</span>
-    <span>Lines: {noteContent ? noteContent.split('\n').length : 1}</span>
-  </div>
+  <textarea bind:value={noteContent} aria-label="Note" placeholder={'Quick thought...\n\nThis little app works, too. Write a note and save it as a real text file.'} spellcheck="true"></textarea>
+  <footer><span>{noteContent.trim() ? noteContent.trim().split(/\s+/).length : 0} words</span><span>{noteContent.length} characters</span></footer>
 </div>
 
 <style>
-  textarea {
-    font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
-  }
-  
-  textarea::placeholder {
-    color: rgba(0, 0, 0, 0.3);
-  }
+  .notes { display: flex; height: 100%; flex-direction: column; color: #16202b; background: linear-gradient(145deg, rgba(255,252,233,.98), rgba(245,237,195,.96)); }
+  .toolbar { display: flex; align-items: center; gap: .5rem; padding: .75rem; border-bottom: 1px solid rgba(77,61,15,.13); background: rgba(255,255,255,.34); }
+  input { min-width: 0; flex: 1; padding: .48rem .65rem; border: 1px solid rgba(68,54,14,.15); border-radius: .5rem; outline: 0; background: rgba(255,255,255,.4); font-size: .76rem; }
+  input:focus { border-color: rgba(137,101,0,.45); box-shadow: 0 0 0 3px rgba(255,205,68,.2); }
+  .status { min-width: 3rem; color: #5c7f54; font-size: .68rem; text-align: right; }
+  button { padding: .48rem .68rem; border: 1px solid rgba(68,54,14,.14); border-radius: .48rem; color: #32270e; background: rgba(255,255,255,.46); font-size: .7rem; font-weight: 700; cursor: pointer; }
+  button.save { border-color: #e1b637; background: #f7ce55; }
+  textarea { flex: 1; resize: none; border: 0; outline: 0; padding: clamp(1.25rem, 4vw, 2.2rem); color: #2c2c28; background: repeating-linear-gradient(180deg, transparent 0, transparent 30px, rgba(119,94,22,.09) 31px); font-family: ui-serif, Georgia, serif; font-size: 1rem; line-height: 31px; box-shadow: none; }
+  textarea::placeholder { color: rgba(52,47,32,.38); }
+  footer { display: flex; justify-content: space-between; padding: .45rem .9rem; border-top: 1px solid rgba(77,61,15,.1); color: rgba(55,49,30,.52); background: rgba(255,255,255,.28); font-family: ui-monospace, monospace; font-size: .62rem; }
 </style>
-
