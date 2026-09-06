@@ -76,7 +76,7 @@
       windowStates[app.name].isMaximized = true;
     } else {
       const sizes: Record<string, [number, number]> = {
-        Finder: [900, 630], Terminal: [730, 500], Notes: [700, 500], 'Flappy Bird': [620, 500]
+        Finder: [940, 640], Terminal: [760, 510], Notes: [860, 540], 'Flappy Bird': [620, 500]
       };
       const [width, height] = sizes[app.name];
       windowStates[app.name].x = Math.max(24, (window.innerWidth - width) / 2);
@@ -343,9 +343,9 @@
 
   @keyframes dialogue-bounce { 50% { transform: translateY(3px); } }
 
-  .finder-window { width: min(900px, calc(100vw - 1rem)); height: min(630px, calc(100svh - 7.9rem)); }
-  .terminal-window { width: min(730px, calc(100vw - 1rem)); height: min(500px, calc(100svh - 7.9rem)); }
-  .notes-window { width: min(700px, calc(100vw - 1rem)); height: min(500px, calc(100svh - 7.9rem)); }
+  .finder-window { width: min(940px, calc(100vw - 1rem)); height: min(640px, calc(100svh - 7.9rem)); }
+  .terminal-window { width: min(760px, calc(100vw - 1rem)); height: min(510px, calc(100svh - 7.9rem)); }
+  .notes-window { width: min(860px, calc(100vw - 1rem)); height: min(540px, calc(100svh - 7.9rem)); }
   .game-window { width: min(620px, calc(100vw - 1rem)); height: min(500px, calc(100svh - 7.9rem)); }
 
   @media (max-width: 800px) {

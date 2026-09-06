@@ -115,8 +115,8 @@
 
 <style>
   .window-container {
-    filter: drop-shadow(6px 7px 0 rgba(1, 7, 17, .55)) drop-shadow(0 30px 45px rgba(2, 8, 20, .35));
-    animation: window-in 280ms steps(5, end);
+    filter: drop-shadow(0 28px 50px rgba(0, 0, 0, .48));
+    animation: window-in 260ms cubic-bezier(.2,.85,.25,1);
     transition: opacity 180ms ease, transform 220ms ease;
   }
   .window-container.dragging { transition: none; }
@@ -129,16 +129,15 @@
     min-height: 0;
     flex-direction: column;
     overflow: hidden;
-    border: 2px solid rgba(226,249,255,.72);
-    border-radius: .35rem;
-    background: linear-gradient(145deg, rgba(255,255,255,.17), rgba(255,255,255,.055) 44%, rgba(74,128,203,.08)), rgba(7,16,30,.66);
-    box-shadow: 0 0 0 2px rgba(5,19,34,.82), inset 0 1px 0 rgba(255,255,255,.42), inset 0 -1px 0 rgba(255,255,255,.08);
-    backdrop-filter: blur(32px) saturate(145%);
-    -webkit-backdrop-filter: blur(32px) saturate(145%);
-    clip-path: polygon(7px 0, calc(100% - 7px) 0, calc(100% - 7px) 2px, 100% 2px, 100% calc(100% - 7px), calc(100% - 2px) calc(100% - 7px), calc(100% - 2px) 100%, 7px 100%, 7px calc(100% - 2px), 0 calc(100% - 2px), 0 7px, 2px 7px, 2px 2px, 7px 2px);
+    border: 1px solid rgba(255,255,255,.18);
+    border-radius: .9rem;
+    background: rgba(35,35,38,.88);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.13), 0 0 0 1px rgba(0,0,0,.4);
+    backdrop-filter: blur(42px) saturate(140%);
+    -webkit-backdrop-filter: blur(42px) saturate(140%);
   }
-  .glass-window.maximized { border-radius: .2rem; }
-  .glass-reflection { position: absolute; inset: 0; background: radial-gradient(circle at 17% 0%, rgba(255,255,255,.16), transparent 28%); pointer-events: none; }
+  .glass-window.maximized { border-radius: .7rem; }
+  .glass-reflection { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,.05), transparent 22%); pointer-events: none; }
 
   .titlebar {
     position: relative;
@@ -146,17 +145,17 @@
     display: grid;
     grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    min-height: 3rem;
-    padding: .6rem .85rem;
-    border-bottom: 2px solid rgba(143,221,245,.24);
-    background: linear-gradient(180deg, rgba(126,217,245,.18), rgba(255,255,255,.035));
+    min-height: 3.45rem;
+    padding: .65rem 1rem;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+    background: rgba(39,39,42,.82);
     user-select: none;
   }
   .titlebar.grab { cursor: grab; }
   .titlebar.grab:active { cursor: grabbing; }
 
-  .window-controls { display: flex; gap: .5rem; width: max-content; }
-  .traffic { display: grid; width: .78rem; height: .78rem; padding: 0; place-items: center; border: 1px solid rgba(5,20,33,.62); border-radius: 2px; cursor: pointer; box-shadow: 2px 2px 0 rgba(0,0,0,.28), inset 1px 1px 0 rgba(255,255,255,.35); }
+  .window-controls { display: flex; gap: .55rem; width: max-content; }
+  .traffic { display: grid; width: .82rem; height: .82rem; padding: 0; place-items: center; border: 1px solid rgba(0,0,0,.24); border-radius: 50%; cursor: pointer; box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); }
   .traffic.red { background: #ff5d57; }
   .traffic.yellow { background: #febc2e; }
   .traffic.green { background: #28c840; }
@@ -164,19 +163,19 @@
   .window-controls:hover .traffic span, .traffic:focus-visible span { opacity: 1; }
   .traffic:focus-visible { outline: 2px solid white; outline-offset: 2px; }
 
-  .title { display: flex; align-items: center; gap: .5rem; color: rgba(255,255,255,.9); font-family: ui-monospace, monospace; font-size: .76rem; font-weight: 850; letter-spacing: .03em; }
-  .title img { width: 1.3rem; height: 1.3rem; border-radius: .2rem; object-fit: cover; image-rendering: pixelated; }
+  .title { display: flex; align-items: center; gap: .52rem; color: rgba(255,255,255,.9); font-size: .84rem; font-weight: 650; letter-spacing: -.01em; }
+  .title img { width: 1.28rem; height: 1.28rem; border-radius: .28rem; object-fit: cover; image-rendering: pixelated; }
   .title-spacer { min-width: 4rem; }
   .content { position: relative; z-index: 1; min-height: 0; flex: 1; overflow: hidden; }
 
   @keyframes window-in {
-    from { opacity: 0; transform: translateY(14px) scale(.93); }
+    from { opacity: 0; transform: translateY(14px) scale(.965); }
     to { opacity: 1; transform: translateY(0) scale(1); }
   }
 
   @media (max-width: 767px) {
     .window-container { inset: 2.55rem .35rem 4.65rem !important; width: auto !important; height: auto !important; }
-    .glass-window { border-radius: .25rem; }
+    .glass-window { border-radius: .8rem; }
     .titlebar { min-height: 2.7rem; padding: .5rem .72rem; }
     .traffic { width: .82rem; height: .82rem; }
     .traffic.yellow { display: none; }

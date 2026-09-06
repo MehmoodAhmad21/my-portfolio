@@ -78,7 +78,7 @@
 </script>
 
 <div class="terminal" on:click={() => inputElement?.focus()} role="presentation">
-  <div class="terminal-tabs"><span class="active"><b>◇</b> mehmood — zsh</span><span>+</span></div>
+  <div class="terminal-toolbar"><div class="tab"><span>⌘</span><strong>mehmood — zsh</strong><button aria-label="Close tab">×</button></div><button class="new-tab" aria-label="New tab">＋</button><span class="toolbar-space"></span><button aria-label="Terminal inspector">ⓘ</button></div>
   <div class="terminal-content">
     {#each commandHistory as line}
       <div class:prompt={line.startsWith('mehmood@')} class="line">{line}</div>
@@ -91,14 +91,19 @@
 </div>
 
 <style>
-  .terminal { display: flex; height: 100%; flex-direction: column; overflow: hidden; color: #cbf7e6; background: linear-gradient(150deg, rgba(3,10,17,.93), rgba(5,21,27,.94)); font-family: ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
-  .terminal-tabs { display: flex; min-height: 2.5rem; align-items: center; justify-content: space-between; padding: 0 1rem; border-bottom: 1px solid rgba(120,242,205,.1); color: rgba(218,251,240,.4); background: rgba(255,255,255,.025); font-size: .69rem; }
-  .terminal-tabs .active { color: rgba(231,255,247,.75); }
-  .terminal-tabs b { color: #73f2c4; }
-  .terminal-content { flex: 1; overflow-y: auto; padding: 1.25rem; font-size: clamp(.72rem, 1.4vw, .84rem); line-height: 1.7; }
+  .terminal { display: flex; height: 100%; flex-direction: column; overflow: hidden; color: #e8e8e8; background: rgba(18,18,19,.97); font-family: ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, monospace; }
+  .terminal-toolbar { display: flex; min-height: 2.45rem; align-items: center; gap: .35rem; padding: .25rem .55rem 0; border-bottom: 1px solid rgba(255,255,255,.08); color: #a7a7ab; background: #2b2b2d; font-size: .67rem; }
+  .terminal-toolbar button { display: grid; width: 1.7rem; height: 1.7rem; padding: 0; place-items: center; border: 0; border-radius: .38rem; color: #aaaab0; background: transparent; cursor: pointer; }
+  .terminal-toolbar button:hover { background: rgba(255,255,255,.08); }
+  .tab { display: grid; min-width: 12rem; height: 2.15rem; grid-template-columns: auto 1fr auto; align-items: center; gap: .5rem; padding: 0 .45rem .1rem .65rem; border: 1px solid rgba(255,255,255,.08); border-bottom-color: #1a1a1b; border-radius: .48rem .48rem 0 0; color: #e6e6e8; background: #1a1a1b; }
+  .tab strong { font-weight: 530; text-align: center; }
+  .tab > span { color: #78d6ff; }
+  .tab button { width: 1.1rem; height: 1.1rem; }
+  .toolbar-space { flex: 1; }
+  .terminal-content { flex: 1; overflow-y: auto; padding: 1.15rem 1.25rem; font-size: clamp(.72rem, 1.4vw, .83rem); line-height: 1.68; }
   .line { min-height: 1.35em; white-space: pre-wrap; }
-  .line.prompt { margin-top: .35rem; color: #8de8ff; }
-  .input-row { display: flex; align-items: center; gap: .55rem; color: #c2e3ff; }
-  .input-row b { color: #7af0c3; }
-  input { min-width: 3rem; flex: 1; padding: 0; border: 0; outline: 0; color: #f2fff9; background: transparent; box-shadow: none; caret-color: #7af0c3; font: inherit; }
+  .line.prompt { margin-top: .35rem; color: #70c9ff; }
+  .input-row { display: flex; align-items: center; gap: .55rem; color: #d4d4d6; }
+  .input-row b { color: #7ee2a8; }
+  input { min-width: 3rem; flex: 1; padding: 0; border: 0; outline: 0; color: #f5f5f5; background: transparent; box-shadow: none; caret-color: #f5f5f5; font: inherit; }
 </style>

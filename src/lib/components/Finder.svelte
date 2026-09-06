@@ -102,6 +102,9 @@
 
   let activeTab: 'highlights' | 'projects' | 'experience' = initialTab;
   let selectedProject: Project | null = null;
+  let viewMode: 'icons' | 'list' = 'icons';
+
+  $: windowTitle = selectedProject?.name ?? (activeTab === 'highlights' ? 'Recents' : activeTab === 'projects' ? 'Projects' : 'Experience');
 
   function showTab(tab: typeof activeTab) {
     activeTab = tab;
@@ -112,20 +115,34 @@
 <div class="finder">
   <aside>
     <p class="section-label">Favorites</p>
-    <button class:active={activeTab === 'highlights'} on:click={() => showTab('highlights')}><span>✦</span> Highlights</button>
+    <button class:active={activeTab === 'highlights'} on:click={() => showTab('highlights')}><span>◴</span> Recents</button>
     <button class:active={activeTab === 'projects'} on:click={() => showTab('projects')}><span>▦</span> Projects</button>
-    <button class:active={activeTab === 'experience'} on:click={() => showTab('experience')}><span>◫</span> Experience</button>
+    <button class:active={activeTab === 'experience'} on:click={() => showTab('experience')}><span>▤</span> Experience</button>
 
     <p class="section-label spaced">Locations</p>
-    <a href={`${base}/mehmood-ahmad-resume.pdf`} target="_blank"><span>▧</span> Resume.pdf</a>
+    <a href={`${base}/mehmood-ahmad-resume.pdf`} target="_blank"><span>⌄</span> Downloads</a>
     <a href="https://github.com/MehmoodAhmad21" target="_blank" rel="noreferrer"><span>⌘</span> GitHub</a>
+    <div class="sidebar-user"><span>⌂</span><strong>mehmoodahmad</strong><i></i></div>
   </aside>
 
   <section class="browser">
     <header class="toolbar">
-      <button class="back" on:click={() => { selectedProject = null; }} disabled={!selectedProject} aria-label="Back to projects">‹</button>
-      <div class="path"><span>Portfolio</span><b>/</b><span>{selectedProject?.name ?? activeTab}</span></div>
-      <a class="resume-mini" href={`${base}/mehmood-ahmad-resume.pdf`} target="_blank">Resume ↗</a>
+      <div class="history-controls">
+        <button on:click={() => { selectedProject = null; }} disabled={!selectedProject} aria-label="Back">‹</button>
+        <button disabled aria-label="Forward">›</button>
+      </div>
+      <strong class="folder-title">{windowTitle}</strong>
+      <div class="toolbar-spacer"></div>
+      <div class="view-controls" aria-label="View options">
+        <button class:active={viewMode === 'icons'} on:click={() => viewMode = 'icons'} aria-label="Icon view">▦</button>
+        <button class:active={viewMode === 'list'} on:click={() => viewMode = 'list'} aria-label="List view">☷</button>
+        <button disabled aria-label="Column view">▥</button>
+        <button disabled aria-label="Gallery view">▰</button>
+      </div>
+      <button class="tool-button" aria-label="Group items">⌗</button>
+      <button class="tool-button" aria-label="Share">⇧</button>
+      <button class="tool-button" aria-label="More options">•••</button>
+      <a class="search-button" href={`${base}/mehmood-ahmad-resume.pdf`} target="_blank" aria-label="Open resume">⌕</a>
     </header>
 
     <div class="viewport">
@@ -144,34 +161,32 @@
       {:else if activeTab === 'highlights'}
         <div class="highlights-view">
           <div class="view-heading">
-            <div><p class="pixel-label">Selected work</p><h2>Engineering with range.</h2></div>
-            <span class="count">05 projects</span>
+            <div><h2>Recents</h2><p>Everything a recruiter should open first.</p></div>
+            <span class="count">4 items</span>
           </div>
 
-          <div class="feature-grid">
+          <div class:finder-icons={viewMode === 'icons'} class:finder-list={viewMode === 'list'} class="feature-grid">
             <button class="feature-card safety" on:click={() => showTab('experience')}>
-              <span class="card-index">01 / Applied AI</span>
-              <strong>50.6%</strong>
-              <p>hazard-identification F1 using YOLOv11 + VLM reasoning</p>
-              <span class="card-action">See the work ↗</span>
+              <span class="file-art blue"><b>50.6%</b><i>AI</i></span>
+              <span class="file-copy"><strong>AI Safety.project</strong><p>YOLOv11 + VLM hazard identification</p></span>
             </button>
             <button class="feature-card genetics" on:click={() => { activeTab = 'projects'; selectedProject = projects[0]; }}>
-              <span class="card-index">02 / Simulation</span>
-              <strong>20k</strong>
-              <p>seeded genetics outcomes rendered into procedural avatars</p>
-              <span class="card-action">Open project ↗</span>
+              <span class="file-art purple"><b>20K</b><i>SIM</i></span>
+              <span class="file-copy"><strong>Offspring.app</strong><p>Seeded genetics simulation</p></span>
             </button>
             <button class="feature-card systems" on:click={() => showTab('experience')}>
-              <span class="card-index">03 / Systems</span>
-              <strong>70%</strong>
-              <p>faster deployments through containerized delivery pipelines</p>
-              <span class="card-action">See experience ↗</span>
+              <span class="file-art green"><b>70%</b><i>OPS</i></span>
+              <span class="file-copy"><strong>Deployments.log</strong><p>Faster containerized delivery</p></span>
             </button>
+            <a class="feature-card research" href="https://arxiv.org/abs/2604.05210" target="_blank" rel="noreferrer">
+              <span class="file-art paper"><b>PDF</b><i>2026</i></span>
+              <span class="file-copy"><strong>Construction Safety.pdf</strong><p>Object detection + small VLMs</p></span>
+            </a>
           </div>
 
           <div class="publication">
             <span class="pub-icon">⌁</span>
-            <div><p class="pixel-label">Publication · 2026</p><h3>Object Detection + Small VLMs for Construction Safety</h3><p>Co-author · arXiv:2604.05210</p></div>
+            <div><p class="pixel-label">Quick Look · 2026</p><h3>Object Detection + Small VLMs for Construction Safety</h3><p>Co-author · arXiv:2604.05210</p></div>
             <a href="https://arxiv.org/abs/2604.05210" target="_blank" rel="noreferrer" aria-label="Read publication">↗</a>
           </div>
         </div>
@@ -220,11 +235,6 @@
 
   .browser { display: flex; min-width: 0; min-height: 0; flex-direction: column; }
   .toolbar { display: flex; min-height: 3.15rem; align-items: center; gap: .75rem; padding: 0 1rem; border-bottom: 2px solid rgba(137,217,244,.23); background: linear-gradient(90deg, rgba(101,207,239,.12), rgba(255,255,255,.025)); }
-  .back { display: grid; width: 1.8rem; height: 1.8rem; place-items: center; border: 2px solid rgba(205,244,255,.5); border-radius: 2px; color: white; background: rgba(8,28,47,.72); box-shadow: 2px 2px 0 rgba(0,0,0,.32); font-size: 1.35rem; cursor: pointer; }
-  .back:disabled { opacity: .28; cursor: default; }
-  .path { display: flex; flex: 1; align-items: center; gap: .5rem; color: rgba(240,247,255,.62); font-family: ui-monospace, monospace; font-size: .68rem; font-weight: 800; text-transform: uppercase; }
-  .path b { color: rgba(255,255,255,.2); }
-  .resume-mini { padding: .42rem .65rem; border: 2px solid rgba(218,248,255,.62); border-radius: 2px; color: #071522; background: #9eeaff; box-shadow: 2px 2px 0 rgba(0,0,0,.32); font-family: ui-monospace, monospace; font-size: .65rem; font-weight: 900; text-decoration: none; }
   .viewport { flex: 1; min-height: 0; overflow-y: auto; }
   .highlights-view, .projects-view, .experience-view { padding: clamp(1.25rem, 3vw, 2.3rem); }
   .view-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; margin-bottom: 1.35rem; }
@@ -238,10 +248,8 @@
   .feature-card.safety { background: radial-gradient(circle at 80% 15%, rgba(113,222,255,.22), transparent 40%), linear-gradient(145deg, rgba(31,80,130,.72), rgba(8,20,37,.82)); }
   .feature-card.genetics { background: radial-gradient(circle at 80% 15%, rgba(198,165,255,.25), transparent 40%), linear-gradient(145deg, rgba(79,49,118,.72), rgba(20,12,38,.84)); }
   .feature-card.systems { background: radial-gradient(circle at 80% 15%, rgba(101,239,190,.2), transparent 40%), linear-gradient(145deg, rgba(32,91,74,.7), rgba(7,28,27,.86)); }
-  .card-index { display: block; min-height: 3.5rem; color: #ffdf78; font-family: ui-monospace, monospace; font-size: .65rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }
   .feature-card strong { display: block; font-size: clamp(2.2rem, 5vw, 4rem); letter-spacing: -.07em; line-height: .9; }
   .feature-card p { margin: .8rem 0 1.15rem; color: rgba(244,249,255,.72); font-size: .8rem; line-height: 1.45; }
-  .card-action { display: inline-block; padding: .24rem .38rem; color: #092038; background: #9eeaff; font-family: ui-monospace, monospace; font-size: .63rem; font-weight: 900; }
   .publication { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1rem; margin-top: .9rem; padding: 1rem; border: 2px solid rgba(228,250,255,.62); border-radius: 2px; background: rgba(255,255,255,.06); box-shadow: 3px 3px 0 rgba(0,0,0,.3); }
   .pub-icon { display: grid; width: 2.8rem; height: 2.8rem; place-items: center; border: 2px solid #0e2a43; border-radius: 2px; color: #07111f; background: #ffdc70; box-shadow: 2px 2px 0 rgba(0,0,0,.3); font-size: 1.45rem; }
   .publication h3 { margin: .2rem 0; font-size: .96rem; }
@@ -283,16 +291,94 @@
   .tech-row span { padding: .38rem .62rem; border: 2px solid rgba(255,255,255,.18); border-radius: 2px; color: rgba(255,255,255,.82); background: rgba(255,255,255,.06); font-family: ui-monospace, monospace; font-size: .64rem; font-weight: 800; }
   .primary-link { display: inline-flex; align-items: center; gap: .6rem; padding: .75rem 1rem; border: 2px solid rgba(255,255,255,.62); border-radius: 2px; color: #07111f; background: var(--accent); box-shadow: 3px 3px 0 rgba(0,0,0,.35); font-family: ui-monospace, monospace; font-size: .7rem; font-weight: 900; text-decoration: none; }
 
+  /* Native Finder chrome, with pixel artwork reserved for the files themselves. */
+  .finder { grid-template-columns: 13.4rem 1fr; color: #f4f4f5; background: rgba(39,39,41,.96); }
+  aside { position: relative; padding: 1.2rem .7rem 4rem; border-right: 1px solid rgba(255,255,255,.09); background: rgba(28,28,30,.88); backdrop-filter: blur(34px) saturate(135%); }
+  .section-label { margin: 0 .65rem .42rem; color: #8f8f94; font-size: .68rem; font-weight: 650; letter-spacing: .01em; text-transform: none; }
+  .section-label.spaced { margin-top: 1.55rem; }
+  aside button, aside a { gap: .65rem; padding: .48rem .65rem; border-radius: .5rem; color: #ededf0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif; font-size: .84rem; font-weight: 520; }
+  aside button:hover, aside a:hover { color: white; background: rgba(255,255,255,.07); }
+  aside button.active { color: white; background: rgba(255,255,255,.115); box-shadow: none; }
+  aside button.active span { color: #0a84ff; }
+  aside span { display: grid; width: 1.2rem; place-items: center; color: #0a84ff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 1rem; }
+  .sidebar-user { position: absolute; right: .7rem; bottom: .8rem; left: .7rem; display: grid; grid-template-columns: 1.2rem 1fr auto; align-items: center; gap: .65rem; padding: .5rem .65rem; color: #ededf0; font-size: .78rem; }
+  .sidebar-user strong { overflow: hidden; font-weight: 520; text-overflow: ellipsis; }
+  .sidebar-user i { width: .43rem; height: .43rem; border-radius: 50%; background: #31c757; box-shadow: 0 0 0 2px rgba(49,199,87,.14); }
+
+  .browser { background: rgba(43,43,45,.97); }
+  .toolbar { min-height: 3.65rem; gap: .7rem; padding: 0 .9rem; border-bottom: 1px solid rgba(255,255,255,.08); background: rgba(41,41,43,.96); }
+  .history-controls, .view-controls { display: flex; align-items: center; overflow: hidden; border: 1px solid rgba(255,255,255,.1); border-radius: .72rem; background: rgba(0,0,0,.1); }
+  .history-controls button, .view-controls button, .tool-button, .search-button { display: grid; width: 2.2rem; height: 2rem; padding: 0; place-items: center; border: 0; color: #dadadd; background: transparent; font-size: 1.13rem; text-decoration: none; cursor: pointer; }
+  .history-controls button + button, .view-controls button + button { border-left: 1px solid rgba(255,255,255,.09); }
+  .history-controls button:disabled, .view-controls button:disabled { color: #66666a; cursor: default; }
+  .history-controls button:not(:disabled):hover, .view-controls button:not(:disabled):hover, .tool-button:hover, .search-button:hover { background: rgba(255,255,255,.08); }
+  .view-controls button.active { color: white; background: #555559; box-shadow: inset 0 1px 0 rgba(255,255,255,.1); }
+  .folder-title { margin-left: .25rem; color: #f5f5f6; font-size: .94rem; font-weight: 670; letter-spacing: -.01em; }
+  .toolbar-spacer { flex: 1; }
+  .tool-button, .search-button { border: 1px solid rgba(255,255,255,.1); border-radius: .72rem; background: rgba(0,0,0,.1); font-size: .94rem; }
+  .search-button { font-size: 1.35rem; }
+
+  .viewport { background: #29292b; scrollbar-color: #66666a transparent; }
+  .highlights-view, .projects-view, .experience-view { padding: 1.35rem 1.6rem 2rem; }
+  .view-heading { align-items: center; margin-bottom: 1.3rem; }
+  .view-heading h2 { margin: 0; font-size: 1.2rem; font-weight: 680; letter-spacing: -.02em; text-shadow: none; }
+  .view-heading p { margin: .18rem 0 0; color: #9a9aa0; font-size: .76rem; }
+  .count { color: #88888e; font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: .7rem; text-transform: none; }
+
+  .feature-grid.finder-icons { display: grid; grid-template-columns: repeat(4, minmax(7rem, 1fr)); gap: 1.65rem 1.1rem; align-items: start; }
+  .feature-card, .feature-card.research { display: flex; min-width: 0; min-height: 0; flex-direction: column; align-items: center; padding: .35rem; border: 0; border-radius: .55rem; color: #f4f4f5; background: transparent; box-shadow: none; text-align: center; text-decoration: none; clip-path: none; }
+  .feature-card:hover { transform: none; border-color: transparent; background: rgba(255,255,255,.065); }
+  .file-art { position: relative; display: grid; width: 6.5rem; height: 5.45rem; margin-bottom: .65rem; place-items: center; border: 1px solid rgba(255,255,255,.22); border-radius: .38rem; color: white; background: linear-gradient(145deg, #3c99ea, #1767c3); box-shadow: inset 0 1px 0 rgba(255,255,255,.38), 0 8px 18px rgba(0,0,0,.25); font-family: ui-monospace, monospace; image-rendering: pixelated; }
+  .file-art::before { position: absolute; top: -.38rem; left: .28rem; width: 2.55rem; height: .65rem; border: 1px solid rgba(255,255,255,.2); border-bottom: 0; border-radius: .32rem .32rem 0 0; background: inherit; content: ''; }
+  .file-art b { font-size: 1.35rem; letter-spacing: -.06em; text-shadow: 2px 2px 0 rgba(0,0,0,.28); }
+  .file-art i { position: absolute; right: .38rem; bottom: .34rem; padding: .12rem .2rem; color: rgba(255,255,255,.82); background: rgba(0,0,0,.2); font-size: .54rem; font-style: normal; font-weight: 850; }
+  .file-art.purple { background: linear-gradient(145deg, #a98aea, #6551bb); }
+  .file-art.green { background: linear-gradient(145deg, #53c9a6, #237d70); }
+  .file-art.paper { width: 5rem; background: linear-gradient(145deg, #f7f7f7, #cfcfd2); color: #d83442; }
+  .file-art.paper::before { display: none; }
+  .file-art.paper i { color: #4e4e52; background: transparent; }
+  .file-copy { display: block; width: 100%; }
+  .file-copy strong { display: block; overflow: hidden; font-size: .76rem; font-weight: 560; text-overflow: ellipsis; white-space: nowrap; }
+  .file-copy p { margin: .2rem 0 0; overflow: hidden; color: #8f8f94; font-size: .65rem; line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; }
+
+  .feature-grid.finder-list { display: grid; gap: 0; overflow: hidden; border: 1px solid rgba(255,255,255,.08); border-radius: .55rem; }
+  .finder-list .feature-card { display: grid; grid-template-columns: 3rem 1fr; align-items: center; gap: .75rem; width: 100%; flex-direction: initial; padding: .55rem .7rem; border-radius: 0; text-align: left; }
+  .finder-list .feature-card + .feature-card { border-top: 1px solid rgba(255,255,255,.065); }
+  .finder-list .file-art { width: 2.65rem; height: 2.15rem; margin: 0; }
+  .finder-list .file-art::before, .finder-list .file-art i { display: none; }
+  .finder-list .file-art b { font-size: .68rem; }
+
+  .publication { margin-top: 1.6rem; padding: .85rem; border: 1px solid rgba(255,255,255,.09); border-radius: .65rem; background: rgba(255,255,255,.04); box-shadow: none; }
+  .pub-icon { width: 2.7rem; height: 2.7rem; border: 0; border-radius: .48rem; color: white; background: #0a84ff; box-shadow: inset 0 1px 0 rgba(255,255,255,.28); }
+  .publication h3 { font-size: .88rem; font-weight: 590; }
+  .publication p { color: #909096; font-size: .68rem; }
+  .publication .pixel-label { color: #0a84ff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: .66rem; }
+  .publication a { background: rgba(255,255,255,.08); }
+
+  .project-list { gap: 0; overflow: hidden; border: 1px solid rgba(255,255,255,.08); border-radius: .6rem; }
+  .project-list button { padding: .78rem .9rem; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+  .project-list button + button { border-top: 1px solid rgba(255,255,255,.065); }
+  .project-list button:hover { transform: none; color: white; background: rgba(10,132,255,.32); }
+  .project-list button:hover .project-copy p, .project-list button:hover .project-number, .project-list button:hover .arrow { color: rgba(255,255,255,.68); }
+  .project-marker { text-shadow: none; }
+  .project-copy strong { font-weight: 580; }
+  .project-copy p { font-size: .7rem; }
+
+  .project-detail { background: radial-gradient(circle at 82% 10%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 32%); }
+  .project-glyph { border: 1px solid color-mix(in srgb, var(--accent) 55%, white); border-radius: .55rem; box-shadow: inset 0 1px 0 rgba(255,255,255,.14); }
+  .tech-row span { border: 1px solid rgba(255,255,255,.13); border-radius: .45rem; font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 550; }
+  .primary-link { border: 0; border-radius: .5rem; box-shadow: none; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+
   @media (max-width: 760px) {
     .finder { grid-template-columns: 1fr; }
     aside { display: flex; overflow-x: auto; gap: .3rem; padding: .5rem; border-right: 0; border-bottom: 1px solid rgba(255,255,255,.1); }
     aside .section-label, aside a { display: none; }
     aside button { width: auto; flex: 1 0 auto; justify-content: center; padding: .52rem; font-size: .72rem; }
     .toolbar { min-height: 2.75rem; padding: 0 .65rem; }
-    .resume-mini { display: none; }
-    .feature-grid { grid-template-columns: 1fr; }
+    .feature-grid.finder-icons { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 1rem; }
+    .tool-button { display: none; }
+    .view-controls button:nth-child(n+3) { display: none; }
     .feature-card { min-height: 10rem; }
-    .card-index { min-height: 2rem; }
     .publication { grid-template-columns: auto 1fr; }
     .publication > a { display: none; }
     .view-heading { align-items: flex-start; }
