@@ -34,6 +34,7 @@
   let finderKey = 0;
   let openMenu: MenuName | null = null;
   let menuNotice = '';
+  let brightness = 100;
 
   let windowStates: Record<string, WindowState> = {
     Finder: { isMinimized: false, isMaximized: false, x: 110, y: 62, zIndex: 101 },
@@ -49,6 +50,8 @@
   }
 
   onMount(() => {
+    const savedBrightness = Number(localStorage.getItem('mehmood-os-brightness'));
+    if (savedBrightness >= 50 && savedBrightness <= 120) brightness = savedBrightness;
     updateClock();
     const timer = setInterval(updateClock, 60000);
     return () => clearInterval(timer);
@@ -127,6 +130,11 @@
     setTimeout(() => menuNotice = '', 1800);
   }
 
+  function changeBrightness(event: Event) {
+    brightness = Number((event.currentTarget as HTMLInputElement).value);
+    localStorage.setItem('mehmood-os-brightness', String(brightness));
+  }
+
   function handleWindowClick(event: MouseEvent) {
     const target = event.target as HTMLElement;
     if (!target.closest('.menu-bar') || target.closest('.menu-popover a, .clock-panel a')) openMenu = null;
@@ -152,7 +160,7 @@
 
 <svelte:window on:keydown={handleKeydown} on:click={handleWindowClick} />
 
-<div class="desktop">
+<div class="desktop" style={`--screen-brightness:${brightness}%`}>
   <div class="wallpaper" style={`background-image: url('${wallpaper}')`}></div>
   <div class="night-shade"></div>
   <div class="scanlines"></div>
@@ -194,7 +202,7 @@
     </div>
     <div class="menu-right">
       <div class="menu-item right-menu"><button class:active={openMenu === 'status'} class="status-button" on:click={() => toggleMenu('status')}><span class="status-dot"><i></i> available</span></button>{#if openMenu === 'status'}<div class="menu-popover status-panel" role="menu"><div class="status-card"><i></i><div><strong>Available for opportunities</strong><span>Software engineering · Applied AI</span></div></div><p>Edmonton, Alberta · Open to relocation and remote work.</p><a href="mailto:mehmood3@ualberta.ca"><span>Start a conversation</span><kbd>↗</kbd></a></div>{/if}</div>
-      <div class="menu-item right-menu"><button class:active={openMenu === 'control'} class="system-button" on:click={() => toggleMenu('control')} aria-label="Control Center"><span class="wifi">▴</span><span class="battery"><i></i></span></button>{#if openMenu === 'control'}<div class="control-center"><button on:click={() => copyContact('mehmood3@ualberta.ca', 'Email')}><span class="control-icon blue">⌁</span><span><strong>Wi-Fi</strong><small>Portfolio Network</small></span></button><button on:click={() => runMenuAction(() => openApp('Terminal'))}><span class="control-icon purple">⌘</span><span><strong>Focus</strong><small>Recruiter mode</small></span></button><div class="control-slider"><span>☀</span><i><b></b></i></div><div class="battery-row"><span class="battery large"><i></i></span><strong>Battery</strong><small>78%</small></div></div>{/if}</div>
+      <div class="menu-item right-menu"><button class:active={openMenu === 'control'} class="system-button" on:click={() => toggleMenu('control')} aria-label="Control Center"><span class="wifi">▴</span><span class="battery"><i></i></span></button>{#if openMenu === 'control'}<div class="control-center"><button on:click={() => copyContact('mehmood3@ualberta.ca', 'Email')}><span class="control-icon blue">⌁</span><span><strong>Wi-Fi</strong><small>Portfolio Network</small></span></button><button on:click={() => runMenuAction(() => openApp('Terminal'))}><span class="control-icon purple">⌘</span><span><strong>Focus</strong><small>Recruiter mode</small></span></button><label class="control-slider"><span>☀</span><input type="range" min="50" max="120" step="1" value={brightness} style={`--brightness:${brightness}`} on:input={changeBrightness} aria-label="Display brightness" /><output>{brightness}%</output></label><div class="battery-row"><span class="battery large"><i></i></span><strong>Battery</strong><small>78%</small></div></div>{/if}</div>
       <div class="menu-item right-menu"><button class:active={openMenu === 'clock'} class="clock-button" on:click={() => toggleMenu('clock')}><time>{currentDate}&nbsp;&nbsp;{currentTime}</time></button>{#if openMenu === 'clock'}<div class="clock-panel"><span class="calendar-month">SEP</span><strong>06</strong><div><b>{currentDate}</b><small>{currentTime}</small></div><div class="menu-separator"></div><p>Available for software engineering opportunities.</p><a href={`${base}/mehmood-ahmad-resume.pdf`} target="_blank">Open Résumé <kbd>↗</kbd></a></div>{/if}</div>
     </div>
   </header>
@@ -305,7 +313,7 @@
 </div>
 
 <style>
-  .desktop { position: relative; width: 100%; min-height: 100svh; overflow: hidden; color: #f8fbff; background: #07111f; }
+  .desktop { position: relative; width: 100%; min-height: 100svh; overflow: hidden; color: #f8fbff; background: #07111f; filter: brightness(var(--screen-brightness, 100%)); transition: filter 120ms ease; }
   .wallpaper { position: absolute; inset: 0; background-position: center; background-size: cover; transform: scale(1.01); }
   .night-shade { position: absolute; inset: 0; background: radial-gradient(circle at 48% 35%, transparent 0 25%, rgba(1,8,19,.1) 57%, rgba(1,7,17,.38)), linear-gradient(110deg, rgba(2,10,22,.16), transparent 54%, rgba(2,8,18,.22)); }
   .scanlines { position: absolute; inset: 0; opacity: .1; background: repeating-linear-gradient(180deg, rgba(255,255,255,.04) 0 1px, transparent 1px 4px); pointer-events: none; }
@@ -352,8 +360,10 @@
   .control-icon { display: grid; width: 2rem; height: 2rem; place-items: center; border-radius: 50%; background: #0a84ff; }
   .control-icon.purple { background: #7658d6; }
   .control-slider, .battery-row { position: relative; z-index: 1; grid-column: 1 / -1; display: flex; align-items: center; gap: .58rem; padding: .55rem .65rem; border-radius: .72rem; background: rgba(255,255,255,.09); }
-  .control-slider > i { height: .42rem; flex: 1; overflow: hidden; border-radius: 1rem; background: rgba(255,255,255,.2); }
-  .control-slider > i b { display: block; width: 72%; height: 100%; border-radius: inherit; background: white; }
+  .control-slider input { min-width: 0; height: .42rem; flex: 1; appearance: none; border-radius: 1rem; outline: none; background: linear-gradient(90deg, white 0%, white calc((var(--brightness, 100) - 50) * 1.428%), rgba(255,255,255,.2) calc((var(--brightness, 100) - 50) * 1.428%)); cursor: pointer; accent-color: white; }
+  .control-slider input::-webkit-slider-thumb { width: 1rem; height: 1rem; appearance: none; border: 1px solid rgba(0,0,0,.15); border-radius: 50%; background: white; box-shadow: 0 1px 4px rgba(0,0,0,.35); }
+  .control-slider input::-moz-range-thumb { width: 1rem; height: 1rem; border: 1px solid rgba(0,0,0,.15); border-radius: 50%; background: white; box-shadow: 0 1px 4px rgba(0,0,0,.35); }
+  .control-slider output { min-width: 2.35rem; color: rgba(255,255,255,.68); font-size: .62rem; text-align: right; }
   .battery-row strong { flex: 1; font-size: .7rem; }
   .battery-row small { color: rgba(255,255,255,.58); font-size: .65rem; }
   .battery.large { width: 1.55rem; height: .75rem; }
