@@ -102,13 +102,20 @@
 
   let activeTab: 'highlights' | 'projects' | 'experience' = initialTab;
   let selectedProject: Project | null = null;
+  let selectedRole: Role | null = null;
   let viewMode: 'icons' | 'list' = 'icons';
 
-  $: windowTitle = selectedProject?.name ?? (activeTab === 'highlights' ? 'Recents' : activeTab === 'projects' ? 'Projects' : 'Experience');
+  $: windowTitle = selectedProject?.name ?? selectedRole?.company ?? (activeTab === 'highlights' ? 'Recents' : activeTab === 'projects' ? 'Projects' : 'Experience');
 
   function showTab(tab: typeof activeTab) {
     activeTab = tab;
     selectedProject = null;
+    selectedRole = null;
+  }
+
+  function goBack() {
+    selectedProject = null;
+    selectedRole = null;
   }
 </script>
 
@@ -128,7 +135,7 @@
   <section class="browser">
     <header class="toolbar">
       <div class="history-controls">
-        <button on:click={() => { selectedProject = null; }} disabled={!selectedProject} aria-label="Back">‹</button>
+        <button on:click={goBack} disabled={!selectedProject && !selectedRole} aria-label="Back">‹</button>
         <button disabled aria-label="Forward">›</button>
       </div>
       <strong class="folder-title">{windowTitle}</strong>
@@ -157,6 +164,18 @@
             {#each selectedProject.technologies as technology}<span>{technology}</span>{/each}
           </div>
           <a class="primary-link" href={selectedProject.link} target="_blank" rel="noreferrer">View repository <span>↗</span></a>
+        </article>
+      {:else if selectedRole}
+        <article class="project-detail role-detail" style="--accent:#67d5ef">
+          <span class="project-glyph">▤</span>
+          <p class="pixel-label">{selectedRole.period}</p>
+          <h2>{selectedRole.company}</h2>
+          <p class="lead">{selectedRole.title}</p>
+          <div class="role-summary">
+            <span>Highlights</span>
+            <ul>{#each selectedRole.points as point}<li>{point}</li>{/each}</ul>
+          </div>
+          <button class="primary-link" on:click={goBack}>Back to Experience</button>
         </article>
       {:else if activeTab === 'highlights'}
         <div class="highlights-view">
@@ -193,13 +212,11 @@
       {:else if activeTab === 'projects'}
         <div class="projects-view">
           <div class="view-heading"><div><p class="pixel-label">Build log</p><h2>Featured projects</h2></div><span class="count">GitHub / public</span></div>
-          <div class="project-list">
+          <div class:finder-icons={viewMode === 'icons'} class:finder-list={viewMode === 'list'} class="project-list">
             {#each projects as project, index}
               <button on:click={() => selectedProject = project} style={`--accent:${project.accent}`}>
-                <span class="project-number">0{index + 1}</span>
-                <span class="project-marker">◆</span>
+                <span class="finder-folder"><i>0{index + 1}</i><b>PROJECT</b></span>
                 <span class="project-copy"><small>{project.eyebrow}</small><strong>{project.name}</strong><p>{project.description}</p></span>
-                <span class="arrow">›</span>
               </button>
             {/each}
           </div>
@@ -207,13 +224,12 @@
       {:else}
         <div class="experience-view">
           <div class="view-heading"><div><p class="pixel-label">Work history</p><h2>Software engineering experience</h2></div><span class="count">Edmonton, AB</span></div>
-          <div class="timeline">
-            {#each roles as role}
-              <article>
-                <div class="timeline-dot"></div>
-                <div class="role-head"><div><small>{role.period}</small><h3>{role.company}</h3><p>{role.title}</p></div></div>
-                <ul>{#each role.points as point}<li>{point}</li>{/each}</ul>
-              </article>
+          <div class:finder-icons={viewMode === 'icons'} class:finder-list={viewMode === 'list'} class="experience-items">
+            {#each roles as role, index}
+              <button on:click={() => selectedRole = role} style="--accent:#67d5ef">
+                <span class="finder-folder experience-folder"><i>0{index + 1}</i><b>WORK</b></span>
+                <span class="project-copy"><small>{role.period}</small><strong>{role.company}</strong><p>{role.title}</p></span>
+              </button>
             {/each}
           </div>
         </div>
@@ -257,33 +273,21 @@
   .publication .pixel-label { color: #81e6ff; font-size: .61rem; }
   .publication a { display: grid; width: 2.2rem; height: 2.2rem; place-items: center; border-radius: 50%; color: white; background: rgba(255,255,255,.09); text-decoration: none; }
 
-  .project-list { display: grid; gap: .65rem; }
-  .project-list button { display: grid; grid-template-columns: 2rem 1.7rem 1fr auto; align-items: center; gap: .85rem; padding: 1rem; border: 2px solid rgba(205,242,255,.34); border-radius: 2px; color: white; background: rgba(255,255,255,.05); box-shadow: 3px 3px 0 rgba(0,0,0,.24); text-align: left; cursor: pointer; transition: background 120ms steps(2), transform 120ms steps(2); }
-  .project-list button:hover { transform: translateX(4px); color: #071522; background: #dff8f6; }
-  .project-list button:hover .project-copy p, .project-list button:hover .project-number, .project-list button:hover .arrow { color: #29475e; }
-  .project-number { color: rgba(255,255,255,.28); font-family: ui-monospace, monospace; font-size: .68rem; }
-  .project-marker { color: var(--accent); text-shadow: 0 0 12px var(--accent); }
+  .project-list, .experience-items { display: grid; }
   .project-copy { min-width: 0; }
   .project-copy small { display: block; color: var(--accent); font-family: ui-monospace, monospace; font-size: .61rem; text-transform: uppercase; }
   .project-copy strong { display: block; margin: .16rem 0; font-size: 1rem; }
   .project-copy p { margin: 0; overflow: hidden; color: rgba(240,247,255,.55); font-size: .72rem; line-height: 1.35; text-overflow: ellipsis; white-space: nowrap; }
-  .arrow { color: rgba(255,255,255,.5); font-size: 1.5rem; }
-
-  .timeline { position: relative; padding-left: .45rem; }
-  .timeline::before { position: absolute; top: .45rem; bottom: 0; left: .77rem; width: 1px; background: linear-gradient(#74dbff, rgba(116,219,255,.08)); content: ''; }
-  .timeline article { position: relative; padding: 0 0 1.55rem 2rem; }
-  .timeline-dot { position: absolute; top: .38rem; left: 0; width: .68rem; height: .68rem; border: 2px solid #0e263e; border-radius: 2px; background: #7fe2ff; box-shadow: 0 0 12px rgba(127,226,255,.7); transform: rotate(45deg); }
-  .role-head small { color: #80e2ff; font-family: ui-monospace, monospace; font-size: .65rem; text-transform: uppercase; }
-  .role-head h3 { margin: .25rem 0 .08rem; font-size: 1.15rem; }
-  .role-head p { margin: 0; color: rgba(245,250,255,.57); font-size: .78rem; }
-  .timeline ul { margin: .65rem 0 0; padding-left: 1rem; color: rgba(242,248,255,.72); font-size: .77rem; line-height: 1.55; }
-  .timeline li + li { margin-top: .3rem; }
 
   .project-detail { min-height: 100%; padding: clamp(1.5rem, 5vw, 4rem); background: radial-gradient(circle at 82% 10%, color-mix(in srgb, var(--accent) 24%, transparent), transparent 32%); }
   .project-glyph { display: grid; width: 3.5rem; height: 3.5rem; margin-bottom: 2.2rem; place-items: center; border: 2px solid color-mix(in srgb, var(--accent) 55%, white); border-radius: 2px; color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); font-size: 1.2rem; box-shadow: 3px 3px 0 rgba(0,0,0,.3), 0 0 28px color-mix(in srgb, var(--accent) 18%, transparent); }
   .project-detail .pixel-label { margin: 0; color: var(--accent); }
   .project-detail h2 { margin: .55rem 0 .8rem; font-size: clamp(2rem, 5vw, 4rem); letter-spacing: -.06em; line-height: .95; }
   .project-detail .lead { max-width: 44rem; color: rgba(244,249,255,.7); font-size: clamp(.95rem, 2vw, 1.15rem); line-height: 1.65; }
+  .role-summary { max-width: 44rem; margin: 1.5rem 0; padding: 1rem 1.15rem; border-left: 2px solid var(--accent); background: rgba(255,255,255,.045); }
+  .role-summary > span { color: var(--accent); font-family: ui-monospace, monospace; font-size: .66rem; font-weight: 850; text-transform: uppercase; }
+  .role-summary ul { margin: .75rem 0 0; padding-left: 1.1rem; color: rgba(244,249,255,.72); font-size: .8rem; line-height: 1.6; }
+  .role-summary li + li { margin-top: .35rem; }
   .impact { display: flex; max-width: 43rem; align-items: center; gap: 1rem; margin: 1.5rem 0; padding: .9rem 1rem; border-left: 2px solid var(--accent); background: rgba(255,255,255,.045); }
   .impact span { color: var(--accent); font-family: ui-monospace, monospace; font-size: .66rem; text-transform: uppercase; }
   .impact strong { font-size: .82rem; }
@@ -355,12 +359,27 @@
   .publication .pixel-label { color: #0a84ff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: .66rem; }
   .publication a { background: rgba(255,255,255,.08); }
 
-  .project-list { gap: 0; overflow: hidden; border: 1px solid rgba(255,255,255,.08); border-radius: .6rem; }
-  .project-list button { padding: .78rem .9rem; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
-  .project-list button + button { border-top: 1px solid rgba(255,255,255,.065); }
-  .project-list button:hover { transform: none; color: white; background: rgba(10,132,255,.32); }
-  .project-list button:hover .project-copy p, .project-list button:hover .project-number, .project-list button:hover .arrow { color: rgba(255,255,255,.68); }
-  .project-marker { text-shadow: none; }
+  .project-list.finder-icons, .experience-items.finder-icons { grid-template-columns: repeat(4, minmax(7rem, 1fr)); align-items: start; gap: 1.6rem 1rem; }
+  .project-list button, .experience-items button { min-width: 0; border: 0; color: white; background: transparent; cursor: pointer; }
+  .project-list.finder-icons button, .experience-items.finder-icons button { display: flex; flex-direction: column; align-items: center; padding: .5rem; border-radius: .55rem; text-align: center; }
+  .project-list.finder-icons button:hover, .experience-items.finder-icons button:hover { background: rgba(255,255,255,.065); }
+  .finder-folder { position: relative; display: grid; width: 6.5rem; height: 4.65rem; margin: .38rem 0 .68rem; place-items: center; border: 1px solid rgba(255,255,255,.3); border-radius: .38rem; color: white; background: linear-gradient(145deg, color-mix(in srgb, var(--accent) 76%, white), color-mix(in srgb, var(--accent) 80%, #245386)); box-shadow: inset 0 1px 0 rgba(255,255,255,.42), 0 8px 18px rgba(0,0,0,.25); font-family: ui-monospace, monospace; image-rendering: pixelated; }
+  .finder-folder::before { position: absolute; top: -.4rem; left: .3rem; width: 2.65rem; height: .67rem; border: 1px solid rgba(255,255,255,.28); border-bottom: 0; border-radius: .34rem .34rem 0 0; background: inherit; content: ''; }
+  .finder-folder i { font-size: 1.28rem; font-style: normal; font-weight: 900; text-shadow: 2px 2px 0 rgba(0,0,0,.25); }
+  .finder-folder b { position: absolute; right: .35rem; bottom: .32rem; padding: .1rem .2rem; background: rgba(0,0,0,.2); font-size: .5rem; letter-spacing: .05em; }
+  .experience-folder { background: linear-gradient(145deg, #76dff4, #2087bd); }
+  .project-list.finder-icons .project-copy, .experience-items.finder-icons .project-copy { width: 100%; }
+  .project-list.finder-icons .project-copy small, .experience-items.finder-icons .project-copy small { overflow: hidden; color: #929299; text-overflow: ellipsis; white-space: nowrap; }
+  .project-list.finder-icons .project-copy strong, .experience-items.finder-icons .project-copy strong { overflow: hidden; font-size: .76rem; text-overflow: ellipsis; white-space: nowrap; }
+  .project-list.finder-icons .project-copy p, .experience-items.finder-icons .project-copy p { font-size: .65rem; }
+  .project-list.finder-list, .experience-items.finder-list { gap: 0; overflow: hidden; border: 1px solid rgba(255,255,255,.08); border-radius: .6rem; }
+  .project-list.finder-list button, .experience-items.finder-list button { display: grid; grid-template-columns: 3.2rem 1fr; align-items: center; gap: .8rem; padding: .56rem .75rem; text-align: left; }
+  .project-list.finder-list button + button, .experience-items.finder-list button + button { border-top: 1px solid rgba(255,255,255,.065); }
+  .project-list.finder-list button:hover, .experience-items.finder-list button:hover { background: rgba(10,132,255,.32); }
+  .finder-list .finder-folder { width: 2.8rem; height: 2.1rem; margin: 0; }
+  .finder-list .finder-folder::before { top: -.22rem; width: 1.25rem; height: .35rem; }
+  .finder-list .finder-folder i { font-size: .65rem; }
+  .finder-list .finder-folder b { display: none; }
   .project-copy strong { font-weight: 580; }
   .project-copy p { font-size: .7rem; }
 
@@ -383,7 +402,7 @@
     .publication > a { display: none; }
     .view-heading { align-items: flex-start; }
     .count { display: none; }
-    .project-list button { grid-template-columns: 1.4rem 1.3rem 1fr auto; gap: .55rem; padding: .8rem; }
+    .project-list.finder-icons, .experience-items.finder-icons { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 1rem; }
     .project-copy p { white-space: normal; display: -webkit-box; line-clamp: 2; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
     .impact { align-items: flex-start; flex-direction: column; gap: .35rem; }
   }

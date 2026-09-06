@@ -18,6 +18,8 @@
   type MenuName = 'apple' | 'app' | 'file' | 'edit' | 'view' | 'go' | 'window' | 'help' | 'status' | 'control' | 'clock';
   type PortfolioNotification = { id: string; app: string; icon: string; title: string; body: string; time: string; accent: string };
   type WindowState = { isMinimized: boolean; isMaximized: boolean; x: number; y: number; zIndex: number };
+  type WidgetName = 'profile' | 'signal' | 'publication';
+  type WidgetOffset = { x: number; y: number };
 
   const apps: DockApp[] = [
     { name: 'Finder', icon: finderIcon },
@@ -46,6 +48,13 @@
   let menuNotice = '';
   let brightness = 100;
   let dismissedNotifications: string[] = [];
+  let draggedWidget: WidgetName | null = null;
+  let widgetOffsets: Record<WidgetName, WidgetOffset> = {
+    profile: { x: 0, y: 0 },
+    signal: { x: 0, y: 0 },
+    publication: { x: 0, y: 0 }
+  };
+  let widgetDragStart = { pointerX: 0, pointerY: 0, offsetX: 0, offsetY: 0 };
 
   $: visibleNotifications = notifications.filter((notification) => !dismissedNotifications.includes(notification.id));
 
@@ -68,6 +77,12 @@
   onMount(() => {
     const savedBrightness = Number(localStorage.getItem('mehmood-os-brightness'));
     if (savedBrightness >= 50 && savedBrightness <= 120) brightness = savedBrightness;
+    try {
+      const savedWidgets = JSON.parse(localStorage.getItem('mehmood-os-widget-layout') ?? 'null');
+      if (savedWidgets?.profile && savedWidgets?.signal && savedWidgets?.publication) widgetOffsets = savedWidgets;
+    } catch {
+      localStorage.removeItem('mehmood-os-widget-layout');
+    }
     updateClock();
     const timer = setInterval(updateClock, 60000);
     return () => clearInterval(timer);
@@ -151,6 +166,28 @@
     localStorage.setItem('mehmood-os-brightness', String(brightness));
   }
 
+  function startWidgetDrag(name: WidgetName, event: PointerEvent) {
+    if (window.innerWidth <= 800) return;
+    event.preventDefault();
+    draggedWidget = name;
+    const offset = widgetOffsets[name];
+    widgetDragStart = { pointerX: event.clientX, pointerY: event.clientY, offsetX: offset.x, offsetY: offset.y };
+    (event.currentTarget as HTMLElement).setPointerCapture?.(event.pointerId);
+  }
+
+  function moveWidget(event: PointerEvent) {
+    if (!draggedWidget) return;
+    const x = widgetDragStart.offsetX + event.clientX - widgetDragStart.pointerX;
+    const y = widgetDragStart.offsetY + event.clientY - widgetDragStart.pointerY;
+    widgetOffsets = { ...widgetOffsets, [draggedWidget]: { x, y } };
+  }
+
+  function stopWidgetDrag() {
+    if (!draggedWidget) return;
+    draggedWidget = null;
+    localStorage.setItem('mehmood-os-widget-layout', JSON.stringify(widgetOffsets));
+  }
+
   function dismissNotification(id: string) {
     dismissedNotifications = [...dismissedNotifications, id];
   }
@@ -185,7 +222,7 @@
   }
 </script>
 
-<svelte:window on:keydown={handleKeydown} on:click={handleWindowClick} />
+<svelte:window on:keydown={handleKeydown} on:click={handleWindowClick} on:pointermove={moveWidget} on:pointerup={stopWidgetDrag} />
 
 <div class="desktop" style={`--screen-brightness:${brightness}%`}>
   <div class="wallpaper" style={`background-image: url('${wallpaper}')`}></div>
@@ -270,74 +307,56 @@
 
   <main class:apps-open={openApps.size > 0} class="desktop-area">
     <div class="route-chip"><span>ROUTE 21</span><b>MEHMOOD.OS</b></div>
-    <section class="desktop-icons" aria-label="Desktop files">
-      <button class="desktop-icon" on:click={() => openFinder('highlights')}>
-        <span class="icon-frame portrait-icon"><img src={pixelAvatar} alt="" /></span>
-        <span>About_Me.app</span>
-      </button>
-      <button class="desktop-icon" on:click={() => openFinder('projects')}>
-        <span class="icon-frame"><img src={finderIcon} alt="" /></span>
-        <span>Projects</span>
-      </button>
-      <button class="desktop-icon" on:click={() => openFinder('experience')}>
-        <span class="icon-frame pixel-file work-file"><b>WORK</b><i></i></span>
-        <span>Experience.log</span>
-      </button>
-      <a class="desktop-icon" href={`${base}/mehmood-ahmad-resume.pdf`} target="_blank">
-        <span class="icon-frame pixel-file pdf-file"><b>PDF</b><i></i></span>
-        <span>Resume_2026.pdf</span>
-      </a>
-      <a class="desktop-icon" href="https://github.com/MehmoodAhmad21" target="_blank" rel="noreferrer">
-        <span class="icon-frame pixel-tile github-tile"><b>GH</b><i>↗</i></span>
-        <span>GitHub.link</span>
-      </a>
-      <button class="desktop-icon" on:click={() => openApp('Terminal')}>
-        <span class="icon-frame"><img src={terminalIcon} alt="" /></span>
-        <span>Terminal</span>
-      </button>
-    </section>
+    <section class="desktop-widgets" aria-label="Draggable desktop widgets">
+      <div class:dragging={draggedWidget === 'profile'} class="widget-shell profile-shell" style={`--widget-x:${widgetOffsets.profile.x}px;--widget-y:${widgetOffsets.profile.y}px`}>
+        <button class="widget-grab" on:pointerdown={(event) => startWidgetDrag('profile', event)} aria-label="Move profile widget">•••</button>
+        <article class="widget profile-widget">
+          <div class="widget-glint"></div>
+          <div class="pixel-notches"></div>
+          <header class="trainer-header"><span>ENGINEER CARD</span><b>NO. 021</b></header>
+          <div class="profile-top">
+            <div class="sprite-well"><img src={pixelAvatar} alt="Pixel portrait of Mehmood Ahmad" /><i></i></div>
+            <div><span class="pixel-kicker">PLAYER ONE</span><h1>Mehmood<br />Ahmad</h1><span class="level">LV. 04 · ENGINEER</span></div>
+          </div>
+          <p>Software engineer building applied AI, real-time systems, robotics, and thoughtful product experiences.</p>
+          <div class="type-chips"><span>AI</span><span>SYSTEMS</span><span>PRODUCT</span></div>
+          <div class="profile-links">
+            <a href="mailto:mehmood3@ualberta.ca">Email</a>
+            <a href="https://www.linkedin.com/in/mehmood-ahmad-2bb43b244/" target="_blank" rel="noreferrer">LinkedIn ↗</a>
+          </div>
+        </article>
+      </div>
 
-    <section class="widgets" aria-label="Desktop widgets">
-      <article class="widget profile-widget">
-        <div class="widget-glint"></div>
-        <div class="pixel-notches"></div>
-        <header class="trainer-header"><span>ENGINEER CARD</span><b>NO. 021</b></header>
-        <div class="profile-top">
-          <div class="sprite-well"><img src={pixelAvatar} alt="Pixel portrait of Mehmood Ahmad" /><i></i></div>
-          <div><span class="pixel-kicker">PLAYER ONE</span><h1>Mehmood<br />Ahmad</h1><span class="level">LV. 04 · ENGINEER</span></div>
-        </div>
-        <p>Software engineer building applied AI, real-time systems, robotics, and thoughtful product experiences.</p>
-        <div class="type-chips"><span>AI</span><span>SYSTEMS</span><span>PRODUCT</span></div>
-        <div class="profile-links">
-          <a href="mailto:mehmood3@ualberta.ca">Email</a>
-          <a href="https://www.linkedin.com/in/mehmood-ahmad-2bb43b244/" target="_blank" rel="noreferrer">LinkedIn ↗</a>
-        </div>
-      </article>
+      <div class:dragging={draggedWidget === 'signal'} class="widget-shell signal-shell" style={`--widget-x:${widgetOffsets.signal.x}px;--widget-y:${widgetOffsets.signal.y}px`}>
+        <button class="widget-grab" on:pointerdown={(event) => startWidgetDrag('signal', event)} aria-label="Move skill stats widget">•••</button>
+        <article class="widget signal-widget">
+          <div class="pixel-notches"></div>
+          <header><span class="pixel-kicker">SKILL STATS</span><i class="live-light"></i></header>
+          <div class="signal-row"><strong>50.6%</strong><span>VISION F1<br /><small>YOLOv11 + VLM</small></span></div>
+          <div class="meter-label"><span>CV</span><b>HP</b></div>
+          <div class="pixel-meter"><i style="width: 76%"></i></div>
+          <div class="signal-pair">
+            <div><strong>~2.5ms</strong><span>SPD / latency</span></div>
+            <div><strong>+70%</strong><span>DEV / deploys</span></div>
+          </div>
+        </article>
+      </div>
 
-      <article class="widget signal-widget">
-        <div class="pixel-notches"></div>
-        <header><span class="pixel-kicker">SKILL STATS</span><i class="live-light"></i></header>
-        <div class="signal-row"><strong>50.6%</strong><span>VISION F1<br /><small>YOLOv11 + VLM</small></span></div>
-        <div class="meter-label"><span>CV</span><b>HP</b></div>
-        <div class="pixel-meter"><i style="width: 76%"></i></div>
-        <div class="signal-pair">
-          <div><strong>~2.5ms</strong><span>SPD / latency</span></div>
-          <div><strong>+70%</strong><span>DEV / deploys</span></div>
-        </div>
-      </article>
-
-      <button class="widget publication-widget dialogue-box" on:click={() => openFinder('highlights')}>
-        <span class="paper-pixel">!</span>
-        <span><small>NEW RESEARCH UNLOCKED</small><strong>Object Detection + Small VLMs</strong><em>arXiv:2604.05210 · OPEN QUEST LOG</em></span>
-        <b class="dialogue-arrow">▼</b>
-      </button>
+      <div class:dragging={draggedWidget === 'publication'} class="widget-shell publication-shell" style={`--widget-x:${widgetOffsets.publication.x}px;--widget-y:${widgetOffsets.publication.y}px`}>
+        <button class="widget-grab" on:pointerdown={(event) => startWidgetDrag('publication', event)} aria-label="Move publication widget">•••</button>
+        <button class="widget publication-widget dialogue-box" on:click={() => openFinder('highlights')}>
+          <span class="paper-pixel">!</span>
+          <span><small>NEW RESEARCH UNLOCKED</small><strong>Object Detection + Small VLMs</strong><em>arXiv:2604.05210 · OPEN QUEST LOG</em></span>
+          <b class="dialogue-arrow">▼</b>
+        </button>
+      </div>
     </section>
 
     <div class="desktop-hint"><span>▶</span> Choose a file or open an app from the dock</div>
 
     {#if openApps.has('Finder')}
       <div style:z-index={windowStates.Finder.zIndex}>
-        <Window title="Mehmood HD" icon={finderIcon} isActive={activeApp === 'Finder'} bind:x={windowStates.Finder.x} bind:y={windowStates.Finder.y} bind:isMinimized={windowStates.Finder.isMinimized} bind:isMaximized={windowStates.Finder.isMaximized} on:close={() => closeApp('Finder')} on:minimize={(e) => handleMinimize('Finder', e)} on:focus={() => bringToFront('Finder')}>
+        <Window title="Finder" icon={finderIcon} isActive={activeApp === 'Finder'} bind:x={windowStates.Finder.x} bind:y={windowStates.Finder.y} bind:isMinimized={windowStates.Finder.isMinimized} bind:isMaximized={windowStates.Finder.isMaximized} on:close={() => closeApp('Finder')} on:minimize={(e) => handleMinimize('Finder', e)} on:focus={() => bringToFront('Finder')}>
           <div class="finder-window">{#key finderKey}<Finder initialTab={finderView} />{/key}</div>
         </Window>
       </div>
@@ -462,34 +481,21 @@
   @keyframes notification-in { from { opacity: 0; transform: translateX(1.1rem) scale(.98); } to { opacity: 1; transform: translateX(0) scale(1); } }
   .menu-toast { position: fixed; z-index: 2200; top: 3rem; left: 50%; transform: translateX(-50%); padding: .48rem .72rem; border: 1px solid rgba(255,255,255,.25); border-radius: .55rem; color: white; background: rgba(20,28,38,.82); box-shadow: 0 10px 25px rgba(0,0,0,.28); backdrop-filter: blur(20px); font-size: .7rem; }
 
-  .desktop-area { position: relative; z-index: 2; display: grid; min-height: 100svh; grid-template-columns: minmax(22rem, 1fr) minmax(18rem, 23rem); padding: 5.35rem 2.3rem 6.5rem; transition: filter 180ms ease; }
-  .desktop-area.apps-open > .desktop-icons, .desktop-area.apps-open > .widgets, .desktop-area.apps-open > .desktop-hint { filter: saturate(.8) brightness(.72); }
+  .desktop-area { position: relative; z-index: 2; min-height: 100svh; padding: 5.35rem 2.3rem 6.5rem; transition: filter 180ms ease; }
+  .desktop-area.apps-open > .desktop-widgets, .desktop-area.apps-open > .desktop-hint { filter: saturate(.8) brightness(.72); }
 
   .route-chip { position: absolute; top: 3.2rem; left: 2.3rem; display: flex; align-items: center; gap: .55rem; padding: .3rem .48rem; border: 2px solid rgba(5,19,32,.88); outline: 2px solid rgba(210,246,255,.68); color: #061524; background: #9ceaff; box-shadow: 3px 3px 0 rgba(1,8,18,.55); font-family: ui-monospace, monospace; font-size: .6rem; letter-spacing: .08em; }
   .route-chip span { padding: .15rem .3rem; color: #e9fbff; background: #183353; }
   .route-chip b { font-size: .62rem; }
 
-  .desktop-icons { display: grid; width: max-content; align-content: start; grid-template-columns: repeat(2, 7.8rem); gap: 1.2rem .8rem; }
-  .desktop-icon { display: flex; width: 7.8rem; flex-direction: column; align-items: center; gap: .48rem; padding: .35rem; border: 0; border-radius: .55rem; color: white; background: transparent; text-align: center; text-decoration: none; cursor: default; }
-  .desktop-icon:hover, .desktop-icon:focus-visible { background: rgba(81,151,255,.25); box-shadow: inset 0 0 0 1px rgba(197,230,255,.34); outline: none; }
-  .desktop-icon > span:last-child { max-width: 7.25rem; padding: .14rem .28rem; border-radius: 2px; color: white; font-family: ui-monospace, "SFMono-Regular", monospace; font-size: .7rem; font-weight: 700; line-height: 1.25; text-shadow: 0 1px 3px #000, 1px 1px 0 #000; }
-  .icon-frame { display: grid; position: relative; width: 4.8rem; height: 4.8rem; place-items: center; filter: drop-shadow(4px 5px 0 rgba(2,8,17,.45)) drop-shadow(0 10px 16px rgba(0,0,0,.28)); transition: transform 120ms steps(2); }
-  .desktop-icon:hover .icon-frame { transform: translateY(-3px); }
-  .icon-frame img { width: 100%; height: 100%; border-radius: .85rem; object-fit: cover; image-rendering: pixelated; }
-  .portrait-icon { overflow: hidden; padding: 4px; border: 2px solid #bdefff; border-radius: 9px; background: linear-gradient(135deg, #6fdcf7, #738ff6); clip-path: polygon(7px 0, calc(100% - 7px) 0, calc(100% - 7px) 3px, 100% 3px, 100% calc(100% - 7px), calc(100% - 3px) calc(100% - 7px), calc(100% - 3px) 100%, 7px 100%, 7px calc(100% - 3px), 0 calc(100% - 3px), 0 7px, 3px 7px, 3px 3px, 7px 3px); }
-  .portrait-icon img { border-radius: 5px; }
-  .pixel-file { align-content: end; overflow: hidden; border: 2px solid rgba(255,255,255,.72); border-radius: 4px; background: linear-gradient(135deg, #eef9ff, #addcff 72%); box-shadow: inset -6px -6px 0 rgba(45,107,165,.15); }
-  .pixel-file::before { position: absolute; top: -2px; right: -2px; width: 1.25rem; height: 1.25rem; border-left: 2px solid rgba(43,86,130,.38); border-bottom: 2px solid rgba(43,86,130,.38); background: rgba(255,255,255,.56); content: ''; }
-  .pixel-file b { margin-bottom: .55rem; padding: .18rem .3rem; color: #061b31; background: #61d8ff; font-family: ui-monospace, monospace; font-size: .64rem; letter-spacing: .08em; }
-  .pixel-file i { position: absolute; right: .45rem; bottom: .35rem; width: .65rem; height: .65rem; background: repeating-linear-gradient(90deg, #34658e 0 2px, transparent 2px 4px); }
-  .pdf-file { background: linear-gradient(135deg, #fff2f4, #ffb9c2 72%); }
-  .pdf-file b { color: white; background: #f14e65; }
-  .work-file b { color: #052131; background: #73e6d1; }
-  .pixel-tile { border: 2px solid #bcecff; border-radius: 7px; color: white; background: linear-gradient(145deg, #182a45, #080d18); clip-path: polygon(5px 0, calc(100% - 5px) 0, calc(100% - 5px) 2px, 100% 2px, 100% calc(100% - 5px), calc(100% - 2px) calc(100% - 5px), calc(100% - 2px) 100%, 5px 100%, 5px calc(100% - 2px), 0 calc(100% - 2px), 0 5px, 2px 5px, 2px 2px, 5px 2px); }
-  .pixel-tile b { font-family: ui-monospace, monospace; font-size: 1.35rem; text-shadow: 2px 2px 0 #316892; }
-  .pixel-tile i { position: absolute; right: .4rem; top: .25rem; color: #83e6ff; font-style: normal; }
-
-  .widgets { display: grid; align-content: start; gap: .75rem; justify-self: end; width: min(23rem, 100%); }
+  .desktop-widgets { position: absolute; inset: 0; pointer-events: none; transition: filter 180ms ease; }
+  .widget-shell { position: absolute; width: min(23rem, calc(100vw - 2rem)); pointer-events: auto; transform: translate(var(--widget-x), var(--widget-y)); touch-action: none; }
+  .profile-shell { top: 5.6rem; left: 2.3rem; }
+  .signal-shell { top: 5.6rem; right: 2.3rem; }
+  .publication-shell { top: 20.2rem; right: 2.3rem; }
+  .widget-shell.dragging { z-index: 50; filter: brightness(1.08); }
+  .widget-grab { position: absolute; z-index: 8; top: -.62rem; right: -.45rem; display: grid; width: 2rem; height: 1.25rem; padding: 0; place-items: center; border: 2px solid rgba(220,248,255,.78); border-radius: .28rem; color: #081929; background: #9ceaff; box-shadow: 2px 2px 0 rgba(1,8,18,.55); font-family: ui-monospace, monospace; font-size: .7rem; font-weight: 900; letter-spacing: .06em; cursor: grab; }
+  .widget-grab:active { cursor: grabbing; transform: translate(1px,1px); box-shadow: 1px 1px 0 rgba(1,8,18,.55); }
   .widget { position: relative; overflow: hidden; border: 2px solid rgba(223,249,255,.72); border-radius: .3rem; color: white; background: linear-gradient(145deg, rgba(255,255,255,.2), rgba(255,255,255,.065) 48%, rgba(91,154,232,.08)), rgba(4,14,28,.58); box-shadow: 0 0 0 2px rgba(8,24,42,.8), 5px 5px 0 rgba(1,8,18,.52), 0 20px 40px rgba(0,5,15,.22), inset 0 1px 0 rgba(255,255,255,.42); backdrop-filter: blur(25px) saturate(145%); -webkit-backdrop-filter: blur(25px) saturate(145%); clip-path: polygon(6px 0, calc(100% - 6px) 0, calc(100% - 6px) 2px, 100% 2px, 100% calc(100% - 6px), calc(100% - 2px) calc(100% - 6px), calc(100% - 2px) 100%, 6px 100%, 6px calc(100% - 2px), 0 calc(100% - 2px), 0 6px, 2px 6px, 2px 2px, 6px 2px); }
   .widget-glint { position: absolute; inset: 0; background: radial-gradient(circle at 10% 0%, rgba(255,255,255,.23), transparent 34%); pointer-events: none; }
   .pixel-notches { position: absolute; inset: 5px; border: 1px dashed rgba(151,229,255,.18); pointer-events: none; }
@@ -557,11 +563,9 @@
     .control-center, .notification-center { position: fixed; top: 2.65rem; right: .5rem; left: auto; max-width: calc(100vw - 1rem); }
     .desktop-area { display: block; height: 100svh; overflow-y: auto; padding: 4.3rem .75rem 6.8rem; }
     .route-chip { top: 2.9rem; left: .85rem; }
-    .desktop-icons { width: 100%; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .6rem .15rem; }
-    .desktop-icon { width: 100%; padding: .28rem .05rem; }
-    .desktop-icon > span:last-child { font-size: .58rem; }
-    .icon-frame { width: 3.8rem; height: 3.8rem; }
-    .widgets { width: 100%; margin-top: 1rem; }
+    .desktop-widgets { position: relative; inset: auto; display: grid; gap: 1rem; padding-top: 1.5rem; }
+    .widget-shell { position: relative; inset: auto; width: 100%; transform: none !important; }
+    .widget-grab { display: none; }
     .profile-widget { display: grid; grid-template-columns: auto 1fr; gap: 0 1rem; }
     .profile-top { grid-column: 1 / -1; }
     .profile-links { justify-content: flex-end; align-items: center; }
