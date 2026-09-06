@@ -8,7 +8,7 @@
   import Notes from '$lib/components/Notes.svelte';
   import FlappyBird from '$lib/components/FlappyBird.svelte';
   import wallpaper from '$lib/assets/wallpaper.gif';
-  import portrait from '$lib/assets/favicon.jpg';
+  import pixelAvatar from '$lib/assets/mehmood-pixel-avatar.png';
   import finderIcon from '$lib/assets/finder.png';
   import terminalIcon from '$lib/assets/terminal.png';
   import notesIcon from '$lib/assets/notes.png';
@@ -140,9 +140,10 @@
   </header>
 
   <main class:apps-open={openApps.size > 0} class="desktop-area">
+    <div class="route-chip"><span>ROUTE 21</span><b>MEHMOOD.OS</b></div>
     <section class="desktop-icons" aria-label="Desktop files">
       <button class="desktop-icon" on:click={() => openFinder('highlights')}>
-        <span class="icon-frame portrait-icon"><img src={portrait} alt="" /></span>
+        <span class="icon-frame portrait-icon"><img src={pixelAvatar} alt="" /></span>
         <span>About_Me.app</span>
       </button>
       <button class="desktop-icon" on:click={() => openFinder('projects')}>
@@ -170,11 +171,14 @@
     <section class="widgets" aria-label="Desktop widgets">
       <article class="widget profile-widget">
         <div class="widget-glint"></div>
+        <div class="pixel-notches"></div>
+        <header class="trainer-header"><span>ENGINEER CARD</span><b>NO. 021</b></header>
         <div class="profile-top">
-          <img src={portrait} alt="Mehmood Ahmad" />
-          <div><span class="pixel-kicker">USER / 01</span><h1>Mehmood<br />Ahmad</h1></div>
+          <div class="sprite-well"><img src={pixelAvatar} alt="Pixel portrait of Mehmood Ahmad" /><i></i></div>
+          <div><span class="pixel-kicker">PLAYER ONE</span><h1>Mehmood<br />Ahmad</h1><span class="level">LV. 04 · ENGINEER</span></div>
         </div>
         <p>Software engineer building applied AI, real-time systems, robotics, and thoughtful product experiences.</p>
+        <div class="type-chips"><span>AI</span><span>SYSTEMS</span><span>PRODUCT</span></div>
         <div class="profile-links">
           <a href="mailto:mehmood3@ualberta.ca">Email</a>
           <a href="https://www.linkedin.com/in/mehmood-ahmad-2bb43b244/" target="_blank" rel="noreferrer">LinkedIn ↗</a>
@@ -182,23 +186,25 @@
       </article>
 
       <article class="widget signal-widget">
-        <header><span class="pixel-kicker">SYSTEM SIGNALS</span><i class="live-light"></i></header>
-        <div class="signal-row"><strong>50.6%</strong><span>Hazard F1<br /><small>YOLOv11 + VLM</small></span></div>
-        <div class="pixel-meter"><i style="width: 50.6%"></i></div>
+        <div class="pixel-notches"></div>
+        <header><span class="pixel-kicker">SKILL STATS</span><i class="live-light"></i></header>
+        <div class="signal-row"><strong>50.6%</strong><span>VISION F1<br /><small>YOLOv11 + VLM</small></span></div>
+        <div class="meter-label"><span>CV</span><b>HP</b></div>
+        <div class="pixel-meter"><i style="width: 76%"></i></div>
         <div class="signal-pair">
-          <div><strong>~2.5ms</strong><span>latency</span></div>
-          <div><strong>70%</strong><span>faster deploys</span></div>
+          <div><strong>~2.5ms</strong><span>SPD / latency</span></div>
+          <div><strong>+70%</strong><span>DEV / deploys</span></div>
         </div>
       </article>
 
-      <button class="widget publication-widget" on:click={() => openFinder('highlights')}>
-        <span class="paper-pixel">⌁</span>
-        <span><small>NEW FILE · 2026</small><strong>Object Detection + Small VLMs</strong><em>arXiv:2604.05210</em></span>
-        <b>›</b>
+      <button class="widget publication-widget dialogue-box" on:click={() => openFinder('highlights')}>
+        <span class="paper-pixel">!</span>
+        <span><small>NEW RESEARCH UNLOCKED</small><strong>Object Detection + Small VLMs</strong><em>arXiv:2604.05210 · OPEN QUEST LOG</em></span>
+        <b class="dialogue-arrow">▼</b>
       </button>
     </section>
 
-    <div class="desktop-hint"><span>◇</span> Select a file or open an app from the dock</div>
+    <div class="desktop-hint"><span>▶</span> Choose a file or open an app from the dock</div>
 
     {#if openApps.has('Finder')}
       <div style:z-index={windowStates.Finder.zIndex}>
@@ -254,8 +260,12 @@
   .battery { display: block; width: 1.25rem; height: .62rem; padding: 2px; border: 1px solid currentColor; border-radius: 2px; }
   .battery i { display: block; width: 78%; height: 100%; background: #82efc4; }
 
-  .desktop-area { position: relative; z-index: 2; display: grid; min-height: 100svh; grid-template-columns: minmax(22rem, 1fr) minmax(18rem, 23rem); padding: 4.15rem 2.3rem 6.5rem; transition: filter 180ms ease; }
+  .desktop-area { position: relative; z-index: 2; display: grid; min-height: 100svh; grid-template-columns: minmax(22rem, 1fr) minmax(18rem, 23rem); padding: 5.35rem 2.3rem 6.5rem; transition: filter 180ms ease; }
   .desktop-area.apps-open > .desktop-icons, .desktop-area.apps-open > .widgets, .desktop-area.apps-open > .desktop-hint { filter: saturate(.8) brightness(.72); }
+
+  .route-chip { position: absolute; top: 3.2rem; left: 2.3rem; display: flex; align-items: center; gap: .55rem; padding: .3rem .48rem; border: 2px solid rgba(5,19,32,.88); outline: 2px solid rgba(210,246,255,.68); color: #061524; background: #9ceaff; box-shadow: 3px 3px 0 rgba(1,8,18,.55); font-family: ui-monospace, monospace; font-size: .6rem; letter-spacing: .08em; }
+  .route-chip span { padding: .15rem .3rem; color: #e9fbff; background: #183353; }
+  .route-chip b { font-size: .62rem; }
 
   .desktop-icons { display: grid; width: max-content; align-content: start; grid-template-columns: repeat(2, 7.8rem); gap: 1.2rem .8rem; }
   .desktop-icon { display: flex; width: 7.8rem; flex-direction: column; align-items: center; gap: .48rem; padding: .35rem; border: 0; border-radius: .55rem; color: white; background: transparent; text-align: center; text-decoration: none; cursor: default; }
@@ -278,14 +288,24 @@
   .pixel-tile i { position: absolute; right: .4rem; top: .25rem; color: #83e6ff; font-style: normal; }
 
   .widgets { display: grid; align-content: start; gap: .75rem; justify-self: end; width: min(23rem, 100%); }
-  .widget { position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,.3); border-radius: .85rem; color: white; background: linear-gradient(145deg, rgba(255,255,255,.19), rgba(255,255,255,.065) 48%, rgba(91,154,232,.08)), rgba(4,14,28,.52); box-shadow: 5px 5px 0 rgba(1,8,18,.3), 0 20px 40px rgba(0,5,15,.22), inset 0 1px 0 rgba(255,255,255,.42); backdrop-filter: blur(25px) saturate(145%); -webkit-backdrop-filter: blur(25px) saturate(145%); }
+  .widget { position: relative; overflow: hidden; border: 2px solid rgba(223,249,255,.72); border-radius: .3rem; color: white; background: linear-gradient(145deg, rgba(255,255,255,.2), rgba(255,255,255,.065) 48%, rgba(91,154,232,.08)), rgba(4,14,28,.58); box-shadow: 0 0 0 2px rgba(8,24,42,.8), 5px 5px 0 rgba(1,8,18,.52), 0 20px 40px rgba(0,5,15,.22), inset 0 1px 0 rgba(255,255,255,.42); backdrop-filter: blur(25px) saturate(145%); -webkit-backdrop-filter: blur(25px) saturate(145%); clip-path: polygon(6px 0, calc(100% - 6px) 0, calc(100% - 6px) 2px, 100% 2px, 100% calc(100% - 6px), calc(100% - 2px) calc(100% - 6px), calc(100% - 2px) 100%, 6px 100%, 6px calc(100% - 2px), 0 calc(100% - 2px), 0 6px, 2px 6px, 2px 2px, 6px 2px); }
   .widget-glint { position: absolute; inset: 0; background: radial-gradient(circle at 10% 0%, rgba(255,255,255,.23), transparent 34%); pointer-events: none; }
-  .profile-widget { padding: 1rem; }
-  .profile-top { position: relative; display: grid; grid-template-columns: 4.1rem 1fr; align-items: center; gap: .85rem; }
-  .profile-top img { width: 4.1rem; height: 4.1rem; border: 2px solid rgba(185,238,255,.72); border-radius: .55rem; object-fit: cover; image-rendering: pixelated; box-shadow: 3px 3px 0 rgba(5,15,29,.65); }
+  .pixel-notches { position: absolute; inset: 5px; border: 1px dashed rgba(151,229,255,.18); pointer-events: none; }
+  .profile-widget { padding: .72rem 1rem 1rem; }
+  .trainer-header { position: relative; display: flex; align-items: center; justify-content: space-between; margin: -.72rem -1rem .8rem; padding: .42rem .65rem; color: #071523; background: linear-gradient(90deg, #9feeff 0 65%, #ffdf7a 65%); box-shadow: inset 0 -2px 0 rgba(7,22,36,.35); font-family: ui-monospace, monospace; font-size: .6rem; font-weight: 900; letter-spacing: .08em; }
+  .trainer-header b { color: #192039; }
+  .profile-top { position: relative; display: grid; grid-template-columns: 5.25rem 1fr; align-items: center; gap: .8rem; }
+  .sprite-well { position: relative; display: grid; width: 5.25rem; height: 5.25rem; place-items: center; border: 2px solid #c9f3ff; background: linear-gradient(135deg, rgba(115,221,255,.3), rgba(80,104,177,.22)), repeating-linear-gradient(0deg, rgba(255,255,255,.08) 0 3px, transparent 3px 6px); box-shadow: inset 0 0 0 2px rgba(6,19,34,.66), 3px 3px 0 rgba(1,8,18,.55); clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px, 6px 6px); }
+  .profile-top img { position: relative; z-index: 2; width: 4.65rem; height: 4.65rem; object-fit: cover; image-rendering: pixelated; }
+  .sprite-well i { position: absolute; right: .25rem; bottom: .25rem; width: .7rem; height: .7rem; border: 2px solid rgba(6,21,35,.65); background: #ffdc6a; box-shadow: -2px -2px 0 rgba(255,255,255,.4); transform: rotate(45deg); }
   .pixel-kicker { color: #89e6ff; font-family: ui-monospace, monospace; font-size: .62rem; font-weight: 850; letter-spacing: .11em; }
   .profile-top h1 { margin: .15rem 0 0; font-size: 1.65rem; letter-spacing: -.045em; line-height: .88; }
-  .profile-widget > p { position: relative; margin: .85rem 0; color: rgba(240,248,255,.72); font-size: .82rem; line-height: 1.5; }
+  .level { display: inline-block; margin-top: .45rem; padding: .16rem .28rem; color: #092039; background: #a6f0ff; font-family: ui-monospace, monospace; font-size: .55rem; font-weight: 900; }
+  .profile-widget > p { position: relative; margin: .8rem 0 .65rem; color: rgba(240,248,255,.78); font-size: .8rem; line-height: 1.5; }
+  .type-chips { position: relative; display: flex; gap: .35rem; margin-bottom: .75rem; }
+  .type-chips span { padding: .2rem .38rem; border: 1px solid rgba(255,255,255,.3); color: #092036; background: #9deaff; box-shadow: 2px 2px 0 rgba(1,8,18,.42); font-family: ui-monospace, monospace; font-size: .54rem; font-weight: 950; }
+  .type-chips span:nth-child(2) { background: #bda8ff; }
+  .type-chips span:nth-child(3) { background: #ffdb79; }
   .profile-links { position: relative; display: flex; gap: .45rem; }
   .profile-links a { padding: .42rem .6rem; border: 1px solid rgba(255,255,255,.17); border-radius: .35rem; color: white; background: rgba(255,255,255,.075); font-family: ui-monospace, monospace; font-size: .65rem; font-weight: 700; text-decoration: none; }
   .profile-links a:hover { background: rgba(128,225,255,.18); }
@@ -296,8 +316,10 @@
   .signal-row > strong { font-size: 2.15rem; letter-spacing: -.06em; }
   .signal-row > span { color: rgba(244,249,255,.7); font-size: .72rem; font-weight: 720; line-height: 1.2; }
   .signal-row small { color: rgba(235,245,255,.42); font-size: .6rem; font-weight: 500; }
-  .pixel-meter { height: .55rem; margin: .55rem 0 .85rem; padding: 2px; border: 1px solid rgba(174,230,255,.38); background: rgba(1,9,20,.4); }
-  .pixel-meter i { display: block; height: 100%; background: repeating-linear-gradient(90deg, #73ddff 0 5px, transparent 5px 7px); box-shadow: 0 0 9px rgba(115,221,255,.35); }
+  .meter-label { display: flex; justify-content: space-between; margin-top: .55rem; color: rgba(230,248,255,.62); font-family: ui-monospace, monospace; font-size: .55rem; font-weight: 900; }
+  .meter-label b { color: #ffde73; }
+  .pixel-meter { height: .7rem; margin: .18rem 0 .85rem; padding: 2px; border: 2px solid rgba(6,20,34,.92); outline: 1px solid rgba(187,238,255,.58); background: rgba(1,9,20,.5); }
+  .pixel-meter i { display: block; height: 100%; background: repeating-linear-gradient(90deg, #6eedb5 0 7px, #8bf6ca 7px 9px, transparent 9px 11px); box-shadow: 0 0 9px rgba(91,239,179,.35); }
   .signal-pair { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid rgba(255,255,255,.1); }
   .signal-pair div { padding-top: .7rem; }
   .signal-pair div + div { padding-left: .9rem; border-left: 1px solid rgba(255,255,255,.1); }
@@ -306,16 +328,20 @@
   .signal-pair span { margin-top: .08rem; color: rgba(240,247,255,.48); font-size: .62rem; }
 
   .publication-widget { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: .75rem; width: 100%; padding: .75rem; text-align: left; cursor: pointer; }
-  .paper-pixel { display: grid; width: 2.7rem; height: 2.7rem; place-items: center; border: 2px solid #b7ecff; border-radius: 3px; color: #07131f; background: #81dcf7; box-shadow: 3px 3px 0 rgba(0,0,0,.35); font-size: 1.3rem; }
+  .dialogue-box { border-color: #eefcff; background: linear-gradient(145deg, rgba(251,250,231,.94), rgba(201,236,241,.9)); color: #0a1b2a; box-shadow: 0 0 0 2px #162b43, 5px 5px 0 rgba(1,8,18,.58), inset 0 0 0 3px rgba(104,164,185,.32); backdrop-filter: blur(18px); }
+  .paper-pixel { display: grid; width: 2.7rem; height: 2.7rem; place-items: center; border: 2px solid #17314a; border-radius: 50%; color: #11233b; background: #ffdc6b; box-shadow: 3px 3px 0 rgba(8,28,46,.42), inset -3px -3px 0 rgba(195,135,35,.24); font-family: ui-monospace, monospace; font-size: 1.25rem; font-weight: 950; }
   .publication-widget > span:nth-child(2) { min-width: 0; }
   .publication-widget small, .publication-widget strong, .publication-widget em { display: block; }
-  .publication-widget small { color: #91e8ff; font-family: ui-monospace, monospace; font-size: .58rem; }
+  .publication-widget small { color: #315273; font-family: ui-monospace, monospace; font-size: .58rem; font-weight: 900; }
   .publication-widget strong { margin: .16rem 0; overflow: hidden; font-size: .75rem; text-overflow: ellipsis; white-space: nowrap; }
-  .publication-widget em { color: rgba(240,248,255,.46); font-family: ui-monospace, monospace; font-size: .58rem; font-style: normal; }
-  .publication-widget > b { color: rgba(255,255,255,.5); font-size: 1.35rem; }
+  .publication-widget em { color: #557084; font-family: ui-monospace, monospace; font-size: .58rem; font-style: normal; }
+  .publication-widget > b { color: #17314a; font-size: .75rem; }
+  .dialogue-arrow { animation: dialogue-bounce 700ms steps(2) infinite; }
 
   .desktop-hint { position: fixed; left: 50%; bottom: 6.3rem; display: flex; transform: translateX(-50%); align-items: center; gap: .45rem; padding: .38rem .62rem; border: 1px solid rgba(255,255,255,.16); border-radius: .4rem; color: rgba(255,255,255,.58); background: rgba(2,10,22,.35); font-family: ui-monospace, monospace; font-size: .62rem; backdrop-filter: blur(12px); }
   .desktop-hint span { color: #87e8ff; }
+
+  @keyframes dialogue-bounce { 50% { transform: translateY(3px); } }
 
   .finder-window { width: min(900px, calc(100vw - 1rem)); height: min(630px, calc(100svh - 7.9rem)); }
   .terminal-window { width: min(730px, calc(100vw - 1rem)); height: min(500px, calc(100svh - 7.9rem)); }
@@ -324,7 +350,8 @@
 
   @media (max-width: 800px) {
     .menu-left span, .status-dot { display: none; }
-    .desktop-area { display: block; height: 100svh; overflow-y: auto; padding: 3.3rem .75rem 6.8rem; }
+    .desktop-area { display: block; height: 100svh; overflow-y: auto; padding: 4.3rem .75rem 6.8rem; }
+    .route-chip { top: 2.9rem; left: .85rem; }
     .desktop-icons { width: 100%; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .6rem .15rem; }
     .desktop-icon { width: 100%; padding: .28rem .05rem; }
     .desktop-icon > span:last-child { font-size: .58rem; }

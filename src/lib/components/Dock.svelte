@@ -44,12 +44,13 @@
     align-items: flex-end;
     gap: 0.55rem;
     padding: 0.55rem 0.7rem 0.45rem;
-    border: 1px solid rgba(255, 255, 255, 0.38);
-    border-radius: 1.55rem;
+    border: 2px solid rgba(223, 249, 255, 0.76);
+    border-radius: .45rem;
     background: linear-gradient(155deg, rgba(255,255,255,.31), rgba(255,255,255,.08) 45%, rgba(111,169,255,.12)), rgba(8, 16, 32, 0.38);
-    box-shadow: 0 24px 60px rgba(1, 7, 18, 0.45), inset 0 1px 0 rgba(255,255,255,.55), inset 0 -1px 0 rgba(255,255,255,.1);
+    box-shadow: 0 0 0 2px rgba(6,20,36,.76), 5px 5px 0 rgba(1,7,18,.5), 0 24px 60px rgba(1, 7, 18, 0.4), inset 0 1px 0 rgba(255,255,255,.55);
     backdrop-filter: blur(30px) saturate(155%);
     -webkit-backdrop-filter: blur(30px) saturate(155%);
+    clip-path: polygon(7px 0, calc(100% - 7px) 0, calc(100% - 7px) 2px, 100% 2px, 100% calc(100% - 7px), calc(100% - 2px) calc(100% - 7px), calc(100% - 2px) 100%, 7px 100%, 7px calc(100% - 2px), 0 calc(100% - 2px), 0 7px, 2px 7px, 2px 2px, 7px 2px);
   }
 
   .dock-highlight {
@@ -69,7 +70,7 @@
     height: 3.65rem;
     place-items: center;
     border: 0;
-    border-radius: 1rem;
+    border-radius: .35rem;
     background: transparent;
     cursor: pointer;
     transition: transform 170ms cubic-bezier(.2,.8,.2,1), filter 170ms ease;
@@ -87,11 +88,11 @@
     height: 3.35rem;
     place-items: center;
     overflow: hidden;
-    border-radius: .95rem;
-    filter: drop-shadow(0 7px 8px rgba(0,0,0,.35));
+    border-radius: .5rem;
+    filter: drop-shadow(3px 4px 0 rgba(0,0,0,.42));
   }
 
-  .icon-wrap img { width: 100%; height: 100%; object-fit: cover; image-rendering: auto; user-select: none; }
+  .icon-wrap img { width: 100%; height: 100%; object-fit: cover; image-rendering: pixelated; user-select: none; }
 
   .dock-tooltip {
     position: absolute;
@@ -99,15 +100,17 @@
     left: 50%;
     padding: .35rem .55rem;
     transform: translate(-50%, 5px);
-    border: 1px solid rgba(255,255,255,.24);
-    border-radius: .55rem;
-    background: rgba(8,14,28,.8);
+    border: 2px solid rgba(228,250,255,.82);
+    border-radius: .2rem;
+    background: rgba(8,20,36,.92);
     color: white;
-    font-size: .72rem;
+    font-family: ui-monospace, monospace;
+    font-size: .66rem;
     font-weight: 650;
     opacity: 0;
     pointer-events: none;
     white-space: nowrap;
+    box-shadow: 0 0 0 2px rgba(6,17,30,.76), 3px 3px 0 rgba(0,0,0,.42);
     backdrop-filter: blur(12px);
     transition: opacity 140ms ease, transform 140ms ease;
   }
@@ -115,11 +118,11 @@
   .dock-button:hover .dock-tooltip,
   .dock-button:focus-visible .dock-tooltip { opacity: 1; transform: translate(-50%, 0); }
 
-  .running-dot { display: block; width: 4px; height: 4px; margin: .2rem auto 0; border-radius: 99px; background: transparent; }
-  .running-dot.running { background: rgba(255,255,255,.92); box-shadow: 0 0 7px white; }
+  .running-dot { display: block; width: 5px; height: 5px; margin: .2rem auto 0; background: transparent; }
+  .running-dot.running { background: #84eaff; box-shadow: 2px 2px 0 rgba(3,16,29,.8), 0 0 7px #84eaff; }
 
   @media (max-width: 640px) {
-    .dock-shell { gap: .25rem; padding: .42rem .5rem .35rem; border-radius: 1.25rem; }
+    .dock-shell { gap: .25rem; padding: .42rem .5rem .35rem; border-radius: .4rem; }
     .dock-button { width: 3.1rem; height: 3.1rem; }
     .icon-wrap { width: 2.85rem; height: 2.85rem; border-radius: .78rem; }
     .dock-tooltip { display: none; }
