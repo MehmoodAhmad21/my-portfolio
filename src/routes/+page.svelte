@@ -15,6 +15,7 @@
   import flappyIcon from '$lib/assets/flappy.png';
 
   type FinderTab = 'highlights' | 'projects' | 'experience';
+  type MenuName = 'apple' | 'app' | 'file' | 'edit' | 'view' | 'go' | 'window' | 'help' | 'status' | 'control' | 'clock';
   type WindowState = { isMinimized: boolean; isMaximized: boolean; x: number; y: number; zIndex: number };
 
   const apps: DockApp[] = [
@@ -31,6 +32,8 @@
   let currentDate = '';
   let finderView: FinderTab = 'highlights';
   let finderKey = 0;
+  let openMenu: MenuName | null = null;
+  let menuNotice = '';
 
   let windowStates: Record<string, WindowState> = {
     Finder: { isMinimized: false, isMaximized: false, x: 110, y: 62, zIndex: 101 },
@@ -104,7 +107,36 @@
     if (event.detail.minimized && activeApp === name) activeApp = null;
   }
 
+  function toggleMenu(menu: MenuName) {
+    openMenu = openMenu === menu ? null : menu;
+  }
+
+  function runMenuAction(action: () => void) {
+    action();
+    openMenu = null;
+  }
+
+  async function copyContact(value: string, label: string) {
+    try {
+      await navigator.clipboard.writeText(value);
+      menuNotice = `${label} copied`;
+    } catch {
+      menuNotice = `Copy ${value}`;
+    }
+    openMenu = null;
+    setTimeout(() => menuNotice = '', 1800);
+  }
+
+  function handleWindowClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.menu-bar') || target.closest('.menu-popover a, .clock-panel a')) openMenu = null;
+  }
+
   function handleKeydown(event: KeyboardEvent) {
+    if (event.key === 'Escape' && openMenu) {
+      openMenu = null;
+      return;
+    }
     if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'w' && activeApp) {
       event.preventDefault();
       closeApp(activeApp);
@@ -118,7 +150,7 @@
   }
 </script>
 
-<svelte:window on:keydown={handleKeydown} />
+<svelte:window on:keydown={handleKeydown} on:click={handleWindowClick} />
 
 <div class="desktop">
   <div class="wallpaper" style={`background-image: url('${wallpaper}')`}></div>
@@ -127,17 +159,47 @@
 
   <header class="menu-bar">
     <div class="menu-left">
-      <button class="pixel-apple" on:click={() => openFinder('highlights')} aria-label="Open profile">M</button>
-      <strong>{activeApp ?? 'Finder'}</strong>
-      <span>File</span><span>Edit</span><span>View</span><span>Go</span><span>Window</span><span>Help</span>
+      <div class="menu-item">
+        <button class:active={openMenu === 'apple'} class="pixel-apple" on:click={() => toggleMenu('apple')} aria-label="Portfolio menu" aria-expanded={openMenu === 'apple'}>M</button>
+        {#if openMenu === 'apple'}
+          <div class="menu-popover apple-popover" role="menu">
+            <button on:click={() => runMenuAction(() => openFinder('highlights'))}><span>About This Portfolio</span></button>
+            <div class="menu-separator"></div>
+            <a href={`${base}/mehmood-ahmad-resume.pdf`} target="_blank"><span>Résumé…</span></a>
+            <button on:click={() => runMenuAction(() => openApp('Terminal'))}><span>System Information…</span></button>
+            <div class="menu-separator"></div>
+            <a href="mailto:mehmood3@ualberta.ca"><span>Contact Mehmood…</span></a>
+          </div>
+        {/if}
+      </div>
+
+      <div class="menu-item app-menu">
+        <button class:active={openMenu === 'app'} class="menu-button app-button" on:click={() => toggleMenu('app')} aria-expanded={openMenu === 'app'}>{activeApp ?? 'Finder'}</button>
+        {#if openMenu === 'app'}
+          <div class="menu-popover" role="menu">
+            <button on:click={() => runMenuAction(() => activeApp ? openApp(activeApp) : openFinder('highlights'))}><span>About {activeApp ?? 'Finder'}</span></button>
+            <div class="menu-separator"></div>
+            <button on:click={() => runMenuAction(() => openFinder('highlights'))}><span>Portfolio Home</span><kbd>⌘H</kbd></button>
+            {#if activeApp}<button on:click={() => runMenuAction(() => closeApp(activeApp!))}><span>Quit {activeApp}</span><kbd>⌘Q</kbd></button>{/if}
+          </div>
+        {/if}
+      </div>
+
+      <div class="menu-item"><button class:active={openMenu === 'file'} class="menu-button" on:click={() => toggleMenu('file')}>File</button>{#if openMenu === 'file'}<div class="menu-popover" role="menu"><button on:click={() => runMenuAction(() => openFinder('highlights'))}><span>New Finder Window</span><kbd>⌘N</kbd></button><button on:click={() => runMenuAction(() => openFinder('projects'))}><span>Open Projects</span><kbd>⌘O</kbd></button><a href={`${base}/mehmood-ahmad-resume.pdf`} target="_blank"><span>Open Résumé…</span></a><div class="menu-separator"></div><button disabled={!activeApp} on:click={() => activeApp && runMenuAction(() => closeApp(activeApp!))}><span>Close Window</span><kbd>⌘W</kbd></button></div>{/if}</div>
+      <div class="menu-item"><button class:active={openMenu === 'edit'} class="menu-button" on:click={() => toggleMenu('edit')}>Edit</button>{#if openMenu === 'edit'}<div class="menu-popover" role="menu"><button on:click={() => copyContact('mehmood3@ualberta.ca', 'Email')}><span>Copy Email</span><kbd>⌘C</kbd></button><button on:click={() => copyContact('https://github.com/MehmoodAhmad21', 'GitHub link')}><span>Copy GitHub Link</span></button><button on:click={() => copyContact('https://www.linkedin.com/in/mehmood-ahmad-2bb43b244/', 'LinkedIn link')}><span>Copy LinkedIn Link</span></button></div>{/if}</div>
+      <div class="menu-item"><button class:active={openMenu === 'view'} class="menu-button" on:click={() => toggleMenu('view')}>View</button>{#if openMenu === 'view'}<div class="menu-popover" role="menu"><button on:click={() => runMenuAction(() => openFinder('highlights'))}><span>Show Recents</span></button><button on:click={() => runMenuAction(() => openFinder('projects'))}><span>Show Projects</span></button><button on:click={() => runMenuAction(() => openFinder('experience'))}><span>Show Experience</span></button><div class="menu-separator"></div><button disabled={!activeApp} on:click={() => activeApp && runMenuAction(() => windowStates[activeApp!].isMaximized = !windowStates[activeApp!].isMaximized)}><span>Enter Full Screen</span><kbd>⌃⌘F</kbd></button></div>{/if}</div>
+      <div class="menu-item"><button class:active={openMenu === 'go'} class="menu-button" on:click={() => toggleMenu('go')}>Go</button>{#if openMenu === 'go'}<div class="menu-popover" role="menu"><a href="https://github.com/MehmoodAhmad21" target="_blank" rel="noreferrer"><span>GitHub</span><kbd>↗</kbd></a><a href="https://www.linkedin.com/in/mehmood-ahmad-2bb43b244/" target="_blank" rel="noreferrer"><span>LinkedIn</span><kbd>↗</kbd></a><a href="https://arxiv.org/abs/2604.05210" target="_blank" rel="noreferrer"><span>Research Paper</span><kbd>↗</kbd></a></div>{/if}</div>
+      <div class="menu-item"><button class:active={openMenu === 'window'} class="menu-button" on:click={() => toggleMenu('window')}>Window</button>{#if openMenu === 'window'}<div class="menu-popover" role="menu"><button disabled={!activeApp} on:click={() => activeApp && runMenuAction(() => { windowStates[activeApp!].isMinimized = true; activeApp = null; })}><span>Minimize</span><kbd>⌘M</kbd></button><div class="menu-separator"></div>{#each apps as app}<button on:click={() => runMenuAction(() => openApp(app.name))}><span>{openApps.has(app.name) ? '✓' : ''}&nbsp;&nbsp;{app.name}</span></button>{/each}</div>{/if}</div>
+      <div class="menu-item"><button class:active={openMenu === 'help'} class="menu-button" on:click={() => toggleMenu('help')}>Help</button>{#if openMenu === 'help'}<div class="menu-popover align-right" role="menu"><button on:click={() => runMenuAction(() => openFinder('highlights'))}><span>Portfolio Guide</span></button><button on:click={() => runMenuAction(() => openApp('Terminal'))}><span>Terminal Commands</span></button><div class="menu-separator"></div><a href="mailto:mehmood3@ualberta.ca"><span>Ask Mehmood a Question…</span></a></div>{/if}</div>
     </div>
     <div class="menu-right">
-      <span class="status-dot"><i></i> available</span>
-      <span class="wifi" aria-label="Wi-Fi">▴</span>
-      <span class="battery" aria-label="Battery"><i></i></span>
-      <time>{currentDate}&nbsp;&nbsp;{currentTime}</time>
+      <div class="menu-item right-menu"><button class:active={openMenu === 'status'} class="status-button" on:click={() => toggleMenu('status')}><span class="status-dot"><i></i> available</span></button>{#if openMenu === 'status'}<div class="menu-popover status-panel" role="menu"><div class="status-card"><i></i><div><strong>Available for opportunities</strong><span>Software engineering · Applied AI</span></div></div><p>Edmonton, Alberta · Open to relocation and remote work.</p><a href="mailto:mehmood3@ualberta.ca"><span>Start a conversation</span><kbd>↗</kbd></a></div>{/if}</div>
+      <div class="menu-item right-menu"><button class:active={openMenu === 'control'} class="system-button" on:click={() => toggleMenu('control')} aria-label="Control Center"><span class="wifi">▴</span><span class="battery"><i></i></span></button>{#if openMenu === 'control'}<div class="control-center"><button on:click={() => copyContact('mehmood3@ualberta.ca', 'Email')}><span class="control-icon blue">⌁</span><span><strong>Wi-Fi</strong><small>Portfolio Network</small></span></button><button on:click={() => runMenuAction(() => openApp('Terminal'))}><span class="control-icon purple">⌘</span><span><strong>Focus</strong><small>Recruiter mode</small></span></button><div class="control-slider"><span>☀</span><i><b></b></i></div><div class="battery-row"><span class="battery large"><i></i></span><strong>Battery</strong><small>78%</small></div></div>{/if}</div>
+      <div class="menu-item right-menu"><button class:active={openMenu === 'clock'} class="clock-button" on:click={() => toggleMenu('clock')}><time>{currentDate}&nbsp;&nbsp;{currentTime}</time></button>{#if openMenu === 'clock'}<div class="clock-panel"><span class="calendar-month">SEP</span><strong>06</strong><div><b>{currentDate}</b><small>{currentTime}</small></div><div class="menu-separator"></div><p>Available for software engineering opportunities.</p><a href={`${base}/mehmood-ahmad-resume.pdf`} target="_blank">Open Résumé <kbd>↗</kbd></a></div>{/if}</div>
     </div>
   </header>
+
+  {#if menuNotice}<div class="menu-toast">{menuNotice}</div>{/if}
 
   <main class:apps-open={openApps.size > 0} class="desktop-area">
     <div class="route-chip"><span>ROUTE 21</span><b>MEHMOOD.OS</b></div>
@@ -249,16 +311,63 @@
   .scanlines { position: absolute; inset: 0; opacity: .1; background: repeating-linear-gradient(180deg, rgba(255,255,255,.04) 0 1px, transparent 1px 4px); pointer-events: none; }
 
   .menu-bar { position: fixed; z-index: 2000; inset: 0 0 auto; display: flex; min-height: 2.35rem; align-items: center; justify-content: space-between; padding: .32rem .85rem; border-bottom: 1px solid rgba(255,255,255,.28); color: rgba(255,255,255,.86); background: linear-gradient(180deg, rgba(255,255,255,.21), rgba(255,255,255,.07)), rgba(4,14,28,.38); box-shadow: inset 0 1px 0 rgba(255,255,255,.38); backdrop-filter: blur(28px) saturate(155%); -webkit-backdrop-filter: blur(28px) saturate(155%); font-size: .75rem; }
-  .menu-left, .menu-right { display: flex; align-items: center; gap: .95rem; }
-  .menu-left strong { color: white; }
-  .menu-left span { color: rgba(255,255,255,.72); }
+  .menu-left, .menu-right { display: flex; align-items: center; gap: .08rem; }
+  .menu-item { position: relative; }
+  .menu-button, .status-button, .system-button, .clock-button { min-height: 1.72rem; padding: 0 .52rem; border: 0; border-radius: .34rem; color: rgba(255,255,255,.82); background: transparent; font-size: .75rem; cursor: pointer; }
+  .menu-button:hover, .menu-button.active, .status-button:hover, .status-button.active, .system-button:hover, .system-button.active, .clock-button:hover, .clock-button.active { color: white; background: rgba(255,255,255,.18); }
+  .app-button { color: white; font-weight: 680; }
   .pixel-apple { display: grid; width: 1.45rem; height: 1.45rem; padding: 0; place-items: center; border: 1px solid #d9f7ff; border-radius: 3px; color: #07121f; background: #9beaff; box-shadow: 2px 2px 0 rgba(0,0,0,.45); font-family: ui-monospace, monospace; font-size: .68rem; font-weight: 950; cursor: pointer; }
-  .menu-right { gap: .72rem; }
+  .pixel-apple.active { outline: 2px solid rgba(255,255,255,.45); background: #c7f5ff; }
+  .menu-right { gap: .05rem; }
+  .system-button { display: flex; align-items: center; gap: .48rem; }
   .status-dot { display: flex; align-items: center; gap: .35rem; font-family: ui-monospace, monospace; font-size: .62rem; text-transform: uppercase; }
   .status-dot i, .live-light { width: .42rem; height: .42rem; border-radius: 1px; background: #69f1b9; box-shadow: 0 0 8px #69f1b9; }
   .wifi { transform: rotate(180deg); }
   .battery { display: block; width: 1.25rem; height: .62rem; padding: 2px; border: 1px solid currentColor; border-radius: 2px; }
   .battery i { display: block; width: 78%; height: 100%; background: #82efc4; }
+
+  .menu-popover, .control-center, .clock-panel { position: absolute; top: calc(100% + .42rem); left: 0; min-width: 15.5rem; padding: .38rem; border: 1px solid rgba(255,255,255,.24); border-radius: .72rem; color: #f6f6f7; background: linear-gradient(145deg, rgba(65,70,78,.88), rgba(28,32,39,.9)); box-shadow: 0 18px 45px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.15); backdrop-filter: blur(34px) saturate(150%); -webkit-backdrop-filter: blur(34px) saturate(150%); }
+  .menu-popover::before, .control-center::before, .clock-panel::before { position: absolute; inset: 0; border-radius: inherit; background: repeating-linear-gradient(180deg, rgba(255,255,255,.016) 0 1px, transparent 1px 4px); content: ''; pointer-events: none; }
+  .menu-popover button, .menu-popover a { position: relative; z-index: 1; display: flex; width: 100%; min-height: 1.8rem; align-items: center; justify-content: space-between; gap: 1rem; padding: .28rem .58rem; border: 0; border-radius: .34rem; color: #f4f4f5; background: transparent; font-size: .76rem; text-decoration: none; cursor: pointer; }
+  .menu-popover button:hover:not(:disabled), .menu-popover a:hover { color: white; background: #0a84ff; }
+  .menu-popover button:disabled { color: rgba(255,255,255,.32); cursor: default; }
+  .menu-popover kbd, .clock-panel kbd { color: rgba(255,255,255,.52); font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: .68rem; }
+  .menu-popover button:hover kbd, .menu-popover a:hover kbd { color: white; }
+  .menu-separator { position: relative; z-index: 1; height: 1px; margin: .32rem .45rem; background: rgba(255,255,255,.13); }
+  .align-right { right: 0; left: auto; }
+  .right-menu > .menu-popover, .right-menu > .control-center, .right-menu > .clock-panel { right: 0; left: auto; }
+  .status-panel { width: 18rem; padding: .65rem; }
+  .status-card { position: relative; z-index: 1; display: grid; grid-template-columns: auto 1fr; align-items: center; gap: .65rem; padding: .42rem; }
+  .status-card > i { width: .72rem; height: .72rem; border-radius: 50%; background: #43d88f; box-shadow: 0 0 14px rgba(67,216,143,.78); }
+  .status-card strong, .status-card span { display: block; }
+  .status-card strong { font-size: .8rem; }
+  .status-card span, .status-panel p { color: rgba(245,249,255,.62); font-size: .67rem; }
+  .status-panel p { position: relative; z-index: 1; margin: .35rem .42rem .55rem; line-height: 1.45; }
+  .control-center { display: grid; width: 18.5rem; grid-template-columns: 1fr 1fr; gap: .5rem; padding: .6rem; }
+  .control-center > button { position: relative; z-index: 1; display: grid; grid-template-columns: auto 1fr; align-items: center; gap: .55rem; padding: .6rem; border: 0; border-radius: .72rem; color: white; background: rgba(255,255,255,.09); text-align: left; cursor: pointer; }
+  .control-center > button:hover { background: rgba(255,255,255,.14); }
+  .control-center button strong, .control-center button small { display: block; }
+  .control-center button strong { font-size: .72rem; }
+  .control-center button small { margin-top: .08rem; color: rgba(255,255,255,.55); font-size: .58rem; }
+  .control-icon { display: grid; width: 2rem; height: 2rem; place-items: center; border-radius: 50%; background: #0a84ff; }
+  .control-icon.purple { background: #7658d6; }
+  .control-slider, .battery-row { position: relative; z-index: 1; grid-column: 1 / -1; display: flex; align-items: center; gap: .58rem; padding: .55rem .65rem; border-radius: .72rem; background: rgba(255,255,255,.09); }
+  .control-slider > i { height: .42rem; flex: 1; overflow: hidden; border-radius: 1rem; background: rgba(255,255,255,.2); }
+  .control-slider > i b { display: block; width: 72%; height: 100%; border-radius: inherit; background: white; }
+  .battery-row strong { flex: 1; font-size: .7rem; }
+  .battery-row small { color: rgba(255,255,255,.58); font-size: .65rem; }
+  .battery.large { width: 1.55rem; height: .75rem; }
+  .clock-panel { display: grid; width: 16rem; grid-template-columns: auto auto 1fr; align-items: center; gap: .45rem .65rem; padding: .75rem; }
+  .calendar-month { align-self: stretch; padding: .18rem .35rem; border-radius: .3rem .3rem 0 0; color: white; background: #f04f5f; font-size: .56rem; font-weight: 800; }
+  .clock-panel > strong { font-size: 1.85rem; }
+  .clock-panel > div:not(.menu-separator) b, .clock-panel > div:not(.menu-separator) small { display: block; }
+  .clock-panel > div:not(.menu-separator) b { font-size: .72rem; }
+  .clock-panel > div:not(.menu-separator) small { color: rgba(255,255,255,.58); font-size: .65rem; }
+  .clock-panel .menu-separator, .clock-panel p, .clock-panel a { position: relative; z-index: 1; grid-column: 1 / -1; }
+  .clock-panel p { margin: .15rem 0; color: rgba(255,255,255,.65); font-size: .68rem; line-height: 1.4; }
+  .clock-panel a { display: flex; align-items: center; justify-content: space-between; padding: .48rem .55rem; border-radius: .42rem; color: white; background: rgba(255,255,255,.09); font-size: .7rem; text-decoration: none; }
+  .clock-panel a:hover { background: #0a84ff; }
+  .menu-toast { position: fixed; z-index: 2200; top: 3rem; left: 50%; transform: translateX(-50%); padding: .48rem .72rem; border: 1px solid rgba(255,255,255,.25); border-radius: .55rem; color: white; background: rgba(20,28,38,.82); box-shadow: 0 10px 25px rgba(0,0,0,.28); backdrop-filter: blur(20px); font-size: .7rem; }
 
   .desktop-area { position: relative; z-index: 2; display: grid; min-height: 100svh; grid-template-columns: minmax(22rem, 1fr) minmax(18rem, 23rem); padding: 5.35rem 2.3rem 6.5rem; transition: filter 180ms ease; }
   .desktop-area.apps-open > .desktop-icons, .desktop-area.apps-open > .widgets, .desktop-area.apps-open > .desktop-hint { filter: saturate(.8) brightness(.72); }
@@ -349,7 +458,10 @@
   .game-window { width: min(620px, calc(100vw - 1rem)); height: min(500px, calc(100svh - 7.9rem)); }
 
   @media (max-width: 800px) {
-    .menu-left span, .status-dot { display: none; }
+    .menu-left > .menu-item:not(:first-child):not(.app-menu), .status-button { display: none; }
+    .menu-popover { position: fixed; top: 2.65rem; right: .5rem; left: .5rem; width: auto; min-width: 0; }
+    .app-menu .menu-popover { right: auto; left: .5rem; width: min(18rem, calc(100vw - 1rem)); }
+    .control-center, .clock-panel { position: fixed; top: 2.65rem; right: .5rem; left: auto; max-width: calc(100vw - 1rem); }
     .desktop-area { display: block; height: 100svh; overflow-y: auto; padding: 4.3rem .75rem 6.8rem; }
     .route-chip { top: 2.9rem; left: .85rem; }
     .desktop-icons { width: 100%; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .6rem .15rem; }
@@ -365,7 +477,7 @@
   }
 
   @media (max-width: 430px) {
-    .menu-right .wifi, .menu-right .battery { display: none; }
+    .system-button .wifi { display: none; }
     .profile-widget { display: block; }
     .profile-links { justify-content: flex-start; }
   }
