@@ -40,88 +40,90 @@
     position: fixed;
     z-index: 1000;
     left: 50%;
-    bottom: max(0.9rem, env(safe-area-inset-bottom));
+    bottom: max(.55rem, env(safe-area-inset-bottom));
     display: flex;
     transform: translateX(-50%);
     align-items: flex-end;
-    gap: 0.55rem;
-    padding: 0.55rem 0.7rem 0.45rem;
-    border: 2px solid rgba(223, 249, 255, 0.76);
-    border-radius: .45rem;
-    background: linear-gradient(155deg, rgba(255,255,255,.31), rgba(255,255,255,.08) 45%, rgba(111,169,255,.12)), rgba(8, 16, 32, 0.38);
-    box-shadow: 0 0 0 2px rgba(6,20,36,.76), 5px 5px 0 rgba(1,7,18,.5), 0 24px 60px rgba(1, 7, 18, 0.4), inset 0 1px 0 rgba(255,255,255,.55);
-    backdrop-filter: blur(30px) saturate(155%);
-    -webkit-backdrop-filter: blur(30px) saturate(155%);
-    clip-path: polygon(7px 0, calc(100% - 7px) 0, calc(100% - 7px) 2px, 100% 2px, 100% calc(100% - 7px), calc(100% - 2px) calc(100% - 7px), calc(100% - 2px) 100%, 7px 100%, 7px calc(100% - 2px), 0 calc(100% - 2px), 0 7px, 2px 7px, 2px 2px, 7px 2px);
+    gap: .16rem;
+    padding: .3rem .38rem .34rem;
+    border: 1px solid rgba(255,255,255,.32);
+    border-radius: .9rem;
+    background: linear-gradient(180deg, rgba(255,255,255,.2), rgba(255,255,255,.06)), rgba(30,35,45,.5);
+    box-shadow: 0 15px 35px rgba(0,0,0,.38), 0 2px 6px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.38), inset 0 -1px 0 rgba(0,0,0,.26);
+    backdrop-filter: blur(30px) saturate(165%);
+    -webkit-backdrop-filter: blur(30px) saturate(165%);
   }
 
   .dock-highlight {
     position: absolute;
-    inset: 3px 12% auto;
+    inset: 1px .7rem auto;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,.85), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.48) 15%, rgba(255,255,255,.28) 85%, transparent);
     pointer-events: none;
   }
 
-  .dock-item { position: relative; }
+  .dock-item { position: relative; display: flex; flex-direction: column; align-items: center; }
 
   .dock-button {
     position: relative;
     display: grid;
-    width: 3.65rem;
-    height: 3.65rem;
+    width: 3.35rem;
+    height: 3.35rem;
     place-items: center;
     border: 0;
-    border-radius: .35rem;
+    border-radius: .62rem;
     background: transparent;
     cursor: pointer;
-    transition: transform 170ms cubic-bezier(.2,.8,.2,1), filter 170ms ease;
+    transform-origin: 50% 100%;
+    transition: transform 190ms cubic-bezier(.2,.82,.2,1), filter 170ms ease;
   }
 
   .dock-button:hover,
-  .dock-button:focus-visible { transform: translateY(-7px) scale(1.09); }
-  .dock-button:active { transform: translateY(-2px) scale(.96); }
-  .dock-button.active { filter: drop-shadow(0 8px 14px rgba(86, 168, 255, .42)); }
+  .dock-button:focus-visible { z-index: 2; transform: translateY(-11px) scale(1.24); }
+  .dock-item:has(.dock-button:hover) + .dock-item .dock-button,
+  .dock-item:has(+ .dock-item .dock-button:hover) .dock-button { transform: translateY(-4px) scale(1.08); }
+  .dock-button:active { transform: translateY(-4px) scale(.94); }
+  .dock-button.active { filter: drop-shadow(0 7px 11px rgba(69,151,255,.3)); }
   .dock-button:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
 
   .icon-wrap {
     display: grid;
-    width: 3.35rem;
-    height: 3.35rem;
+    width: 3rem;
+    height: 3rem;
     place-items: center;
     overflow: hidden;
-    border-radius: .5rem;
-    filter: drop-shadow(3px 4px 0 rgba(0,0,0,.42));
+    border-radius: .68rem;
+    filter: drop-shadow(0 4px 5px rgba(0,0,0,.32));
   }
 
   .icon-wrap img { width: 100%; height: 100%; object-fit: cover; image-rendering: pixelated; user-select: none; }
 
   .dock-tooltip {
     position: absolute;
-    bottom: calc(100% + .72rem);
+    bottom: calc(100% + .82rem);
     left: 50%;
     padding: .35rem .55rem;
     transform: translate(-50%, 5px);
-    border: 2px solid rgba(228,250,255,.82);
-    border-radius: .2rem;
-    background: rgba(8,20,36,.92);
+    border: 1px solid rgba(255,255,255,.2);
+    border-radius: .55rem;
+    background: rgba(28,33,42,.76);
     color: white;
-    font-family: ui-monospace, monospace;
-    font-size: .66rem;
-    font-weight: 650;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    font-size: .72rem;
+    font-weight: 520;
     opacity: 0;
     pointer-events: none;
     white-space: nowrap;
-    box-shadow: 0 0 0 2px rgba(6,17,30,.76), 3px 3px 0 rgba(0,0,0,.42);
-    backdrop-filter: blur(12px);
+    box-shadow: 0 5px 16px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.15);
+    backdrop-filter: blur(22px) saturate(145%);
     transition: opacity 140ms ease, transform 140ms ease;
   }
 
   .dock-button:hover .dock-tooltip,
   .dock-button:focus-visible .dock-tooltip { opacity: 1; transform: translate(-50%, 0); }
 
-  .running-dot { display: block; width: 5px; height: 5px; margin: .2rem auto 0; background: transparent; }
-  .running-dot.running { background: #84eaff; box-shadow: 2px 2px 0 rgba(3,16,29,.8), 0 0 7px #84eaff; }
+  .running-dot { display: block; width: 4px; height: 4px; margin: .05rem auto 0; border-radius: 50%; background: transparent; }
+  .running-dot.running { background: rgba(255,255,255,.78); box-shadow: 0 1px 2px rgba(0,0,0,.55); }
 
   @media (max-width: 640px) {
     .dock-shell { gap: .25rem; padding: .42rem .5rem .35rem; border-radius: .4rem; }
