@@ -368,7 +368,7 @@
     {/if}
     <section class="desktop-widgets" aria-label="Draggable desktop widgets">
       <div class:dragging={draggedWidget === 'profile'} class="widget-shell profile-shell" style={`--widget-x:${widgetOffsets.profile.x}px;--widget-y:${widgetOffsets.profile.y}px`}>
-        <button class="widget-grab" on:pointerdown={(event) => startWidgetDrag('profile', event)} aria-label="Move profile widget">•••</button>
+        <button class="widget-drag-strip" on:pointerdown={(event) => startWidgetDrag('profile', event)} aria-label="Drag profile widget"></button>
         <article class="widget profile-widget">
           <div class="widget-glint"></div>
           <div class="pixel-notches"></div>
@@ -387,7 +387,7 @@
       </div>
 
       <div class:dragging={draggedWidget === 'signal'} class="widget-shell signal-shell" style={`--widget-x:${widgetOffsets.signal.x}px;--widget-y:${widgetOffsets.signal.y}px`}>
-        <button class="widget-grab" on:pointerdown={(event) => startWidgetDrag('signal', event)} aria-label="Move skill stats widget">•••</button>
+        <button class="widget-drag-strip" on:pointerdown={(event) => startWidgetDrag('signal', event)} aria-label="Drag skill stats widget"></button>
         <article class="widget signal-widget">
           <div class="pixel-notches"></div>
           <header><span class="pixel-kicker">SKILL STATS</span><i class="live-light"></i></header>
@@ -402,7 +402,7 @@
       </div>
 
       <div class:dragging={draggedWidget === 'publication'} class="widget-shell publication-shell" style={`--widget-x:${widgetOffsets.publication.x}px;--widget-y:${widgetOffsets.publication.y}px`}>
-        <button class="widget-grab" on:pointerdown={(event) => startWidgetDrag('publication', event)} aria-label="Move publication widget">•••</button>
+        <button class="widget-drag-strip" on:pointerdown={(event) => startWidgetDrag('publication', event)} aria-label="Drag publication widget"></button>
         <button class="widget publication-widget dialogue-box" on:click={() => openFinder('highlights')}>
           <span class="paper-pixel">!</span>
           <span><small>NEW RESEARCH UNLOCKED</small><strong>Object Detection + Small VLMs</strong><em>arXiv:2604.05210 · OPEN QUEST LOG</em></span>
@@ -553,8 +553,9 @@
   .signal-shell { top: 5.6rem; right: 2.3rem; }
   .publication-shell { top: 20.2rem; right: 2.3rem; }
   .widget-shell.dragging { z-index: 50; filter: brightness(1.08); }
-  .widget-grab { position: absolute; z-index: 8; top: -.62rem; right: -.45rem; display: grid; width: 2rem; height: 1.25rem; padding: 0; place-items: center; border: 2px solid rgba(220,248,255,.78); border-radius: .28rem; color: #081929; background: #9ceaff; box-shadow: 2px 2px 0 rgba(1,8,18,.55); font-family: ui-monospace, monospace; font-size: .7rem; font-weight: 900; letter-spacing: .06em; cursor: grab; }
-  .widget-grab:active { cursor: grabbing; transform: translate(1px,1px); box-shadow: 1px 1px 0 rgba(1,8,18,.55); }
+  .widget-drag-strip { position: absolute; z-index: 8; top: 0; right: 2.6rem; left: 2.6rem; height: 1.25rem; padding: 0; border: 0; outline-offset: -3px; background: transparent; cursor: grab; }
+  .widget-drag-strip:active { cursor: grabbing; }
+  .widget-drag-strip:focus-visible { outline: 1px dashed rgba(160,234,255,.72); }
   .widget { position: relative; overflow: hidden; border: 2px solid rgba(223,249,255,.72); border-radius: .3rem; color: white; background: linear-gradient(145deg, rgba(255,255,255,.2), rgba(255,255,255,.065) 48%, rgba(91,154,232,.08)), rgba(4,14,28,.58); box-shadow: 0 0 0 2px rgba(8,24,42,.8), 5px 5px 0 rgba(1,8,18,.52), 0 20px 40px rgba(0,5,15,.22), inset 0 1px 0 rgba(255,255,255,.42); backdrop-filter: blur(25px) saturate(145%); -webkit-backdrop-filter: blur(25px) saturate(145%); clip-path: polygon(6px 0, calc(100% - 6px) 0, calc(100% - 6px) 2px, 100% 2px, 100% calc(100% - 6px), calc(100% - 2px) calc(100% - 6px), calc(100% - 2px) 100%, 6px 100%, 6px calc(100% - 2px), 0 calc(100% - 2px), 0 6px, 2px 6px, 2px 2px, 6px 2px); }
   .widget-glint { position: absolute; inset: 0; background: radial-gradient(circle at 10% 0%, rgba(255,255,255,.23), transparent 34%); pointer-events: none; }
   .pixel-notches { position: absolute; inset: 5px; border: 1px dashed rgba(151,229,255,.18); pointer-events: none; }
@@ -624,7 +625,7 @@
     .route-chip { top: 2.9rem; left: .85rem; }
     .desktop-widgets { position: relative; inset: auto; display: grid; gap: 1rem; padding-top: 1.5rem; }
     .widget-shell { position: relative; inset: auto; width: 100%; transform: none !important; }
-    .widget-grab { display: none; }
+    .widget-drag-strip { display: none; }
     .profile-widget { display: grid; grid-template-columns: auto 1fr; gap: 0 1rem; }
     .profile-top { grid-column: 1 / -1; }
     .profile-links { justify-content: flex-end; align-items: center; }
@@ -710,7 +711,7 @@
   .ios .paper-pixel { width: 2.2rem; height: 2.2rem; }
   .ios .mobile-app-grid { right: 1rem; bottom: max(6.6rem, calc(env(safe-area-inset-bottom) + 6rem)); left: 1rem; gap: .35rem; }
   .ios .mobile-app-grid button > span, .ios .mobile-app-grid a > span { width: 3.55rem; height: 3.55rem; border-radius: 1rem; }
-  .ios .desktop-hint, .ios .widget-grab { display: none; }
+  .ios .desktop-hint, .ios .widget-drag-strip { display: none; }
 
   @media (max-height: 740px) and (max-width: 767px) {
     .ios .desktop-widgets { gap: .48rem; }

@@ -219,7 +219,7 @@
             <article><b>03</b><div><h3>Try the system controls</h3><p>On Mac, use the menu bar for brightness and notifications. On iPhone or iPad, tap the time or status icons at the top.</p></div></article>
             <article><b>04</b><div><h3>Make contact</h3><p>The profile widget and Help menu link directly to Mehmood’s LinkedIn. The résumé is available from Finder and the Apple menu.</p></div></article>
           </section>
-          <div class="guide-tip"><span>PIXEL TIP</span><p>Desktop widgets can be dragged by their cyan handles. Their positions are remembered on your device.</p></div>
+          <div class="guide-tip"><span>PIXEL TIP</span><p>Desktop widgets can be dragged from their top edge. Their positions are remembered on your device.</p></div>
         </article>
       {:else if activeTab === 'projects'}
         <div class="projects-view">
