@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { base } from '$app/paths';
   import avatar from '$lib/assets/mehmood-pixel-avatar.png';
   import messages from '$lib/assets/messages-pixel.png';
   import contacts from '$lib/assets/contacts-pixel.png';
@@ -20,13 +19,12 @@
     <button class="glass" on:click={() => openFinder('experience')}><small>VISION F1</small><strong>50.6<span>%</span></strong><span>YOLOv11 + VLM ↗</span></button>
     <button class="glass research" on:click={() => openFinder('guide')}><small>START HERE</small><strong>Hey,<br />explorer.</strong><span>Your portfolio guide ↗</span></button>
   </div>
-  <div class="apps" aria-label="Apps">
+  <nav class="apps glass" aria-label="App dock">
     <button on:click={() => openFinder('projects')} aria-label="Messages — Projects"><img src={messages} alt="" /><strong>Messages</strong><small>Projects</small></button>
     <button on:click={() => openFinder('experience')} aria-label="Contacts — Experience"><img src={contacts} alt="" /><strong>Contacts</strong><small>Experience</small></button>
     <button on:click={() => openApp('Notes')}><img src={notes} alt="" /><strong>Notes</strong><small>Scratchpad</small></button>
     <button on:click={() => openApp('Flappy Bird')}><img src={game} alt="" /><strong>Flappy Bird</strong><small>Play</small></button>
-  </div>
-  <nav class="quick-links glass" aria-label="Quick links"><a href={`${base}/mehmood-ahmad-resume.pdf`} target="_blank">Résumé ↗</a><a href="https://github.com/MehmoodAhmad21" target="_blank" rel="noreferrer">GitHub ↗</a><a href="mailto:mehmood3@ualberta.ca">Email ↗</a></nav>
+  </nav>
 </section>
 
 <style>
@@ -46,17 +44,15 @@
   .mini-widgets strong span { font-size:22px; }
   .mini-widgets button > span { font-size:10px; color:#d7e4f0; }
   .mini-widgets .research strong { font-size:23px; }
-  .apps { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; margin:12px 0; }
+  .apps { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; margin-top:auto; padding:14px 8px; flex-shrink:0; }
   .apps button { display:flex; flex-direction:column; align-items:center; min-width:0; border:0; padding:0; background:transparent; color:white; cursor:pointer; text-shadow:0 1px 5px #132b40; }
   .apps img { width:66px; height:66px; object-fit:contain; image-rendering:pixelated; filter:drop-shadow(0 5px 5px #10243955); margin-bottom:7px; }
   .apps strong { font-size:11px; font-weight:600; white-space:nowrap; }
   .apps small { font-size:9px; margin-top:4px; letter-spacing:0; color:#e6f3fa; }
-  .quick-links { display:flex; justify-content:space-around; padding:6px; margin-top:auto; }
-  .quick-links a { display:grid; min-height:44px; place-items:center; color:white; text-decoration:none; font-size:12px; }
   .route-label, small, .apps small, .mini-widgets button > span { font-size:12px; }
-  .identity p, .identity a, .apps strong, .quick-links a { font-size:14px; }
+  .identity p, .identity a, .apps strong { font-size:14px; }
   .apps strong { white-space:normal; }
   .apps img { max-width:100%; }
   @media(min-width:700px) { .phone-home { width:min(100%,780px); gap:24px; padding-top:90px; } .identity { padding:28px; grid-template-columns:100px 1fr; } .identity img { width:100px; height:110px; } .identity p { font-size:16px; } .apps img { width:88px; height:88px; } .apps strong { font-size:14px; } .apps small { font-size:11px; } }
-  @media(max-height:700px) { .phone-home { gap:12px; } .identity { padding:14px; } .mini-widgets button { padding:14px; gap:6px; } .apps { margin:4px 0; } }
+  @media(max-height:700px) { .phone-home { gap:12px; } .identity { padding:14px; } .mini-widgets button { padding:14px; gap:6px; } }
 </style>
