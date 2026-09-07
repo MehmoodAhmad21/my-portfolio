@@ -1,7 +1,7 @@
 <script lang="ts">
   import { base } from '$app/paths';
 
-  export let initialTab: 'highlights' | 'projects' | 'experience' = 'highlights';
+  export let initialTab: 'highlights' | 'projects' | 'experience' | 'guide' = 'highlights';
 
   type Project = {
     name: string;
@@ -100,12 +100,12 @@
     }
   ];
 
-  let activeTab: 'highlights' | 'projects' | 'experience' = initialTab;
+  let activeTab: 'highlights' | 'projects' | 'experience' | 'guide' = initialTab;
   let selectedProject: Project | null = null;
   let selectedRole: Role | null = null;
   let viewMode: 'icons' | 'list' = 'icons';
 
-  $: windowTitle = selectedProject?.name ?? selectedRole?.company ?? (activeTab === 'highlights' ? 'Recents' : activeTab === 'projects' ? 'Projects' : 'Experience');
+  $: windowTitle = selectedProject?.name ?? selectedRole?.company ?? (activeTab === 'highlights' ? 'Recents' : activeTab === 'projects' ? 'Projects' : activeTab === 'experience' ? 'Experience' : 'Portfolio Guide');
 
   function showTab(tab: typeof activeTab) {
     activeTab = tab;
@@ -125,6 +125,7 @@
     <button class:active={activeTab === 'highlights'} on:click={() => showTab('highlights')}><span>◴</span> Recents</button>
     <button class:active={activeTab === 'projects'} on:click={() => showTab('projects')}><span>▦</span> Projects</button>
     <button class:active={activeTab === 'experience'} on:click={() => showTab('experience')}><span>▤</span> Experience</button>
+    <button class:active={activeTab === 'guide'} on:click={() => showTab('guide')}><span>?</span> Guide</button>
 
     <p class="section-label spaced">Locations</p>
     <a href={`${base}/mehmood-ahmad-resume.pdf`} target="_blank"><span>⌄</span> Downloads</a>
@@ -209,6 +210,17 @@
             <a href="https://arxiv.org/abs/2604.05210" target="_blank" rel="noreferrer" aria-label="Read publication">↗</a>
           </div>
         </div>
+      {:else if activeTab === 'guide'}
+        <article class="guide-view">
+          <header><span class="guide-icon">?</span><div><p class="pixel-label">QUICK START · MEHMOOD OS</p><h2>Portfolio Guide</h2><p>Everything here works like the Apple device you are using.</p></div></header>
+          <section class="guide-steps">
+            <article><b>01</b><div><h3>Open an app</h3><p>Use the Dock—or the Home Screen icons on iPhone and iPad—to open Finder, Terminal, Notes, and Flappy Bird.</p></div></article>
+            <article><b>02</b><div><h3>Explore the work</h3><p>In Finder, choose Projects or Experience. Switch between icon and list view, then open any folder for the full story.</p></div></article>
+            <article><b>03</b><div><h3>Try the system controls</h3><p>On Mac, use the menu bar for brightness and notifications. On iPhone or iPad, tap the time or status icons at the top.</p></div></article>
+            <article><b>04</b><div><h3>Make contact</h3><p>The profile widget and Help menu link directly to Mehmood’s LinkedIn. The résumé is available from Finder and the Apple menu.</p></div></article>
+          </section>
+          <div class="guide-tip"><span>PIXEL TIP</span><p>Desktop widgets can be dragged by their cyan handles. Their positions are remembered on your device.</p></div>
+        </article>
       {:else if activeTab === 'projects'}
         <div class="projects-view">
           <div class="view-heading"><div><p class="pixel-label">Build log</p><h2>Featured projects</h2></div><span class="count">GitHub / public</span></div>
@@ -288,6 +300,20 @@
   .role-summary > span { color: var(--accent); font-family: ui-monospace, monospace; font-size: .66rem; font-weight: 850; text-transform: uppercase; }
   .role-summary ul { margin: .75rem 0 0; padding-left: 1.1rem; color: rgba(244,249,255,.72); font-size: .8rem; line-height: 1.6; }
   .role-summary li + li { margin-top: .35rem; }
+  .guide-view { min-height: 100%; padding: clamp(1.3rem, 4vw, 2.6rem); background: radial-gradient(circle at 86% 8%, rgba(103,213,239,.12), transparent 30%); }
+  .guide-view > header { display: flex; align-items: center; gap: 1rem; padding-bottom: 1.25rem; border-bottom: 1px solid rgba(255,255,255,.09); }
+  .guide-icon { display: grid; width: 3.4rem; height: 3.4rem; flex: 0 0 auto; place-items: center; border: 1px solid rgba(255,255,255,.32); border-radius: .75rem; color: #081a29; background: linear-gradient(145deg, #a8efff, #55bde0); box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 8px 18px rgba(0,0,0,.24); font-family: ui-monospace, monospace; font-size: 1.45rem; font-weight: 950; }
+  .guide-view h2 { margin: .18rem 0; font-size: clamp(1.45rem, 3vw, 2rem); }
+  .guide-view header p { margin: 0; color: #98989e; font-size: .76rem; }
+  .guide-view header .pixel-label { color: #67d5ef; font-size: .62rem; }
+  .guide-steps { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; margin-top: 1rem; }
+  .guide-steps article { display: grid; grid-template-columns: auto 1fr; gap: .75rem; padding: .9rem; border: 1px solid rgba(255,255,255,.09); border-radius: .8rem; background: rgba(255,255,255,.04); }
+  .guide-steps b { display: grid; width: 2rem; height: 2rem; place-items: center; border-radius: .45rem; color: #102438; background: #ffdb70; font-family: ui-monospace, monospace; font-size: .62rem; box-shadow: 2px 2px 0 rgba(0,0,0,.25); }
+  .guide-steps h3 { margin: .05rem 0 .25rem; font-size: .85rem; }
+  .guide-steps p { margin: 0; color: #a2a2a8; font-size: .72rem; line-height: 1.45; }
+  .guide-tip { display: flex; align-items: center; gap: .85rem; margin-top: .8rem; padding: .8rem .9rem; border: 1px solid rgba(103,213,239,.22); border-radius: .75rem; background: rgba(103,213,239,.07); }
+  .guide-tip span { padding: .22rem .35rem; color: #082031; background: #91e9fb; font-family: ui-monospace, monospace; font-size: .58rem; font-weight: 900; white-space: nowrap; }
+  .guide-tip p { margin: 0; color: #b4b4b9; font-size: .72rem; }
   .impact { display: flex; max-width: 43rem; align-items: center; gap: 1rem; margin: 1.5rem 0; padding: .9rem 1rem; border-left: 2px solid var(--accent); background: rgba(255,255,255,.045); }
   .impact span { color: var(--accent); font-family: ui-monospace, monospace; font-size: .66rem; text-transform: uppercase; }
   .impact strong { font-size: .82rem; }
@@ -405,5 +431,8 @@
     .project-list.finder-icons, .experience-items.finder-icons { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 1rem; }
     .project-copy p { white-space: normal; display: -webkit-box; line-clamp: 2; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
     .impact { align-items: flex-start; flex-direction: column; gap: .35rem; }
+    .guide-steps { grid-template-columns: 1fr; }
+    .guide-view { padding: 1rem; }
+    .guide-tip { align-items: flex-start; flex-direction: column; }
   }
 </style>

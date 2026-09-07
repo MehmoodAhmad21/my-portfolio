@@ -8,6 +8,7 @@
   export let x = 0;
   export let y = 0;
   export let isActive = true;
+  export let platform: 'macos' | 'ipados' | 'ios' = 'macos';
 
   const dispatch = createEventDispatcher();
   let isDragging = false;
@@ -74,6 +75,8 @@
   class:active={isActive}
   class:dragging={isDragging}
   class:minimized={isMinimized}
+  class:ios={platform === 'ios'}
+  class:ipados={platform === 'ipados'}
   class="window-container"
   style={isMaximized
     ? 'position: fixed; top: 2.65rem; left: .45rem; right: .45rem; bottom: 5.25rem; width: auto; height: auto;'
@@ -180,5 +183,24 @@
     .traffic { width: .82rem; height: .82rem; }
     .traffic.yellow { display: none; }
     .title { font-size: .77rem; }
+  }
+
+  .window-container.ios { inset: max(2.9rem, env(safe-area-inset-top)) 0 0 !important; width: auto !important; height: auto !important; filter: none; animation: ios-app-in 280ms cubic-bezier(.2,.85,.25,1); }
+  .ios .glass-window { border: 0; border-radius: 1.6rem 1.6rem 0 0; background: rgba(28,28,30,.95); box-shadow: inset 0 1px 0 rgba(255,255,255,.16); }
+  .ios .titlebar { min-height: 3.45rem; grid-template-columns: 2.5rem 1fr 2.5rem; padding: .55rem .8rem; border-bottom: 1px solid rgba(255,255,255,.08); background: linear-gradient(180deg, rgba(88,88,92,.52), rgba(44,44,47,.72)); backdrop-filter: blur(35px) saturate(160%); }
+  .ios .window-controls { display: contents; }
+  .ios .traffic { display: none; }
+  .ios .traffic.red { display: grid; width: 2.15rem; height: 2.15rem; border: 1px solid rgba(255,255,255,.18); color: white; background: rgba(255,255,255,.12); box-shadow: inset 0 1px 0 rgba(255,255,255,.14); }
+  .ios .traffic.red span { color: white; font-size: 1.25rem; font-weight: 450; opacity: 1; }
+  .ios .title { justify-content: center; font-size: .88rem; }
+  .ios .title img { width: 1.55rem; height: 1.55rem; border-radius: .48rem; }
+  .ios .title-spacer { min-width: 2.15rem; }
+
+  .window-container.ipados .glass-window { border-radius: 1.35rem; background: rgba(36,36,39,.86); backdrop-filter: blur(48px) saturate(155%); }
+  .ipados .titlebar { background: linear-gradient(180deg, rgba(255,255,255,.1), rgba(45,45,48,.66)); }
+
+  @keyframes ios-app-in {
+    from { opacity: 0; transform: translateY(18%) scale(.94); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
   }
 </style>

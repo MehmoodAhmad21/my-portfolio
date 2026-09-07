@@ -14,7 +14,8 @@
   import notesIcon from '$lib/assets/notes.png';
   import flappyIcon from '$lib/assets/flappy.png';
 
-  type FinderTab = 'highlights' | 'projects' | 'experience';
+  type FinderTab = 'highlights' | 'projects' | 'experience' | 'guide';
+  type Platform = 'macos' | 'ipados' | 'ios';
   type MenuName = 'apple' | 'app' | 'file' | 'edit' | 'view' | 'go' | 'window' | 'help' | 'status' | 'control' | 'clock';
   type PortfolioNotification = { id: string; app: string; icon: string; title: string; body: string; time: string; accent: string };
   type WindowState = { isMinimized: boolean; isMaximized: boolean; x: number; y: number; zIndex: number };
@@ -48,6 +49,7 @@
   let menuNotice = '';
   let brightness = 100;
   let dismissedNotifications: string[] = [];
+  let platform: Platform = 'macos';
   let draggedWidget: WidgetName | null = null;
   let widgetOffsets: Record<WidgetName, WidgetOffset> = {
     profile: { x: 0, y: 0 },
@@ -84,6 +86,14 @@
       localStorage.removeItem('mehmood-os-widget-layout');
     }
     updateClock();
+    const detectPlatform = () => {
+      const ua = navigator.userAgent;
+      const isIPad = /iPad/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      const isIPhone = /iPhone|iPod/i.test(ua);
+      const touchDevice = navigator.maxTouchPoints > 0 || matchMedia('(pointer: coarse)').matches;
+      platform = isIPhone || (touchDevice && window.innerWidth < 700) ? 'ios' : isIPad || (touchDevice && window.innerWidth <= 1366) ? 'ipados' : 'macos';
+    };
+    detectPlatform();
     const timer = setInterval(updateClock, 60000);
     return () => clearInterval(timer);
   });
@@ -224,12 +234,53 @@
 
 <svelte:window on:keydown={handleKeydown} on:click={handleWindowClick} on:pointermove={moveWidget} on:pointerup={stopWidgetDrag} />
 
-<div class="desktop" style={`--screen-brightness:${brightness}%`}>
+<div class:ios={platform === 'ios'} class:ipados={platform === 'ipados'} class:macos={platform === 'macos'} class="desktop" style={`--screen-brightness:${brightness}%`}>
   <div class="wallpaper" style={`background-image: url('${wallpaper}')`}></div>
   <div class="night-shade"></div>
   <div class="scanlines"></div>
 
-  <header class="menu-bar">
+  {#if platform !== 'macos'}
+    <header class="mobile-status-bar" aria-label={`${platform === 'ios' ? 'iOS' : 'iPadOS'} status bar`}>
+      <button class="mobile-clock" on:click={() => toggleMenu('clock')} aria-label="Open Notification Center">{currentTime}</button>
+      {#if platform === 'ios'}<div class="dynamic-island" aria-hidden="true"><i></i></div>{/if}
+      <div class="mobile-system">
+        <button on:click={() => toggleMenu('control')} aria-label="Open Control Center"><span class="mobile-signal">▥</span><span>◒</span><span class="mobile-battery"><i></i></span></button>
+      </div>
+    </header>
+
+    {#if openMenu === 'clock'}
+      <aside class="mobile-sheet mobile-notification-sheet" aria-label="Notification Center">
+        <div class="sheet-grabber"></div>
+        <header><div><strong>{currentLongDate}</strong><span>{currentTime}</span></div><button on:click={() => openMenu = null} aria-label="Close Notification Center">×</button></header>
+        <section class="notification-list" aria-live="polite">
+          {#if visibleNotifications.length}
+            {#each visibleNotifications as notification}
+              <article class="notification-card">
+                <button class="dismiss-notification" on:click={() => dismissNotification(notification.id)} aria-label={`Dismiss ${notification.title}`}>×</button>
+                <button class="notification-content" on:click={() => openNotification(notification.id)}>
+                  <span class="notification-icon" style={`--notification-accent:${notification.accent}`}>{notification.icon}</span>
+                  <span><small>{notification.app}<i>{notification.time}</i></small><strong>{notification.title}</strong><p>{notification.body}</p></span>
+                </button>
+              </article>
+            {/each}
+          {:else}
+            <div class="notifications-empty"><span>✓</span><strong>All caught up</strong><p>No new notifications.</p></div>
+          {/if}
+        </section>
+      </aside>
+    {/if}
+
+    {#if openMenu === 'control'}
+      <aside class="mobile-sheet mobile-control-center" aria-label="Control Center">
+        <div class="sheet-grabber"></div>
+        <div class="mobile-toggles"><button on:click={() => copyContact('mehmood3@ualberta.ca', 'Email')}><span>⌁</span><strong>Portfolio<br />Network</strong></button><button on:click={() => runMenuAction(() => openApp('Terminal'))}><span>⌘</span><strong>Recruiter<br />Focus</strong></button></div>
+        <label class="mobile-brightness"><span>☀</span><input type="range" min="50" max="120" step="1" value={brightness} style={`--brightness:${brightness}`} on:input={changeBrightness} aria-label="Display brightness" /></label>
+        <button class="close-sheet" on:click={() => openMenu = null}>Done</button>
+      </aside>
+    {/if}
+  {/if}
+
+  {#if platform === 'macos'}<header class="menu-bar">
     <div class="menu-left">
       <div class="menu-item">
         <button class:active={openMenu === 'apple'} class="pixel-apple" on:click={() => toggleMenu('apple')} aria-label="Portfolio menu" aria-expanded={openMenu === 'apple'}>M</button>
@@ -262,7 +313,7 @@
       <div class="menu-item"><button class:active={openMenu === 'view'} class="menu-button" on:click={() => toggleMenu('view')}>View</button>{#if openMenu === 'view'}<div class="menu-popover" role="menu"><button on:click={() => runMenuAction(() => openFinder('highlights'))}><span>Show Recents</span></button><button on:click={() => runMenuAction(() => openFinder('projects'))}><span>Show Projects</span></button><button on:click={() => runMenuAction(() => openFinder('experience'))}><span>Show Experience</span></button><div class="menu-separator"></div><button disabled={!activeApp} on:click={() => activeApp && runMenuAction(() => windowStates[activeApp!].isMaximized = !windowStates[activeApp!].isMaximized)}><span>Enter Full Screen</span><kbd>⌃⌘F</kbd></button></div>{/if}</div>
       <div class="menu-item"><button class:active={openMenu === 'go'} class="menu-button" on:click={() => toggleMenu('go')}>Go</button>{#if openMenu === 'go'}<div class="menu-popover" role="menu"><a href="https://github.com/MehmoodAhmad21" target="_blank" rel="noreferrer"><span>GitHub</span><kbd>↗</kbd></a><a href="https://www.linkedin.com/in/mehmood-ahmad-2bb43b244/" target="_blank" rel="noreferrer"><span>LinkedIn</span><kbd>↗</kbd></a><a href="https://arxiv.org/abs/2604.05210" target="_blank" rel="noreferrer"><span>Research Paper</span><kbd>↗</kbd></a></div>{/if}</div>
       <div class="menu-item"><button class:active={openMenu === 'window'} class="menu-button" on:click={() => toggleMenu('window')}>Window</button>{#if openMenu === 'window'}<div class="menu-popover" role="menu"><button disabled={!activeApp} on:click={() => activeApp && runMenuAction(() => { windowStates[activeApp!].isMinimized = true; activeApp = null; })}><span>Minimize</span><kbd>⌘M</kbd></button><div class="menu-separator"></div>{#each apps as app}<button on:click={() => runMenuAction(() => openApp(app.name))}><span>{openApps.has(app.name) ? '✓' : ''}&nbsp;&nbsp;{app.name}</span></button>{/each}</div>{/if}</div>
-      <div class="menu-item"><button class:active={openMenu === 'help'} class="menu-button" on:click={() => toggleMenu('help')}>Help</button>{#if openMenu === 'help'}<div class="menu-popover align-right" role="menu"><button on:click={() => runMenuAction(() => openFinder('highlights'))}><span>Portfolio Guide</span></button><button on:click={() => runMenuAction(() => openApp('Terminal'))}><span>Terminal Commands</span></button><div class="menu-separator"></div><a href="mailto:mehmood3@ualberta.ca"><span>Ask Mehmood a Question…</span></a></div>{/if}</div>
+      <div class="menu-item"><button class:active={openMenu === 'help'} class="menu-button" on:click={() => toggleMenu('help')}>Help</button>{#if openMenu === 'help'}<div class="menu-popover align-right" role="menu"><button on:click={() => runMenuAction(() => openFinder('guide'))}><span>Portfolio Guide</span></button><button on:click={() => runMenuAction(() => openApp('Terminal'))}><span>Terminal Commands</span></button><div class="menu-separator"></div><a href="https://www.linkedin.com/in/mehmood-ahmad-2bb43b244/" target="_blank" rel="noreferrer"><span>Contact Mehmood…</span><kbd>↗</kbd></a></div>{/if}</div>
     </div>
     <div class="menu-right">
       <div class="menu-item right-menu"><button class:active={openMenu === 'status'} class="status-button" on:click={() => toggleMenu('status')}><span class="status-dot"><i></i> available</span></button>{#if openMenu === 'status'}<div class="menu-popover status-panel" role="menu"><div class="status-card"><i></i><div><strong>Available for opportunities</strong><span>Software engineering · Applied AI</span></div></div><p>Edmonton, Alberta · Open to relocation and remote work.</p><a href="https://www.linkedin.com/in/mehmood-ahmad-2bb43b244/" target="_blank" rel="noreferrer"><span>Start a conversation</span><kbd>↗</kbd></a></div>{/if}</div>
@@ -301,12 +352,20 @@
         {/if}
       </div>
     </div>
-  </header>
+  </header>{/if}
 
   {#if menuNotice}<div class="menu-toast">{menuNotice}</div>{/if}
 
   <main class:apps-open={openApps.size > 0} class="desktop-area">
-    <div class="route-chip"><span>ROUTE 21</span><b>MEHMOOD.OS</b></div>
+    <div class="route-chip"><span>ROUTE 21</span><b>{platform === 'ios' ? 'MEHMOOD.iOS' : platform === 'ipados' ? 'MEHMOOD.iPadOS' : 'MEHMOOD.OS'}</b></div>
+    {#if platform !== 'macos'}
+      <section class="mobile-app-grid" aria-label="Portfolio shortcuts">
+        <button on:click={() => openFinder('projects')} aria-label="Open Projects"><span class="pixel-app-icon projects-app">PRJ<i>◆</i></span><strong>Projects</strong></button>
+        <button on:click={() => openFinder('experience')} aria-label="Open Experience"><span class="pixel-app-icon experience-app">EXP<i>▤</i></span><strong>Experience</strong></button>
+        <a href={`${base}/mehmood-ahmad-resume.pdf`} target="_blank" aria-label="Open résumé"><span class="pixel-app-icon resume-app">PDF<i>↓</i></span><strong>Résumé</strong></a>
+        <a href="https://github.com/MehmoodAhmad21" target="_blank" rel="noreferrer" aria-label="Open GitHub"><span class="pixel-app-icon github-app">GH<i>↗</i></span><strong>GitHub</strong></a>
+      </section>
+    {/if}
     <section class="desktop-widgets" aria-label="Draggable desktop widgets">
       <div class:dragging={draggedWidget === 'profile'} class="widget-shell profile-shell" style={`--widget-x:${widgetOffsets.profile.x}px;--widget-y:${widgetOffsets.profile.y}px`}>
         <button class="widget-grab" on:pointerdown={(event) => startWidgetDrag('profile', event)} aria-label="Move profile widget">•••</button>
@@ -356,7 +415,7 @@
 
     {#if openApps.has('Finder')}
       <div style:z-index={windowStates.Finder.zIndex}>
-        <Window title="Finder" icon={finderIcon} isActive={activeApp === 'Finder'} bind:x={windowStates.Finder.x} bind:y={windowStates.Finder.y} bind:isMinimized={windowStates.Finder.isMinimized} bind:isMaximized={windowStates.Finder.isMaximized} on:close={() => closeApp('Finder')} on:minimize={(e) => handleMinimize('Finder', e)} on:focus={() => bringToFront('Finder')}>
+        <Window title={platform === 'macos' ? 'Finder' : 'Files'} icon={finderIcon} {platform} isActive={activeApp === 'Finder'} bind:x={windowStates.Finder.x} bind:y={windowStates.Finder.y} bind:isMinimized={windowStates.Finder.isMinimized} bind:isMaximized={windowStates.Finder.isMaximized} on:close={() => closeApp('Finder')} on:minimize={(e) => handleMinimize('Finder', e)} on:focus={() => bringToFront('Finder')}>
           <div class="finder-window">{#key finderKey}<Finder initialTab={finderView} />{/key}</div>
         </Window>
       </div>
@@ -364,7 +423,7 @@
 
     {#if openApps.has('Terminal')}
       <div style:z-index={windowStates.Terminal.zIndex}>
-        <Window title="Terminal — zsh" icon={terminalIcon} isActive={activeApp === 'Terminal'} bind:x={windowStates.Terminal.x} bind:y={windowStates.Terminal.y} bind:isMinimized={windowStates.Terminal.isMinimized} bind:isMaximized={windowStates.Terminal.isMaximized} on:close={() => closeApp('Terminal')} on:minimize={(e) => handleMinimize('Terminal', e)} on:focus={() => bringToFront('Terminal')}>
+        <Window title="Terminal — zsh" icon={terminalIcon} {platform} isActive={activeApp === 'Terminal'} bind:x={windowStates.Terminal.x} bind:y={windowStates.Terminal.y} bind:isMinimized={windowStates.Terminal.isMinimized} bind:isMaximized={windowStates.Terminal.isMaximized} on:close={() => closeApp('Terminal')} on:minimize={(e) => handleMinimize('Terminal', e)} on:focus={() => bringToFront('Terminal')}>
           <div class="terminal-window"><Terminal /></div>
         </Window>
       </div>
@@ -372,7 +431,7 @@
 
     {#if openApps.has('Notes')}
       <div style:z-index={windowStates.Notes.zIndex}>
-        <Window title="Notes" icon={notesIcon} isActive={activeApp === 'Notes'} bind:x={windowStates.Notes.x} bind:y={windowStates.Notes.y} bind:isMinimized={windowStates.Notes.isMinimized} bind:isMaximized={windowStates.Notes.isMaximized} on:close={() => closeApp('Notes')} on:minimize={(e) => handleMinimize('Notes', e)} on:focus={() => bringToFront('Notes')}>
+        <Window title="Notes" icon={notesIcon} {platform} isActive={activeApp === 'Notes'} bind:x={windowStates.Notes.x} bind:y={windowStates.Notes.y} bind:isMinimized={windowStates.Notes.isMinimized} bind:isMaximized={windowStates.Notes.isMaximized} on:close={() => closeApp('Notes')} on:minimize={(e) => handleMinimize('Notes', e)} on:focus={() => bringToFront('Notes')}>
           <div class="notes-window"><Notes /></div>
         </Window>
       </div>
@@ -380,14 +439,14 @@
 
     {#if openApps.has('Flappy Bird')}
       <div style:z-index={windowStates['Flappy Bird'].zIndex}>
-        <Window title="Flappy Bird.app" icon={flappyIcon} isActive={activeApp === 'Flappy Bird'} bind:x={windowStates['Flappy Bird'].x} bind:y={windowStates['Flappy Bird'].y} bind:isMinimized={windowStates['Flappy Bird'].isMinimized} bind:isMaximized={windowStates['Flappy Bird'].isMaximized} on:close={() => closeApp('Flappy Bird')} on:minimize={(e) => handleMinimize('Flappy Bird', e)} on:focus={() => bringToFront('Flappy Bird')}>
+        <Window title="Flappy Bird.app" icon={flappyIcon} {platform} isActive={activeApp === 'Flappy Bird'} bind:x={windowStates['Flappy Bird'].x} bind:y={windowStates['Flappy Bird'].y} bind:isMinimized={windowStates['Flappy Bird'].isMinimized} bind:isMaximized={windowStates['Flappy Bird'].isMaximized} on:close={() => closeApp('Flappy Bird')} on:minimize={(e) => handleMinimize('Flappy Bird', e)} on:focus={() => bringToFront('Flappy Bird')}>
           <div class="game-window"><FlappyBird /></div>
         </Window>
       </div>
     {/if}
   </main>
 
-  <Dock {apps} {openApps} {activeApp} onSelect={handleAppSelect} />
+  <Dock {apps} {openApps} {activeApp} {platform} onSelect={handleAppSelect} />
 </div>
 
 <style>
@@ -577,5 +636,87 @@
     .system-button .wifi { display: none; }
     .profile-widget { display: block; }
     .profile-links { justify-content: flex-start; }
+  }
+
+  .mobile-status-bar { position: fixed; z-index: 2100; top: 0; right: 0; left: 0; display: grid; min-height: max(2.8rem, calc(env(safe-area-inset-top) + 2rem)); grid-template-columns: 1fr auto 1fr; align-items: end; padding: env(safe-area-inset-top) 1.1rem .42rem; color: white; text-shadow: 0 1px 3px rgba(0,0,0,.62); pointer-events: none; }
+  .mobile-clock, .mobile-system button { min-height: 1.6rem; padding: 0; border: 0; color: white; background: transparent; font-size: .75rem; font-weight: 750; pointer-events: auto; cursor: pointer; }
+  .mobile-clock { justify-self: start; }
+  .mobile-system { justify-self: end; }
+  .mobile-system button { display: flex; align-items: center; gap: .36rem; }
+  .mobile-signal { font-size: .85rem; }
+  .mobile-battery { position: relative; width: 1.35rem; height: .65rem; border: 1.5px solid rgba(255,255,255,.9); border-radius: .2rem; }
+  .mobile-battery::after { position: absolute; top: 50%; right: -.18rem; width: .1rem; height: .28rem; transform: translateY(-50%); border-radius: 0 .08rem .08rem 0; background: rgba(255,255,255,.8); content: ''; }
+  .mobile-battery i { display: block; width: 76%; height: 100%; background: white; }
+  .dynamic-island { display: flex; width: 7rem; height: 1.75rem; align-self: center; justify-content: flex-end; padding: .3rem .45rem; border-radius: 999px; background: #020203; box-shadow: 0 2px 5px rgba(0,0,0,.35); }
+  .dynamic-island i { width: .42rem; height: .42rem; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #273b73, #080b16 65%); }
+
+  .mobile-sheet { position: fixed; z-index: 2050; top: max(3.15rem, calc(env(safe-area-inset-top) + 2.5rem)); right: .7rem; width: min(23rem, calc(100vw - 1.4rem)); padding: .65rem; border: 1px solid rgba(255,255,255,.3); border-radius: 1.6rem; color: white; background: linear-gradient(145deg, rgba(255,255,255,.22), rgba(255,255,255,.08)), rgba(16,24,39,.62); box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 20px 50px rgba(0,0,0,.32); backdrop-filter: blur(42px) saturate(175%); -webkit-backdrop-filter: blur(42px) saturate(175%); animation: mobile-sheet-in 220ms cubic-bezier(.2,.85,.25,1); }
+  .sheet-grabber { width: 2.2rem; height: .28rem; margin: .05rem auto .65rem; border-radius: 1rem; background: rgba(255,255,255,.38); }
+  .mobile-sheet > header { display: flex; align-items: center; justify-content: space-between; padding: .2rem .25rem .75rem; }
+  .mobile-sheet > header strong, .mobile-sheet > header span { display: block; }
+  .mobile-sheet > header strong { font-size: 1rem; }
+  .mobile-sheet > header span { margin-top: .12rem; color: rgba(255,255,255,.6); font-size: .72rem; }
+  .mobile-sheet > header button, .close-sheet { display: grid; min-width: 2rem; height: 2rem; padding: 0; place-items: center; border: 1px solid rgba(255,255,255,.16); border-radius: 50%; color: white; background: rgba(255,255,255,.1); font-size: 1.1rem; }
+  .mobile-toggles { display: grid; grid-template-columns: 1fr 1fr; gap: .65rem; }
+  .mobile-toggles button { display: flex; min-height: 6rem; flex-direction: column; align-items: flex-start; justify-content: space-between; padding: .8rem; border: 1px solid rgba(255,255,255,.16); border-radius: 1.25rem; color: white; background: rgba(10,132,255,.72); text-align: left; }
+  .mobile-toggles button + button { background: rgba(115,79,205,.72); }
+  .mobile-toggles span { display: grid; width: 2rem; height: 2rem; place-items: center; border-radius: 50%; background: rgba(255,255,255,.22); font-size: 1rem; }
+  .mobile-toggles strong { font-size: .75rem; line-height: 1.25; }
+  .mobile-brightness { display: flex; align-items: center; gap: .65rem; margin-top: .65rem; padding: .8rem; border-radius: 1.2rem; background: rgba(255,255,255,.13); }
+  .mobile-brightness input { min-width: 0; flex: 1; accent-color: white; }
+  .close-sheet { width: 100%; margin-top: .65rem; border-radius: 1rem; font-size: .78rem; font-weight: 700; }
+  @keyframes mobile-sheet-in { from { opacity: 0; transform: translateY(-1rem) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+  .mobile-app-grid { position: absolute; z-index: 3; display: grid; grid-template-columns: repeat(4, minmax(4rem, 1fr)); gap: 1rem; pointer-events: auto; }
+  .mobile-app-grid button, .mobile-app-grid a { display: flex; min-width: 0; flex-direction: column; align-items: center; gap: .42rem; padding: 0; border: 0; color: white; background: transparent; text-align: center; text-decoration: none; text-shadow: 0 1px 3px #000; cursor: pointer; }
+  .mobile-app-grid button > span, .mobile-app-grid a > span { display: grid; width: 4.2rem; height: 4.2rem; place-items: center; overflow: hidden; border-radius: 1.15rem; box-shadow: 0 8px 18px rgba(0,0,0,.28); }
+  .mobile-app-grid strong { overflow: hidden; width: 100%; font-size: .7rem; font-weight: 560; text-overflow: ellipsis; white-space: nowrap; }
+  .pixel-app-icon { position: relative; border: 1px solid rgba(255,255,255,.55); background: linear-gradient(145deg, #7fe6fb, #347bcc); box-shadow: inset 0 1px 0 rgba(255,255,255,.48), 0 8px 18px rgba(0,0,0,.28) !important; font-family: ui-monospace, monospace; font-size: .82rem; font-weight: 950; letter-spacing: .08em; image-rendering: pixelated; }
+  .pixel-app-icon::before { position: absolute; inset: 5px; border: 1px dashed rgba(255,255,255,.35); border-radius: .72rem; content: ''; }
+  .pixel-app-icon i { position: absolute; right: .36rem; bottom: .28rem; color: rgba(255,255,255,.72); font-size: .62rem; font-style: normal; }
+  .experience-app { background: linear-gradient(145deg, #4dd8b1, #21736d); }
+  .resume-app { background: linear-gradient(145deg, #ff8a91, #c8324e); }
+  .github-app { background: linear-gradient(145deg, #8b7bdc, #2d305f); }
+
+  .ipados .desktop-area { padding: 5.25rem 1.5rem 7rem; }
+  .ipados .route-chip { top: 3.25rem; left: 1.55rem; }
+  .ipados .profile-shell { top: 5.7rem; left: 1.5rem; width: min(23rem, 42vw); }
+  .ipados .signal-shell { top: 5.7rem; right: 1.5rem; width: min(22rem, 40vw); }
+  .ipados .publication-shell { top: 20.4rem; right: 1.5rem; width: min(22rem, 40vw); }
+  .ipados .mobile-app-grid { bottom: 7rem; left: 1.5rem; width: min(25rem, 48vw); padding: .85rem; border: 1px solid rgba(255,255,255,.22); border-radius: 1.5rem; background: rgba(15,29,48,.22); backdrop-filter: blur(20px) saturate(150%); }
+  .ipados .desktop-hint { display: none; }
+
+  .ios .desktop-area { height: 100svh; overflow: hidden; padding: 0; }
+  .ios .route-chip { top: max(3.25rem, calc(env(safe-area-inset-top) + 2.8rem)); left: 1rem; }
+  .ios .desktop-widgets { position: absolute; top: max(5.85rem, calc(env(safe-area-inset-top) + 5.35rem)); right: 1rem; left: 1rem; display: grid; gap: .7rem; padding: 0; }
+  .ios .widget-shell { position: relative; inset: auto; width: 100%; transform: none !important; }
+  .ios .widget { border-width: 1px; border-radius: 1.35rem; clip-path: none; box-shadow: inset 0 1px 0 rgba(255,255,255,.36), 0 12px 26px rgba(0,0,0,.24); }
+  .ios .profile-widget { display: block; padding: .65rem .85rem .8rem; }
+  .ios .trainer-header { margin: -.65rem -.85rem .65rem; padding: .4rem .65rem; border-radius: 1.3rem 1.3rem 0 0; }
+  .ios .profile-top { grid-template-columns: 4.2rem 1fr; gap: .65rem; }
+  .ios .sprite-well { width: 4.2rem; height: 4.2rem; }
+  .ios .profile-top img { width: 3.75rem; height: 3.75rem; }
+  .ios .profile-top h1 { font-size: 1.35rem; }
+  .ios .profile-widget > p { margin: .55rem 0; font-size: .7rem; line-height: 1.4; }
+  .ios .type-chips { margin-bottom: .55rem; }
+  .ios .profile-links { justify-content: flex-start; }
+  .ios .signal-widget { padding: .72rem .85rem; }
+  .ios .signal-row { margin-top: .45rem; }
+  .ios .signal-row > strong { font-size: 1.65rem; }
+  .ios .meter-label { margin-top: .3rem; }
+  .ios .pixel-meter { margin-bottom: .55rem; }
+  .ios .signal-pair div { padding-top: .48rem; }
+  .ios .publication-widget { padding: .62rem .72rem; }
+  .ios .paper-pixel { width: 2.2rem; height: 2.2rem; }
+  .ios .mobile-app-grid { right: 1rem; bottom: max(6.6rem, calc(env(safe-area-inset-bottom) + 6rem)); left: 1rem; gap: .35rem; }
+  .ios .mobile-app-grid button > span, .ios .mobile-app-grid a > span { width: 3.55rem; height: 3.55rem; border-radius: 1rem; }
+  .ios .desktop-hint, .ios .widget-grab { display: none; }
+
+  @media (max-height: 740px) and (max-width: 767px) {
+    .ios .desktop-widgets { gap: .48rem; }
+    .ios .profile-widget > p, .ios .type-chips, .ios .signal-pair { display: none; }
+    .ios .profile-links { margin-top: .5rem; }
+    .ios .signal-widget { padding-bottom: .55rem; }
+    .ios .publication-widget em { display: none; }
   }
 </style>

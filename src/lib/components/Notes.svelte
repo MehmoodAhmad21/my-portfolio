@@ -104,4 +104,14 @@
     .note-list { grid-column: 1; }
     .editor { grid-column: 2; }
   }
+
+  @media (max-width: 520px) {
+    .notes { display: block; }
+    .note-list { display: none; }
+    .editor { height: 100%; }
+    .editor-toolbar { padding: 0 .9rem; background: rgba(47,47,50,.88); backdrop-filter: blur(24px); }
+    .note-date { padding-top: 1.2rem; }
+    .note-title { font-size: 1.35rem; }
+    textarea { font-size: 1rem; }
+  }
 </style>

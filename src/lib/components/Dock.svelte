@@ -9,21 +9,23 @@
   export let apps: DockApp[] = [];
   export let openApps: Set<string> = new Set();
   export let activeApp: string | null = null;
+  export let platform: 'macos' | 'ipados' | 'ios' = 'macos';
   export let onSelect: (app: DockApp) => void;
 </script>
 
-<nav class="dock-shell" aria-label="Portfolio apps">
+<nav class:ios={platform === 'ios'} class:ipados={platform === 'ipados'} class:app-open={Boolean(activeApp)} class="dock-shell" aria-label="Portfolio apps">
   <div class="dock-highlight"></div>
   {#each apps as app}
+    {@const appLabel = app.name === 'Finder' && platform !== 'macos' ? 'Files' : app.name}
     <div class="dock-item">
       <button
         class:active={activeApp === app.name}
         class="dock-button"
         on:click={() => onSelect(app)}
-        aria-label={`Open ${app.name}`}
+        aria-label={`Open ${appLabel}`}
         aria-pressed={activeApp === app.name}
       >
-        <span class="dock-tooltip">{app.name}</span>
+        <span class="dock-tooltip">{appLabel}</span>
         <span class="icon-wrap">
           <img src={app.icon} alt="" draggable="false" />
         </span>
@@ -127,4 +129,21 @@
     .icon-wrap { width: 2.85rem; height: 2.85rem; border-radius: .78rem; }
     .dock-tooltip { display: none; }
   }
+
+  .dock-shell.ios, .dock-shell.ipados {
+    bottom: max(.55rem, env(safe-area-inset-bottom));
+    gap: .4rem;
+    padding: .5rem .65rem;
+    border: 1px solid rgba(255,255,255,.34);
+    border-radius: 1.65rem;
+    background: linear-gradient(145deg, rgba(255,255,255,.3), rgba(255,255,255,.1)), rgba(19,28,43,.33);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 12px 32px rgba(0,0,0,.28);
+    clip-path: none;
+    backdrop-filter: blur(35px) saturate(175%);
+  }
+  .dock-shell.ios .dock-highlight, .dock-shell.ipados .dock-highlight { display: none; }
+  .dock-shell.ios .dock-button, .dock-shell.ipados .dock-button { width: 3.35rem; height: 3.35rem; }
+  .dock-shell.ios .icon-wrap, .dock-shell.ipados .icon-wrap { width: 3.1rem; height: 3.1rem; border-radius: .9rem; filter: drop-shadow(0 5px 8px rgba(0,0,0,.32)); }
+  .dock-shell.ios .running-dot, .dock-shell.ipados .running-dot { display: none; }
+  .dock-shell.ios.app-open { opacity: 0; transform: translate(-50%, 150%); pointer-events: none; }
 </style>
