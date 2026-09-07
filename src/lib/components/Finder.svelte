@@ -2,6 +2,9 @@
   import { base } from '$app/paths';
 
   export let initialTab: 'highlights' | 'projects' | 'experience' | 'guide' = 'highlights';
+  export let mobile = false;
+  export let onHome: () => void = () => {};
+  let query = '';
 
   type Project = {
     name: string;
@@ -119,6 +122,58 @@
   }
 </script>
 
+{#if mobile}
+  <section class="native-app" aria-label={activeTab === 'projects' ? 'Messages — Projects' : activeTab === 'experience' ? 'Contacts — Experience' : 'Portfolio Guide'}>
+    <nav class="native-nav">
+      <button on:click={selectedProject || selectedRole ? goBack : onHome}>‹ {selectedProject ? 'Projects' : selectedRole ? 'Experience' : 'Home'}</button>
+      <strong>{selectedProject?.name ?? (selectedRole ? 'Contact' : activeTab === 'projects' ? 'Messages' : activeTab === 'experience' ? 'Contacts' : 'Guide')}</strong>
+      <button on:click={onHome} aria-label="Return to home screen">⌂</button>
+    </nav>
+    <div class="native-scroll">
+      {#if selectedProject}
+        <article class="conversation">
+          <div class="native-avatar" style={`--accent:${selectedProject.accent}`}>{selectedProject.name.slice(0, 2).toUpperCase()}</div>
+          <h1>{selectedProject.name}</h1><p class="native-caption">{selectedProject.eyebrow} · Project overview</p>
+          <div class="message-bubble">{selectedProject.description}</div>
+          <div class="message-bubble outgoing"><small>THE IMPACT</small>{selectedProject.impact}</div>
+          <div class="message-bubble"><small>BUILT WITH</small><div class="native-tags">{#each selectedProject.technologies as technology}<span>{technology}</span>{/each}</div></div>
+          <a class="repository-card" href={selectedProject.link} target="_blank" rel="noreferrer"><span>⌘</span><div><strong>Explore the source</strong><small>github.com · {selectedProject.name}</small></div><b>↗</b></a>
+        </article>
+      {:else if selectedRole}
+        <article class="contact-detail">
+          <div class="native-avatar contact-avatar">{selectedRole.company === 'University of Alberta' ? 'UA' : 'AR'}</div>
+          <h1>{selectedRole.company}</h1><p class="native-caption">{selectedRole.title}</p>
+          <a class="contact-action" href={`${base}/mehmood-ahmad-resume.pdf`} target="_blank">View résumé ↗</a>
+          <div class="contact-group"><small>DATES</small><p>{selectedRole.period}</p></div>
+          <div class="contact-group"><small>EXPERIENCE HIGHLIGHTS</small>{#each selectedRole.points as point}<p>{point}</p>{/each}</div>
+        </article>
+      {:else if activeTab === 'projects' || activeTab === 'experience'}
+        <header class="native-heading"><h1>{activeTab === 'projects' ? 'Messages' : 'Contacts'}</h1><p>{activeTab === 'projects' ? 'A conversation with my projects.' : 'The teams behind my experience.'}</p></header>
+        <label class="native-search"><span aria-hidden="true">⌕</span><input bind:value={query} type="search" placeholder={activeTab === 'projects' ? 'Search projects' : 'Search experience'} aria-label={activeTab === 'projects' ? 'Search projects' : 'Search experience'} /></label>
+        <p class="native-section-label">{activeTab === 'projects' ? 'PROJECTS' : 'WORK EXPERIENCE'}</p>
+        <div class="native-list">
+          {#if activeTab === 'projects'}
+            {#each projects.filter(project => `${project.name} ${project.description} ${project.technologies.join(' ')}`.toLowerCase().includes(query.toLowerCase())) as project}
+              <button class="native-row" on:click={() => selectedProject = project}><span class="native-avatar" style={`--accent:${project.accent}`}>{project.name.slice(0,2).toUpperCase()}</span><span class="native-row-copy"><strong>{project.name}</strong><small>{project.eyebrow}</small><span>{project.description}</span></span><b>›</b></button>
+            {:else}<p class="empty-results">No projects found. Try a different search.</p>{/each}
+          {:else}
+            {#each roles.filter(role => `${role.company} ${role.period} ${role.title}`.toLowerCase().includes(query.toLowerCase())) as role}
+              <button class="native-row" on:click={() => selectedRole = role}><span class="native-avatar contact-avatar">{role.company === 'University of Alberta' ? 'UA' : 'AR'}</span><span class="native-row-copy"><strong>{role.company}</strong><small>{role.title}</small><span>{role.period}</span></span><b>›</b></button>
+            {:else}<p class="empty-results">No experience found. Try a different search.</p>{/each}
+          {/if}
+        </div>
+        <p class="native-footer">{activeTab === 'projects' ? 'Tap a project to explore its story.' : 'Tap a team to see my contributions.'}</p>
+      {:else}
+        <header class="native-heading"><h1>Welcome to MoodyOS</h1><p>Your pocket-sized tour of my work.</p></header>
+        <div class="contact-group"><small>EXPLORE</small><p>Open Messages to browse projects, then tap one for its overview, technologies, and source code.</p><button class="contact-action" on:click={() => showTab('projects')}>Open Projects ›</button></div>
+        <div class="contact-group"><small>EXPERIENCE</small><p>Contacts contains my work history. Tap a team to read about my contributions.</p><button class="contact-action" on:click={() => showTab('experience')}>Open Experience ›</button></div>
+        <div class="contact-group"><small>MAKE YOURSELF AT HOME</small><p>Use Home to return to the app grid. Tap the time for notifications or the status icons for brightness controls. Notes and Flappy Bird are here to explore, too.</p></div>
+        <a class="contact-action" href="https://www.linkedin.com/in/mehmood-ahmad-2bb43b244/" target="_blank" rel="noreferrer">Contact Mehmood ↗</a>
+      {/if}
+    </div>
+    <button class="home-indicator" aria-label="Return to home screen" on:click={onHome}><span></span></button>
+  </section>
+{:else}
 <div class="finder">
   <aside>
     <p class="section-label">Favorites</p>
@@ -250,7 +305,50 @@
   </section>
 </div>
 
+{/if}
+
 <style>
+  .native-app { height: 100%; display: flex; flex-direction: column; background: #141417; color: #f7f7fb; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+  .native-nav { display: grid; grid-template-columns: 1fr minmax(0,2fr) 1fr; align-items: center; flex-shrink: 0; min-height: 58px; padding: 0 12px; background: #29292be8; border-bottom: 1px solid #ffffff12; backdrop-filter: blur(24px); }
+  .native-nav button { min-height: 44px; border: 0; color: #78bbff; background: transparent; text-align: left; font: inherit; }
+  .native-nav button:last-child { text-align: right; font-size: 24px; }
+  .native-nav strong { text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 15px; }
+  .native-scroll { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 12px 18px 24px; }
+  .native-heading { margin: 8px 0 22px; }
+  .native-app h1 { margin: 0; font-size: 32px; line-height: 1.15; letter-spacing: -.8px; }
+  .native-heading p,.native-caption { color: #a6a6af; font-size: 14px; line-height: 1.5; margin-top: 8px; }
+  .native-search { display:flex; align-items:center; gap:8px; padding: 10px 12px; border-radius: 12px; background: #2b2b30; color: #aaa; }
+  .native-search input { min-width: 0; width: 100%; border:0; outline:0; background: transparent; color:white; font-size:16px; }
+  .native-section-label { margin: 26px 0 6px; color:#93939d; font: 11px monospace; letter-spacing: 1.5px; }
+  .native-row { display:flex; align-items:center; width:100%; gap:12px; padding:18px 0; border:0; border-bottom:1px solid #ffffff14; color:inherit; background:transparent; text-align:left; cursor:pointer; }
+  .native-avatar { display:grid; place-items:center; flex-shrink:0; width:52px; height:52px; border-radius:18px; background:color-mix(in srgb,var(--accent,#8dd5eb) 23%,#25252b); color:var(--accent,#8dd5eb); box-shadow: inset 0 0 0 1px #ffffff18; font:bold 17px monospace; }
+  .contact-avatar { --accent:#ddcab2; border-radius:50%; }
+  .native-row-copy { min-width:0; flex:1; }
+  .native-row-copy strong,.native-row-copy small,.native-row-copy > span { display:block; }
+  .native-row-copy strong { font-size:16px; }
+  .native-row-copy small { color:#b7b7c1; font-size:12px; margin:4px 0; }
+  .native-row-copy > span { display:-webkit-box; line-clamp:2; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; font-size:14px; line-height:1.4; color:#a0a0aa; }
+  .native-row > b { color:#767680; font-size:22px; }
+  .native-footer,.empty-results { color:#8e8e98; font-size:13px; text-align:center; padding:24px 0; }
+  .conversation,.contact-detail { max-width:620px; margin:0 auto; }
+  .conversation > .native-avatar,.contact-detail > .native-avatar { margin:12px auto; width:76px; height:76px; font-size:24px; }
+  .conversation h1,.contact-detail h1 { text-align:center; font-size:25px; }
+  .conversation .native-caption,.contact-detail .native-caption { text-align:center; margin-bottom:28px; }
+  .message-bubble { max-width:92%; width:fit-content; margin:14px 0; padding:16px; background:#303035; border-radius:20px 20px 20px 5px; font-size:16px; line-height:1.6; }
+  .message-bubble.outgoing { margin-left:auto; background:#1869d8; border-radius:20px 20px 5px 20px; }
+  .message-bubble small,.contact-group > small { display:block; font:11px monospace; letter-spacing:1px; color:#c2d7ee; margin-bottom:8px; }
+  .native-tags { display:flex; flex-wrap:wrap; gap:8px; }
+  .native-tags span { font-size:13px; border:1px solid #ffffff24; border-radius:6px; padding:3px 8px; }
+  .repository-card { display:flex; align-items:center; gap:12px; margin-top:24px; padding:18px; background:#24242a; border:1px solid #ffffff18; border-radius:18px; color:#8cc7ff; text-decoration:none; }
+  .repository-card div { flex:1; min-width:0; }
+  .repository-card small { display:block; font-size:12px; margin-top:4px; overflow-wrap:anywhere; color:#a9a9b5; }
+  .contact-group { background:#242429; border-radius:16px; padding:18px; margin:16px 0; }
+  .contact-group p { font-size:15px; line-height:1.65; margin:0; }
+  .contact-group p + p { border-top:1px solid #ffffff12; padding-top:14px; margin-top:14px; }
+  .contact-action { display:block; text-align:center; padding:14px; min-height:44px; border:0; border-radius:14px; background:#262c36; color:#83bdff; text-decoration:none; font:inherit; width:100%; box-sizing:border-box; }
+  .home-indicator { display:grid; place-items:center; flex-shrink:0; min-height:28px; padding-bottom:env(safe-area-inset-bottom); border:0; background:transparent; }
+  .home-indicator span { width:110px; height:4px; border-radius:4px; background:#eee; }
+  @media(min-width:700px) { .native-scroll { padding:28px max(28px,calc((100% - 740px)/2)); } }
   .finder { display: grid; grid-template-columns: 13rem 1fr; height: 100%; color: #f7fbff; background: repeating-linear-gradient(135deg, rgba(255,255,255,.014) 0 4px, transparent 4px 8px); }
   aside { padding: 1.15rem .75rem; border-right: 2px solid rgba(155,225,246,.25); background: linear-gradient(180deg, rgba(13,41,67,.72), rgba(4,18,34,.58)); }
   .section-label { margin: 0 .65rem .45rem; color: rgba(235,244,255,.42); font-size: .67rem; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; }

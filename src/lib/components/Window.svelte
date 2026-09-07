@@ -75,7 +75,7 @@
   class:active={isActive}
   class:dragging={isDragging}
   class:minimized={isMinimized}
-  class:ios={platform === 'ios'}
+  class:ios={platform !== 'macos'}
   class:ipados={platform === 'ipados'}
   class="window-container"
   style={isMaximized
@@ -185,7 +185,7 @@
     .title { font-size: .77rem; }
   }
 
-  .window-container.ios { inset: max(2.9rem, env(safe-area-inset-top)) 0 0 !important; width: auto !important; height: auto !important; filter: none; animation: ios-app-in 280ms cubic-bezier(.2,.85,.25,1); }
+  .window-container.ios { inset: max(2.9rem, calc(env(safe-area-inset-top) + 2rem)) 0 0 !important; width: auto !important; height: auto !important; filter: none; animation: ios-app-in 280ms cubic-bezier(.2,.85,.25,1); }
   .ios .glass-window { border: 0; border-radius: 1.6rem 1.6rem 0 0; background: rgba(28,28,30,.95); box-shadow: inset 0 1px 0 rgba(255,255,255,.16); }
   .ios .titlebar { min-height: 3.45rem; grid-template-columns: 2.5rem 1fr 2.5rem; padding: .55rem .8rem; border-bottom: 1px solid rgba(255,255,255,.08); background: linear-gradient(180deg, rgba(88,88,92,.52), rgba(44,44,47,.72)); backdrop-filter: blur(35px) saturate(160%); }
   .ios .window-controls { display: contents; }
