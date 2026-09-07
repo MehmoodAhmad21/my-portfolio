@@ -212,7 +212,7 @@
         </div>
       {:else if activeTab === 'guide'}
         <article class="guide-view">
-          <header><span class="guide-icon">?</span><div><p class="pixel-label">QUICK START · MEHMOOD OS</p><h2>Portfolio Guide</h2><p>Everything here works like the Apple device you are using.</p></div></header>
+          <header><span class="guide-icon">?</span><div><p class="pixel-label">QUICK START · MoodyOS</p><h2>Portfolio Guide</h2><p>Everything here works like the Apple device you are using.</p></div></header>
           <section class="guide-steps">
             <article><b>01</b><div><h3>Open an app</h3><p>Use the Dock—or the Home Screen icons on iPhone and iPad—to open Finder, Terminal, Notes, and Flappy Bird.</p></div></article>
             <article><b>02</b><div><h3>Explore the work</h3><p>In Finder, choose Projects or Experience. Switch between icon and list view, then open any folder for the full story.</p></div></article>

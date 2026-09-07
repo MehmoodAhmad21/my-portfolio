@@ -357,7 +357,7 @@
   {#if menuNotice}<div class="menu-toast">{menuNotice}</div>{/if}
 
   <main class:apps-open={openApps.size > 0} class="desktop-area">
-    <div class="route-chip"><span>ROUTE 21</span><b>{platform === 'ios' ? 'MEHMOOD.iOS' : platform === 'ipados' ? 'MEHMOOD.iPadOS' : 'MEHMOOD.OS'}</b></div>
+    <div class="route-chip"><span>ROUTE 21</span><b>MoodyOS</b></div>
     {#if platform !== 'macos'}
       <section class="mobile-app-grid" aria-label="Portfolio shortcuts">
         <button on:click={() => openFinder('projects')} aria-label="Open Projects"><span class="pixel-app-icon projects-app">PRJ<i>◆</i></span><strong>Projects</strong></button>
@@ -546,6 +546,7 @@
   .route-chip { position: absolute; top: 3.2rem; left: 2.3rem; display: flex; align-items: center; gap: .55rem; padding: .3rem .48rem; border: 2px solid rgba(5,19,32,.88); outline: 2px solid rgba(210,246,255,.68); color: #061524; background: #9ceaff; box-shadow: 3px 3px 0 rgba(1,8,18,.55); font-family: ui-monospace, monospace; font-size: .6rem; letter-spacing: .08em; }
   .route-chip span { padding: .15rem .3rem; color: #e9fbff; background: #183353; }
   .route-chip b { font-size: .62rem; }
+  .desktop .desktop-area .route-chip { left: max(2px, env(safe-area-inset-left)); }
 
   .desktop-widgets { position: absolute; inset: 0; pointer-events: none; transition: filter 180ms ease; }
   .widget-shell { position: absolute; width: min(23rem, calc(100vw - 2rem)); pointer-events: auto; transform: translate(var(--widget-x), var(--widget-y)); touch-action: none; }
