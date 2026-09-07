@@ -379,6 +379,7 @@
           <div class="profile-links">
             <a href="mailto:mehmood3@ualberta.ca">Email</a>
             <a href="https://www.linkedin.com/in/mehmood-ahmad-2bb43b244/" target="_blank" rel="noreferrer">LinkedIn ↗</a>
+            <a href="https://github.com/MehmoodAhmad21" target="_blank" rel="noreferrer">GitHub ↗</a>
           </div>
         </article>
       </div>
