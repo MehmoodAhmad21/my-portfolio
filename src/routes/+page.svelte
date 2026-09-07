@@ -440,7 +440,7 @@
     {#if openApps.has('Flappy Bird') && (platform === 'macos' || activeApp === 'Flappy Bird')}
       <div class="window-layer" style:z-index={windowStates['Flappy Bird'].zIndex}>
         <Window title="Flappy Bird.app" icon={flappyIcon} {platform} isActive={activeApp === 'Flappy Bird'} bind:x={windowStates['Flappy Bird'].x} bind:y={windowStates['Flappy Bird'].y} bind:isMinimized={windowStates['Flappy Bird'].isMinimized} bind:isMaximized={windowStates['Flappy Bird'].isMaximized} on:close={() => closeApp('Flappy Bird')} on:minimize={(e) => handleMinimize('Flappy Bird', e)} on:focus={() => bringToFront('Flappy Bird')}>
-          <div class="game-window"><FlappyBird /></div>
+          <div class="game-window"><FlappyBird isActive={activeApp === 'Flappy Bird' && !windowStates['Flappy Bird'].isMinimized && !openMenu} /></div>
         </Window>
       </div>
     {/if}
