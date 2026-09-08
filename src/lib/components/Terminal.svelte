@@ -66,7 +66,7 @@
         commandHistory = [...commandHistory, ''];
       } else if (command === 'help') {
         commandHistory = [...commandHistory, ...help, ''];
-      } else if (responses[command]) {
+      } else if (Object.hasOwn(responses, command)) {
         commandHistory = [...commandHistory, ...responses[command], ''];
       } else {
         commandHistory = [...commandHistory, `command not found: ${command}`, ...help, ''];
@@ -78,7 +78,7 @@
 </script>
 
 <div class="terminal" on:click={() => inputElement?.focus()} role="presentation">
-  <div class="terminal-toolbar"><div class="tab"><span>⌘</span><strong>mehmood — zsh</strong><button aria-label="Close tab">×</button></div><button class="new-tab" aria-label="New tab">＋</button><span class="toolbar-space"></span><button aria-label="Terminal inspector">ⓘ</button></div>
+  <div class="terminal-toolbar"><div class="tab"><span>⌘</span><strong>mehmood — portfolio shell</strong></div><span class="toolbar-space"></span><button aria-label="Clear terminal" on:click={() => commandHistory = []}>⌫</button><button aria-label="Show terminal commands" on:click={() => commandHistory = [...commandHistory, ...help]}>?</button></div>
   <div class="terminal-content">
     {#each commandHistory as line}
       <div class:prompt={line.startsWith('mehmood@')} class="line">{line}</div>
@@ -98,7 +98,6 @@
   .tab { display: grid; min-width: 12rem; height: 2.15rem; grid-template-columns: auto 1fr auto; align-items: center; gap: .5rem; padding: 0 .45rem .1rem .65rem; border: 1px solid rgba(255,255,255,.08); border-bottom-color: #1a1a1b; border-radius: .48rem .48rem 0 0; color: #e6e6e8; background: #1a1a1b; }
   .tab strong { font-weight: 530; text-align: center; }
   .tab > span { color: #78d6ff; }
-  .tab button { width: 1.1rem; height: 1.1rem; }
   .toolbar-space { flex: 1; }
   .terminal-content { flex: 1; overflow-y: auto; padding: 1.15rem 1.25rem; font-size: clamp(.72rem, 1.4vw, .83rem); line-height: 1.68; }
   .line { min-height: 1.35em; white-space: pre-wrap; }

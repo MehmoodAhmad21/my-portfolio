@@ -1,4 +1,23 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
+  let query = '';
+  let editor: HTMLTextAreaElement;
+  onMount(() => {
+    try {
+      const draft = JSON.parse(localStorage.getItem('moodyos-note') || 'null');
+      if (typeof draft?.content === 'string') noteContent = draft.content;
+      if (typeof draft?.name === 'string') fileName = draft.name;
+    } catch { saveStatus = 'Download to keep your note'; }
+  });
+  function persist() {
+    try { localStorage.setItem('moodyos-note', JSON.stringify({name:fileName,content:noteContent})); saveStatus = 'Saved on this device'; }
+    catch { saveStatus = 'Download to keep your note'; }
+  }
+  function checklist() {
+    const start = editor.selectionStart;
+    noteContent = noteContent.slice(0,start) + '☐ ' + noteContent.slice(start);
+    persist(); editor.focus();
+  }
   let noteContent = '';
   let fileName = 'ideas.txt';
   let saveStatus = '';
@@ -14,7 +33,7 @@
     link.href = url;
     link.download = fileName || 'note.txt';
     link.click();
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
     saveStatus = 'Saved';
     setTimeout(() => saveStatus = '', 1800);
   }
@@ -23,37 +42,38 @@
     if (noteContent.trim() && !confirm('Clear this note?')) return;
     noteContent = '';
     fileName = 'ideas.txt';
+    persist();
   }
 </script>
 
 <div class="notes">
   <aside class="folder-sidebar">
-    <label class="search"><span>⌕</span><input aria-label="Search notes" placeholder="Search" /></label>
-    <p>iCloud</p>
-    <button class="folder active"><span>▤</span><strong>All iCloud</strong><b>1</b></button>
-    <button class="folder"><span>▰</span><strong>Notes</strong><b>1</b></button>
-    <div class="folder-bottom"><button aria-label="New folder">＋</button><span>New Folder</span></div>
+    <label class="search"><span>⌕</span><input bind:value={query} aria-label="Search notes" placeholder="Search" /></label>
+    <p>On this device</p>
+    <div class="folder active"><span>▤</span><strong>Scratchpad</strong><b>1</b></div>
   </aside>
 
   <section class="note-list">
-    <header><strong>Notes</strong><button aria-label="More note options">•••</button></header>
-    <button class="note-row active">
+    <header><strong>Notes</strong></header>
+    {#if `${fileName} ${noteContent}`.toLowerCase().includes(query.toLowerCase())}
+    <button class="note-row active" on:click={() => editor?.focus()}>
       <strong>{fileName.replace(/\.txt$/i, '') || 'New Note'}</strong>
-      <span>Today</span>
+      <span>Local draft</span>
       <p>{noteContent.trim().slice(0, 64) || 'Quick thought…'}</p>
     </button>
+    {:else}<p class="note-row">No matching note</p>{/if}
   </section>
 
   <section class="editor">
     <header class="editor-toolbar">
-      <div class="format-controls"><button aria-label="Table">▦</button><button aria-label="Checklist">✓</button><button aria-label="Text format">Aa</button></div>
+      <div class="format-controls"><button aria-label="Insert checklist item" on:click={checklist}>✓</button></div>
       <span class="status">{saveStatus}</span>
       <button on:click={newNote} aria-label="New note">▱＋</button>
       <button class="save" on:click={downloadNote} aria-label="Save note">⇧</button>
     </header>
-    <div class="note-date">September 6, 2026 at 2:00 PM</div>
-    <input class="note-title" bind:value={fileName} aria-label="Note filename" />
-    <textarea bind:value={noteContent} aria-label="Note" placeholder={'Quick thought…\n\nWrite a note here. The share button saves it as a real text file.'} spellcheck="true"></textarea>
+    <div class="note-date">Private scratchpad · stored on this device</div>
+    <input class="note-title" bind:value={fileName} on:input={persist} aria-label="Note filename" />
+    <textarea bind:this={editor} bind:value={noteContent} on:input={persist} aria-label="Note" placeholder={'Quick thought…\n\nWrite a note here. The share button downloads a text file.'} spellcheck="true"></textarea>
     <footer><span>{noteContent.trim() ? noteContent.trim().split(/\s+/).length : 0} words</span><span>{noteContent.length} characters</span></footer>
   </section>
 </div>
@@ -71,13 +91,10 @@
   .folder > span { color: #ffd44c; }
   .folder strong, .folder b { font-size: .76rem; font-weight: 550; }
   .folder b { color: #96969a; }
-  .folder-bottom { position: absolute; right: .7rem; bottom: .65rem; left: .7rem; display: flex; align-items: center; gap: .35rem; color: #a0a0a5; font-size: .68rem; }
-  .folder-bottom button { color: #ffd44c; font-size: 1rem; }
 
   .note-list { overflow: hidden; border-right: 1px solid rgba(255,255,255,.08); background: #28282a; }
   .note-list header { display: flex; height: 2.75rem; align-items: center; justify-content: space-between; padding: 0 .8rem; border-bottom: 1px solid rgba(255,255,255,.07); }
   .note-list header strong { font-size: .8rem; }
-  .note-list header button { color: #9c9ca1; }
   .note-row { display: block; width: calc(100% - .75rem); margin: .38rem; padding: .62rem .68rem; border-radius: .52rem; text-align: left; }
   .note-row.active { color: #191919; background: #ffd655; }
   .note-row strong { display: block; overflow: hidden; font-size: .76rem; text-overflow: ellipsis; white-space: nowrap; }
@@ -88,7 +105,6 @@
   .editor-toolbar { display: flex; min-height: 2.75rem; align-items: center; gap: .45rem; padding: 0 .7rem; border-bottom: 1px solid rgba(255,255,255,.07); }
   .format-controls { display: flex; overflow: hidden; border: 1px solid rgba(255,255,255,.1); border-radius: .48rem; }
   .format-controls button { width: 2rem; height: 1.75rem; color: #c7c7ca; }
-  .format-controls button + button { border-left: 1px solid rgba(255,255,255,.08); }
   .status { min-width: 3rem; flex: 1; color: #79d99e; font-size: .67rem; text-align: right; }
   .editor-toolbar > button { width: 2rem; height: 1.75rem; border: 1px solid rgba(255,255,255,.1); border-radius: .48rem; color: #d0d0d3; }
   .editor-toolbar > button.save { color: #ffd44c; }
@@ -113,5 +129,6 @@
     .note-date { padding-top: 1.2rem; }
     .note-title { font-size: 1.35rem; }
     textarea { font-size: 1rem; }
+    .editor-toolbar button { min-height:44px; min-width:44px; }
   }
 </style>

@@ -78,14 +78,12 @@
   }
 
   onMount(() => {
-    const savedBrightness = Number(localStorage.getItem('mehmood-os-brightness'));
-    if (savedBrightness >= 50 && savedBrightness <= 120) brightness = savedBrightness;
     try {
+      const savedBrightness = Number(localStorage.getItem('mehmood-os-brightness'));
+      if (savedBrightness >= 50 && savedBrightness <= 120) brightness = savedBrightness;
       const savedWidgets = JSON.parse(localStorage.getItem('mehmood-os-widget-layout') ?? 'null');
-      if (savedWidgets?.profile && savedWidgets?.signal && savedWidgets?.publication) widgetOffsets = savedWidgets;
-    } catch {
-      localStorage.removeItem('mehmood-os-widget-layout');
-    }
+      if (['profile','signal','publication'].every(key => Number.isFinite(savedWidgets?.[key]?.x) && Number.isFinite(savedWidgets?.[key]?.y))) widgetOffsets = savedWidgets;
+    } catch { /* Default settings also work when storage is blocked. */ }
     updateClock();
     const detectPlatform = () => {
       const ua = navigator.userAgent;
@@ -175,7 +173,7 @@
 
   function changeBrightness(event: Event) {
     brightness = Number((event.currentTarget as HTMLInputElement).value);
-    localStorage.setItem('mehmood-os-brightness', String(brightness));
+    try { localStorage.setItem('mehmood-os-brightness', String(brightness)); } catch { /* Session preference still works. */ }
   }
 
   function startWidgetDrag(name: WidgetName, event: PointerEvent) {
@@ -189,15 +187,25 @@
 
   function moveWidget(event: PointerEvent) {
     if (!draggedWidget) return;
-    const x = widgetDragStart.offsetX + event.clientX - widgetDragStart.pointerX;
-    const y = widgetDragStart.offsetY + event.clientY - widgetDragStart.pointerY;
+    const rect = document.querySelector(`.${draggedWidget}-shell`)?.getBoundingClientRect();
+    if (!rect) return;
+    const offset = widgetOffsets[draggedWidget];
+    const desiredX = widgetDragStart.offsetX + event.clientX - widgetDragStart.pointerX;
+    const desiredY = widgetDragStart.offsetY + event.clientY - widgetDragStart.pointerY;
+    const x = offset.x + Math.max(8 - rect.left, Math.min(desiredX - offset.x, window.innerWidth - 8 - rect.right));
+    const y = offset.y + Math.max(48 - rect.top, Math.min(desiredY - offset.y, window.innerHeight - 90 - rect.bottom));
     widgetOffsets = { ...widgetOffsets, [draggedWidget]: { x, y } };
   }
 
   function stopWidgetDrag() {
     if (!draggedWidget) return;
     draggedWidget = null;
-    localStorage.setItem('mehmood-os-widget-layout', JSON.stringify(widgetOffsets));
+    try { localStorage.setItem('mehmood-os-widget-layout', JSON.stringify(widgetOffsets)); } catch { /* Session layout still works. */ }
+  }
+
+  function resetWidgetLayout() {
+    widgetOffsets = { profile:{x:0,y:0}, signal:{x:0,y:0}, publication:{x:0,y:0} };
+    try { localStorage.removeItem('mehmood-os-widget-layout'); } catch { /* Reset also works for this visit. */ }
   }
 
   function dismissNotification(id: string) {
@@ -239,7 +247,7 @@
 <div class:ios={platform === 'ios'} class:ipados={platform === 'ipados'} class:macos={platform === 'macos'} class="desktop" style={`--screen-brightness:${brightness}%`}>
   <div class="wallpaper" style={`background-image: url('${wallpaper}')`}></div>
   <div class="night-shade"></div>
-  <div class="scanlines"></div>
+  <div class="scanlines" aria-hidden="true"></div>
 
   {#if platform !== 'macos'}
     <header class="mobile-status-bar" aria-label={`${platform === 'ios' ? 'iOS' : 'iPadOS'} status bar`}>
@@ -275,7 +283,7 @@
     {#if openMenu === 'control'}
       <aside class="mobile-sheet mobile-control-center" aria-label="Control Center">
         <div class="sheet-grabber"></div>
-        <div class="mobile-toggles"><button on:click={() => copyContact('mehmood3@ualberta.ca', 'Email')}><span>⌁</span><strong>Portfolio<br />Network</strong></button><button on:click={() => runMenuAction(() => openApp('Terminal'))}><span>⌘</span><strong>Recruiter<br />Focus</strong></button></div>
+        <div class="mobile-toggles"><button on:click={() => copyContact('mehmood3@ualberta.ca', 'Email')}><span>⌁</span><strong>Copy<br />Email</strong></button><button on:click={() => runMenuAction(() => openApp('Terminal'))}><span>⌘</span><strong>Open<br />Terminal</strong></button></div>
         <label class="mobile-brightness"><span>☀</span><input type="range" min="50" max="120" step="1" value={brightness} style={`--brightness:${brightness}`} on:input={changeBrightness} aria-label="Display brightness" /></label>
         <button class="close-sheet" on:click={() => openMenu = null}>Done</button>
       </aside>
@@ -291,7 +299,8 @@
             <button on:click={() => runMenuAction(() => openFinder('highlights'))}><span>About This Portfolio</span></button>
             <div class="menu-separator"></div>
             <a href={`${base}/mehmood-ahmad-resume.pdf`} target="_blank"><span>Résumé…</span></a>
-            <button on:click={() => runMenuAction(() => openApp('Terminal'))}><span>System Information…</span></button>
+            <button on:click={() => runMenuAction(() => openApp('Terminal'))}><span>Portfolio Terminal…</span></button>
+            <button on:click={() => runMenuAction(resetWidgetLayout)}><span>Reset Widget Positions</span></button>
             <div class="menu-separator"></div>
             <a href="mailto:mehmood3@ualberta.ca"><span>Contact Mehmood…</span></a>
           </div>
@@ -302,24 +311,24 @@
         <button class:active={openMenu === 'app'} class="menu-button app-button" on:click={() => toggleMenu('app')} aria-expanded={openMenu === 'app'}>{activeApp ?? 'Finder'}</button>
         {#if openMenu === 'app'}
           <div class="menu-popover" role="menu">
-            <button on:click={() => runMenuAction(() => activeApp ? openApp(activeApp) : openFinder('highlights'))}><span>About {activeApp ?? 'Finder'}</span></button>
+            <button on:click={() => runMenuAction(() => activeApp ? openApp(activeApp) : openFinder('highlights'))}><span>Open {activeApp ?? 'Finder'}</span></button>
             <div class="menu-separator"></div>
-            <button on:click={() => runMenuAction(() => openFinder('highlights'))}><span>Portfolio Home</span><kbd>⌘H</kbd></button>
-            {#if activeApp}<button on:click={() => runMenuAction(() => closeApp(activeApp!))}><span>Quit {activeApp}</span><kbd>⌘Q</kbd></button>{/if}
+            <button on:click={() => runMenuAction(() => openFinder('highlights'))}><span>Portfolio Home</span></button>
+            {#if activeApp}<button on:click={() => runMenuAction(() => closeApp(activeApp!))}><span>Quit {activeApp}</span></button>{/if}
           </div>
         {/if}
       </div>
 
-      <div class="menu-item"><button class:active={openMenu === 'file'} class="menu-button" on:click={() => toggleMenu('file')}>File</button>{#if openMenu === 'file'}<div class="menu-popover" role="menu"><button on:click={() => runMenuAction(() => openFinder('highlights'))}><span>New Finder Window</span><kbd>⌘N</kbd></button><button on:click={() => runMenuAction(() => openFinder('projects'))}><span>Open Projects</span><kbd>⌘O</kbd></button><a href={`${base}/mehmood-ahmad-resume.pdf`} target="_blank"><span>Open Résumé…</span></a><div class="menu-separator"></div><button disabled={!activeApp} on:click={() => activeApp && runMenuAction(() => closeApp(activeApp!))}><span>Close Window</span><kbd>⌘W</kbd></button></div>{/if}</div>
-      <div class="menu-item"><button class:active={openMenu === 'edit'} class="menu-button" on:click={() => toggleMenu('edit')}>Edit</button>{#if openMenu === 'edit'}<div class="menu-popover" role="menu"><button on:click={() => copyContact('mehmood3@ualberta.ca', 'Email')}><span>Copy Email</span><kbd>⌘C</kbd></button><button on:click={() => copyContact('https://github.com/MehmoodAhmad21', 'GitHub link')}><span>Copy GitHub Link</span></button><button on:click={() => copyContact('https://www.linkedin.com/in/mehmood-ahmad-2bb43b244/', 'LinkedIn link')}><span>Copy LinkedIn Link</span></button></div>{/if}</div>
-      <div class="menu-item"><button class:active={openMenu === 'view'} class="menu-button" on:click={() => toggleMenu('view')}>View</button>{#if openMenu === 'view'}<div class="menu-popover" role="menu"><button on:click={() => runMenuAction(() => openFinder('highlights'))}><span>Show Recents</span></button><button on:click={() => runMenuAction(() => openFinder('projects'))}><span>Show Projects</span></button><button on:click={() => runMenuAction(() => openFinder('experience'))}><span>Show Experience</span></button><div class="menu-separator"></div><button disabled={!activeApp} on:click={() => activeApp && runMenuAction(() => windowStates[activeApp!].isMaximized = !windowStates[activeApp!].isMaximized)}><span>Enter Full Screen</span><kbd>⌃⌘F</kbd></button></div>{/if}</div>
+      <div class="menu-item"><button class:active={openMenu === 'file'} class="menu-button" on:click={() => toggleMenu('file')}>File</button>{#if openMenu === 'file'}<div class="menu-popover" role="menu"><button on:click={() => runMenuAction(() => openFinder('highlights'))}><span>Open Finder</span></button><button on:click={() => runMenuAction(() => openFinder('projects'))}><span>Open Projects</span></button><a href={`${base}/mehmood-ahmad-resume.pdf`} target="_blank"><span>Open Résumé…</span></a><div class="menu-separator"></div><button disabled={!activeApp} on:click={() => activeApp && runMenuAction(() => closeApp(activeApp!))}><span>Close Window</span><kbd>⌘W</kbd></button></div>{/if}</div>
+      <div class="menu-item"><button class:active={openMenu === 'edit'} class="menu-button" on:click={() => toggleMenu('edit')}>Edit</button>{#if openMenu === 'edit'}<div class="menu-popover" role="menu"><button on:click={() => copyContact('mehmood3@ualberta.ca', 'Email')}><span>Copy Email</span></button><button on:click={() => copyContact('https://github.com/MehmoodAhmad21', 'GitHub link')}><span>Copy GitHub Link</span></button><button on:click={() => copyContact('https://www.linkedin.com/in/mehmood-ahmad-2bb43b244/', 'LinkedIn link')}><span>Copy LinkedIn Link</span></button></div>{/if}</div>
+      <div class="menu-item"><button class:active={openMenu === 'view'} class="menu-button" on:click={() => toggleMenu('view')}>View</button>{#if openMenu === 'view'}<div class="menu-popover" role="menu"><button on:click={() => runMenuAction(() => openFinder('highlights'))}><span>Show Recents</span></button><button on:click={() => runMenuAction(() => openFinder('projects'))}><span>Show Projects</span></button><button on:click={() => runMenuAction(() => openFinder('experience'))}><span>Show Experience</span></button><div class="menu-separator"></div><button disabled={!activeApp} on:click={() => activeApp && runMenuAction(() => windowStates[activeApp!].isMaximized = !windowStates[activeApp!].isMaximized)}><span>{activeApp && windowStates[activeApp].isMaximized ? 'Exit Full Screen' : 'Enter Full Screen'}</span></button></div>{/if}</div>
       <div class="menu-item"><button class:active={openMenu === 'go'} class="menu-button" on:click={() => toggleMenu('go')}>Go</button>{#if openMenu === 'go'}<div class="menu-popover" role="menu"><a href="https://github.com/MehmoodAhmad21" target="_blank" rel="noreferrer"><span>GitHub</span><kbd>↗</kbd></a><a href="https://www.linkedin.com/in/mehmood-ahmad-2bb43b244/" target="_blank" rel="noreferrer"><span>LinkedIn</span><kbd>↗</kbd></a><a href="https://arxiv.org/abs/2604.05210" target="_blank" rel="noreferrer"><span>Research Paper</span><kbd>↗</kbd></a></div>{/if}</div>
       <div class="menu-item"><button class:active={openMenu === 'window'} class="menu-button" on:click={() => toggleMenu('window')}>Window</button>{#if openMenu === 'window'}<div class="menu-popover" role="menu"><button disabled={!activeApp} on:click={() => activeApp && runMenuAction(() => { windowStates[activeApp!].isMinimized = true; activeApp = null; })}><span>Minimize</span><kbd>⌘M</kbd></button><div class="menu-separator"></div>{#each apps as app}<button on:click={() => runMenuAction(() => openApp(app.name))}><span>{openApps.has(app.name) ? '✓' : ''}&nbsp;&nbsp;{app.name}</span></button>{/each}</div>{/if}</div>
       <div class="menu-item"><button class:active={openMenu === 'help'} class="menu-button" on:click={() => toggleMenu('help')}>Help</button>{#if openMenu === 'help'}<div class="menu-popover align-right" role="menu"><button on:click={() => runMenuAction(() => openFinder('guide'))}><span>Portfolio Guide</span></button><button on:click={() => runMenuAction(() => openApp('Terminal'))}><span>Terminal Commands</span></button><div class="menu-separator"></div><a href="https://www.linkedin.com/in/mehmood-ahmad-2bb43b244/" target="_blank" rel="noreferrer"><span>Contact Mehmood…</span><kbd>↗</kbd></a></div>{/if}</div>
     </div>
     <div class="menu-right">
       <div class="menu-item right-menu"><button class:active={openMenu === 'status'} class="status-button" on:click={() => toggleMenu('status')}><span class="status-dot"><i></i> available</span></button>{#if openMenu === 'status'}<div class="menu-popover status-panel" role="menu"><div class="status-card"><i></i><div><strong>Available for opportunities</strong><span>Software engineering · Applied AI</span></div></div><p>Edmonton, Alberta · Open to relocation and remote work.</p><a href="https://www.linkedin.com/in/mehmood-ahmad-2bb43b244/" target="_blank" rel="noreferrer"><span>Start a conversation</span><kbd>↗</kbd></a></div>{/if}</div>
-      <div class="menu-item right-menu"><button class:active={openMenu === 'control'} class="system-button" on:click={() => toggleMenu('control')} aria-label="Control Center"><span class="wifi">▴</span><span class="battery"><i></i></span></button>{#if openMenu === 'control'}<div class="control-center"><button on:click={() => copyContact('mehmood3@ualberta.ca', 'Email')}><span class="control-icon blue">⌁</span><span><strong>Wi-Fi</strong><small>Portfolio Network</small></span></button><button on:click={() => runMenuAction(() => openApp('Terminal'))}><span class="control-icon purple">⌘</span><span><strong>Focus</strong><small>Recruiter mode</small></span></button><label class="control-slider"><span>☀</span><input type="range" min="50" max="120" step="1" value={brightness} style={`--brightness:${brightness}`} on:input={changeBrightness} aria-label="Display brightness" /><output>{brightness}%</output></label><div class="battery-row"><span class="battery large"><i></i></span><strong>Battery</strong><small>78%</small></div></div>{/if}</div>
+      <div class="menu-item right-menu"><button class:active={openMenu === 'control'} class="system-button" on:click={() => toggleMenu('control')} aria-label="Control Center"><span class="wifi">▴</span><span class="battery"><i></i></span></button>{#if openMenu === 'control'}<div class="control-center"><button on:click={() => copyContact('mehmood3@ualberta.ca', 'Email')}><span class="control-icon blue">⌁</span><span><strong>Copy Email</strong><small>Contact Mehmood</small></span></button><button on:click={() => runMenuAction(() => openApp('Terminal'))}><span class="control-icon purple">⌘</span><span><strong>Terminal</strong><small>Explore commands</small></span></button><label class="control-slider"><span>☀</span><input type="range" min="50" max="120" step="1" value={brightness} style={`--brightness:${brightness}`} on:input={changeBrightness} aria-label="Display brightness" /><output>{brightness}%</output></label></div>{/if}</div>
       <div class="menu-item right-menu">
         <button class:active={openMenu === 'clock'} class="clock-button" on:click={() => toggleMenu('clock')} aria-label="Open Notification Center" aria-expanded={openMenu === 'clock'}><time>{currentDate}&nbsp;&nbsp;{currentTime}</time></button>
         {#if openMenu === 'clock'}
@@ -499,14 +508,11 @@
   .control-center button small { margin-top: .08rem; color: rgba(255,255,255,.55); font-size: .58rem; }
   .control-icon { display: grid; width: 2rem; height: 2rem; place-items: center; border-radius: 50%; background: #0a84ff; }
   .control-icon.purple { background: #7658d6; }
-  .control-slider, .battery-row { position: relative; z-index: 1; grid-column: 1 / -1; display: flex; align-items: center; gap: .58rem; padding: .55rem .65rem; border-radius: .72rem; background: rgba(255,255,255,.09); }
+  .control-slider { position: relative; z-index: 1; grid-column: 1 / -1; display: flex; align-items: center; gap: .58rem; padding: .55rem .65rem; border-radius: .72rem; background: rgba(255,255,255,.09); }
   .control-slider input { min-width: 0; height: .42rem; flex: 1; appearance: none; border-radius: 1rem; outline: none; background: linear-gradient(90deg, white 0%, white calc((var(--brightness, 100) - 50) * 1.428%), rgba(255,255,255,.2) calc((var(--brightness, 100) - 50) * 1.428%)); cursor: pointer; accent-color: white; }
   .control-slider input::-webkit-slider-thumb { width: 1rem; height: 1rem; appearance: none; border: 1px solid rgba(0,0,0,.15); border-radius: 50%; background: white; box-shadow: 0 1px 4px rgba(0,0,0,.35); }
   .control-slider input::-moz-range-thumb { width: 1rem; height: 1rem; border: 1px solid rgba(0,0,0,.15); border-radius: 50%; background: white; box-shadow: 0 1px 4px rgba(0,0,0,.35); }
   .control-slider output { min-width: 2.35rem; color: rgba(255,255,255,.68); font-size: .62rem; text-align: right; }
-  .battery-row strong { flex: 1; font-size: .7rem; }
-  .battery-row small { color: rgba(255,255,255,.58); font-size: .65rem; }
-  .battery.large { width: 1.55rem; height: .75rem; }
   .notification-center { position: fixed; top: 2.8rem; right: .65rem; left: auto; width: min(23rem, calc(100vw - 1rem)); max-height: calc(100svh - 3.5rem); overflow-y: auto; padding: .7rem; border-radius: 1rem; animation: notification-in 220ms cubic-bezier(.2,.8,.2,1); }
   .notification-header { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; padding: .35rem .25rem .8rem; }
   .notification-header > div:first-child strong, .notification-header > div:first-child span { display: block; }
@@ -644,6 +650,9 @@
   }
 
   .mobile-status-bar { position: fixed; z-index: 2100; top: 0; right: 0; left: 0; display: grid; min-height: max(2.8rem, calc(env(safe-area-inset-top) + 2rem)); grid-template-columns: 1fr auto 1fr; align-items: end; padding: env(safe-area-inset-top) 1.1rem .42rem; color: white; text-shadow: 0 1px 3px rgba(0,0,0,.62); pointer-events: none; }
+  .mobile-system { grid-column:3; }
+  .mobile-sheet { max-height:calc(100dvh - max(3.15rem, calc(env(safe-area-inset-top) + 2.5rem)) - 1rem); overflow-y:auto; }
+  .profile-links { flex-wrap:wrap; }
   .mobile-clock, .mobile-system button { min-height: 1.6rem; padding: 0; border: 0; color: white; background: transparent; font-size: .75rem; font-weight: 750; pointer-events: auto; cursor: pointer; }
   .mobile-clock { justify-self: start; }
   .mobile-system { justify-self: end; }

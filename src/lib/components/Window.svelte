@@ -27,7 +27,7 @@
   }
 
   function startDrag(clientX: number, clientY: number, target: EventTarget | null) {
-    if (isMaximized || (target as HTMLElement)?.closest('.window-controls')) return;
+    if (platform !== 'macos' || isMaximized || (target as HTMLElement)?.closest('.window-controls')) return;
     isDragging = true;
     dragStartX = clientX - x;
     dragStartY = clientY - y;
@@ -78,6 +78,7 @@
   class:ios={platform !== 'macos'}
   class:ipados={platform === 'ipados'}
   class="window-container"
+  inert={isMinimized}
   style={isMaximized
     ? 'position: fixed; top: 2.65rem; left: .45rem; right: .45rem; bottom: 5.25rem; width: auto; height: auto;'
     : `position: fixed; left: ${x}px; top: ${y}px;`}
@@ -110,9 +111,7 @@
       <div class="title-spacer"></div>
     </div>
 
-    {#if !isMinimized}
-      <div class="content"><slot /></div>
-    {/if}
+    <div class="content" inert={isMinimized}><slot /></div>
   </div>
 </div>
 
@@ -170,6 +169,7 @@
   .title img { width: 1.28rem; height: 1.28rem; border-radius: .28rem; object-fit: cover; image-rendering: pixelated; }
   .title-spacer { min-width: 4rem; }
   .content { position: relative; z-index: 1; min-height: 0; flex: 1; overflow: hidden; }
+  .glass-window.maximized .content > :global(div) { width:100%; height:100%; }
 
   @keyframes window-in {
     from { opacity: 0; transform: translateY(14px) scale(.965); }

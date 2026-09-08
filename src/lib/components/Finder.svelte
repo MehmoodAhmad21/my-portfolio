@@ -192,20 +192,14 @@
     <header class="toolbar">
       <div class="history-controls">
         <button on:click={goBack} disabled={!selectedProject && !selectedRole} aria-label="Back">‹</button>
-        <button disabled aria-label="Forward">›</button>
       </div>
       <strong class="folder-title">{windowTitle}</strong>
       <div class="toolbar-spacer"></div>
       <div class="view-controls" aria-label="View options">
         <button class:active={viewMode === 'icons'} on:click={() => viewMode = 'icons'} aria-label="Icon view">▦</button>
         <button class:active={viewMode === 'list'} on:click={() => viewMode = 'list'} aria-label="List view">☷</button>
-        <button disabled aria-label="Column view">▥</button>
-        <button disabled aria-label="Gallery view">▰</button>
       </div>
-      <button class="tool-button" aria-label="Group items">⌗</button>
-      <button class="tool-button" aria-label="Share">⇧</button>
-      <button class="tool-button" aria-label="More options">•••</button>
-      <a class="search-button" href={`${base}/mehmood-ahmad-resume.pdf`} target="_blank" aria-label="Open resume">⌕</a>
+      <a class="search-button" href={`${base}/mehmood-ahmad-resume.pdf`} target="_blank" aria-label="Open résumé PDF">↓</a>
     </header>
 
     <div class="viewport">
@@ -436,14 +430,14 @@
   .browser { background: rgba(43,43,45,.97); }
   .toolbar { min-height: 3.65rem; gap: .7rem; padding: 0 .9rem; border-bottom: 1px solid rgba(255,255,255,.08); background: rgba(41,41,43,.96); }
   .history-controls, .view-controls { display: flex; align-items: center; overflow: hidden; border: 1px solid rgba(255,255,255,.1); border-radius: .72rem; background: rgba(0,0,0,.1); }
-  .history-controls button, .view-controls button, .tool-button, .search-button { display: grid; width: 2.2rem; height: 2rem; padding: 0; place-items: center; border: 0; color: #dadadd; background: transparent; font-size: 1.13rem; text-decoration: none; cursor: pointer; }
-  .history-controls button + button, .view-controls button + button { border-left: 1px solid rgba(255,255,255,.09); }
+  .history-controls button, .view-controls button, .search-button { display: grid; width: 2.2rem; height: 2rem; padding: 0; place-items: center; border: 0; color: #dadadd; background: transparent; font-size: 1.13rem; text-decoration: none; cursor: pointer; }
+  .view-controls button + button { border-left: 1px solid rgba(255,255,255,.09); }
   .history-controls button:disabled, .view-controls button:disabled { color: #66666a; cursor: default; }
-  .history-controls button:not(:disabled):hover, .view-controls button:not(:disabled):hover, .tool-button:hover, .search-button:hover { background: rgba(255,255,255,.08); }
+  .history-controls button:not(:disabled):hover, .view-controls button:not(:disabled):hover, .search-button:hover { background: rgba(255,255,255,.08); }
   .view-controls button.active { color: white; background: #555559; box-shadow: inset 0 1px 0 rgba(255,255,255,.1); }
   .folder-title { margin-left: .25rem; color: #f5f5f6; font-size: .94rem; font-weight: 670; letter-spacing: -.01em; }
   .toolbar-spacer { flex: 1; }
-  .tool-button, .search-button { border: 1px solid rgba(255,255,255,.1); border-radius: .72rem; background: rgba(0,0,0,.1); font-size: .94rem; }
+  .search-button { border: 1px solid rgba(255,255,255,.1); border-radius: .72rem; background: rgba(0,0,0,.1); font-size: .94rem; }
   .search-button { font-size: 1.35rem; }
 
   .viewport { background: #29292b; scrollbar-color: #66666a transparent; }
@@ -513,14 +507,12 @@
   .primary-link { border: 0; border-radius: .5rem; box-shadow: none; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
 
   @media (max-width: 760px) {
-    .finder { grid-template-columns: 1fr; }
+    .finder { grid-template-columns: 1fr; grid-template-rows:auto minmax(0,1fr); }
     aside { display: flex; overflow-x: auto; gap: .3rem; padding: .5rem; border-right: 0; border-bottom: 1px solid rgba(255,255,255,.1); }
-    aside .section-label, aside a { display: none; }
+    aside .section-label, aside a, .sidebar-user { display: none; }
     aside button { width: auto; flex: 1 0 auto; justify-content: center; padding: .52rem; font-size: .72rem; }
     .toolbar { min-height: 2.75rem; padding: 0 .65rem; }
     .feature-grid.finder-icons { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 1rem; }
-    .tool-button { display: none; }
-    .view-controls button:nth-child(n+3) { display: none; }
     .feature-card { min-height: 10rem; }
     .publication { grid-template-columns: auto 1fr; }
     .publication > a { display: none; }
